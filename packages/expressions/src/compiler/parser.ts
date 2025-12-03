@@ -116,6 +116,12 @@ export class Parser extends BaseParser<TokenType, ExpressionNode, ExpressionAST>
         this.advance();
         return AST.ref(token.value);
 
+      case "LBRACE":
+        return this.parseObject();
+
+      case "LBRACKET":
+        return this.parseArray();
+
       case "IDENTIFIER":
         // Could be a predicate expression like 'id == $event.itemId'
         // or just an unquoted string identifier
@@ -130,6 +136,78 @@ export class Parser extends BaseParser<TokenType, ExpressionNode, ExpressionAST>
       default:
         throw new Error(`Unexpected token '${token.value}' at position ${token.position}`);
     }
+  }
+
+  private parseObject(): ArgumentNode {
+    this.consume("LBRACE", "Expected '{'");
+
+    const properties: Record<string, ArgumentNode> = {};
+
+    // Handle empty object
+    if (this.check("RBRACE")) {
+      this.advance();
+      return AST.object(properties);
+    }
+
+    // Parse key-value pairs
+    while (!this.check("RBRACE") && !this.isAtEnd()) {
+      // Parse key (identifier or string)
+      const keyToken = this.peek();
+      let key: string;
+
+      if (keyToken.type === "IDENTIFIER" || keyToken.type === "PATH") {
+        key = keyToken.value;
+        this.advance();
+      } else if (keyToken.type === "STRING") {
+        key = keyToken.value;
+        this.advance();
+      } else {
+        throw new Error(`Expected property key at position ${keyToken.position}`);
+      }
+
+      // Expect colon
+      this.consume("COLON", `Expected ':' after property key '${key}'`);
+
+      // Parse value
+      properties[key] = this.parseArgument();
+
+      // Handle comma or end
+      if (this.check("COMMA")) {
+        this.advance();
+      } else if (!this.check("RBRACE")) {
+        throw new Error(`Expected ',' or '}' at position ${this.peek().position}`);
+      }
+    }
+
+    this.consume("RBRACE", "Expected '}'");
+    return AST.object(properties);
+  }
+
+  private parseArray(): ArgumentNode {
+    this.consume("LBRACKET", "Expected '['");
+
+    const elements: ArgumentNode[] = [];
+
+    // Handle empty array
+    if (this.check("RBRACKET")) {
+      this.advance();
+      return AST.array(elements);
+    }
+
+    // Parse elements
+    while (!this.check("RBRACKET") && !this.isAtEnd()) {
+      elements.push(this.parseArgument());
+
+      // Handle comma or end
+      if (this.check("COMMA")) {
+        this.advance();
+      } else if (!this.check("RBRACKET")) {
+        throw new Error(`Expected ',' or ']' at position ${this.peek().position}`);
+      }
+    }
+
+    this.consume("RBRACKET", "Expected ']'");
+    return AST.array(elements);
   }
 }
 

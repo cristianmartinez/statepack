@@ -3,6 +3,16 @@ export interface LiteralNode {
   value: string | number | boolean | null;
 }
 
+export interface ObjectNode {
+  type: "object";
+  properties: Record<string, ArgumentNode>;
+}
+
+export interface ArrayNode {
+  type: "array";
+  elements: ArgumentNode[];
+}
+
 export interface PathNode {
   type: "path";
   value: string;
@@ -14,7 +24,7 @@ export interface RefNode {
   path: string;
 }
 
-export type ValueNode = LiteralNode | PathNode | RefNode;
+export type ValueNode = LiteralNode | PathNode | RefNode | ObjectNode | ArrayNode;
 
 export interface TransformNode {
   type: "transform";
@@ -22,7 +32,7 @@ export interface TransformNode {
   args: ArgumentNode[];
 }
 
-export type ArgumentNode = LiteralNode | RefNode | ExpressionNode;
+export type ArgumentNode = LiteralNode | RefNode | ObjectNode | ArrayNode | ExpressionNode;
 
 export interface PipeNode {
   type: "pipe";
@@ -72,6 +82,16 @@ export const AST = {
   literal: (value: string | number | boolean | null): LiteralNode => ({
     type: "literal",
     value,
+  }),
+
+  object: (properties: Record<string, ArgumentNode>): ObjectNode => ({
+    type: "object",
+    properties,
+  }),
+
+  array: (elements: ArgumentNode[]): ArrayNode => ({
+    type: "array",
+    elements,
   }),
 
   path: (value: string, optional = false): PathNode => ({

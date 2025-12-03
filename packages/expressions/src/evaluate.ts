@@ -191,6 +191,20 @@ function resolveArg(arg: ArgumentNode, scope: Scope): unknown {
     return arg.value;
   }
 
+  // Handle object literals
+  if (arg.type === "object") {
+    const result: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(arg.properties)) {
+      result[key] = resolveArg(value, scope);
+    }
+    return result;
+  }
+
+  // Handle array literals
+  if (arg.type === "array") {
+    return arg.elements.map((el) => resolveArg(el, scope));
+  }
+
   if (isRefNode(arg)) {
     const path = arg.path;
     if (path.includes("|")) {

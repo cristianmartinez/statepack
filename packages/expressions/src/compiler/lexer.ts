@@ -6,6 +6,7 @@ export type TokenType =
   | "PATH"
   | "PIPE"
   | "COLON"
+  | "COMMA"
   | "STRING"
   | "NUMBER"
   | "BOOLEAN"
@@ -16,6 +17,8 @@ export type TokenType =
   | "RPAREN"
   | "LBRACKET"
   | "RBRACKET"
+  | "LBRACE"
+  | "RBRACE"
   | "EOF";
 
 export class Lexer extends BaseLexer<TokenType> {
@@ -65,6 +68,24 @@ export class Lexer extends BaseLexer<TokenType> {
 
       if (char === "]") {
         this.addToken("RBRACKET", "]");
+        this.advance();
+        continue;
+      }
+
+      if (char === "{") {
+        this.addToken("LBRACE", "{");
+        this.advance();
+        continue;
+      }
+
+      if (char === "}") {
+        this.addToken("RBRACE", "}");
+        this.advance();
+        continue;
+      }
+
+      if (char === ",") {
+        this.addToken("COMMA", ",");
         this.advance();
         continue;
       }
