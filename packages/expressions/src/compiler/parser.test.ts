@@ -280,4 +280,41 @@ describe("parser", () => {
       }
     }
   });
+
+  test("compiles exact todo demo expression", () => {
+    // This is the exact expression from the todo demo app
+    const result = compile(
+      "context.todos | append: {id: '' | id, text: context.input, completed: false}"
+    );
+
+    expect(result.ast.type).toBe("pipe");
+    if (result.ast.type === "pipe") {
+      // Should have one transform: append
+      expect(result.ast.transforms).toHaveLength(1);
+      expect(result.ast.transforms[0]?.name).toBe("append");
+
+      // The argument should be an object
+      const objectArg = result.ast.transforms[0]!.args[0]!;
+      expect(objectArg.type).toBe("object");
+
+      if (objectArg.type === "object") {
+        // id property should be a pipe expression: '' | id
+        const idProp = objectArg.properties.id;
+        expect(idProp?.type).toBe("pipe");
+        if (idProp?.type === "pipe") {
+          expect(idProp.source.value).toBe("");
+          expect(idProp.transforms).toHaveLength(1);
+          expect(idProp.transforms[0]?.name).toBe("id");
+        }
+
+        // text property should be a literal: context.input
+        const textProp = objectArg.properties.text;
+        expect(textProp).toEqual({ type: "literal", value: "context.input" });
+
+        // completed property should be a literal: false
+        const completedProp = objectArg.properties.completed;
+        expect(completedProp).toEqual({ type: "literal", value: false });
+      }
+    }
+  });
 });
