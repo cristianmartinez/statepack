@@ -66,6 +66,13 @@ export class Parser extends BaseParser<TokenType, ExpressionNode, ExpressionAST>
       return AST.path(token.value);
     }
 
+    // Allow literals as source for utility transforms like '' | id
+    if (token.type === "STRING" || token.type === "NUMBER" || token.type === "BOOLEAN" || token.type === "NULL") {
+      this.advance();
+      // Create a path with the literal value as a string
+      return AST.path(String(token.value));
+    }
+
     throw new Error(`Expected path at position ${token.position}, got ${token.type}`);
   }
 

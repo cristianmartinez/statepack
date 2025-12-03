@@ -6,6 +6,7 @@ import { numberTransforms } from "./number";
 import { objectTransforms } from "./object";
 import { predicateTransforms } from "./predicate";
 import { stringTransforms } from "./string";
+import { utilityTransforms } from "./utility";
 
 /**
  * All built-in transforms
@@ -18,6 +19,7 @@ export const builtinTransforms: TransformRegistry = {
   ...objectTransforms,
   ...booleanTransforms,
   ...predicateTransforms,
+  ...utilityTransforms,
 };
 
 export {
@@ -28,4 +30,5 @@ export {
   objectTransforms,
   booleanTransforms,
   predicateTransforms,
+  utilityTransforms,
 };
