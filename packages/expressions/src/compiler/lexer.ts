@@ -1,3 +1,5 @@
+import { BaseLexer, type Token } from "@ouni/compiler";
+
 export type TokenType =
   | "PATH"
   | "PIPE"
@@ -14,22 +16,8 @@ export type TokenType =
   | "RBRACKET"
   | "EOF";
 
-export interface Token {
-  type: TokenType;
-  value: string;
-  position: number;
-}
-
-export class Lexer {
-  private input: string;
-  private position = 0;
-  private tokens: Token[] = [];
-
-  constructor(input: string) {
-    this.input = input.trim();
-  }
-
-  tokenize(): Token[] {
+export class Lexer extends BaseLexer<TokenType> {
+  tokenize(): Token<TokenType>[] {
     this.tokens = [];
     this.position = 0;
 
@@ -42,6 +30,7 @@ export class Lexer {
 
       const char = this.peek();
 
+      // Domain-specific single-character tokens
       if (char === "|") {
         this.addToken("PIPE", "|");
         this.advance();
@@ -78,21 +67,27 @@ export class Lexer {
         continue;
       }
 
+      // String literals - use inherited method
       if (char === "'" || char === '"') {
-        this.readString(char);
+        const value = this.readString(char);
+        this.addToken("STRING", value);
         continue;
       }
 
+      // References starting with $ (domain-specific)
       if (char === "$") {
         this.readRef();
         continue;
       }
 
+      // Numbers - use inherited method
       if (this.isDigit(char) || (char === "-" && this.isDigit(this.peekNext()))) {
-        this.readNumber();
+        const value = this.readNumber();
+        this.addToken("NUMBER", value);
         continue;
       }
 
+      // Identifiers/paths - domain-specific logic
       if (this.isIdentifierStart(char)) {
         this.readIdentifierOrPath();
         continue;
@@ -105,125 +100,12 @@ export class Lexer {
     return this.tokens;
   }
 
-  private peek(): string {
-    return this.input[this.position] ?? "";
-  }
-
-  private peekNext(): string {
-    return this.input[this.position + 1] ?? "";
-  }
-
-  private advance(): string {
-    return this.input[this.position++] ?? "";
-  }
-
-  private addToken(type: TokenType, value: string): void {
-    this.tokens.push({
-      type,
-      value,
-      position: this.position - value.length,
-    });
-  }
-
-  private skipWhitespace(): void {
-    while (this.position < this.input.length && /\s/.test(this.input[this.position]!)) {
-      this.position++;
-    }
-  }
-
-  private isDigit(char: string): boolean {
-    return char >= "0" && char <= "9";
-  }
-
-  private isIdentifierStart(char: string): boolean {
-    return /[a-zA-Z_]/.test(char);
-  }
-
-  private isIdentifierChar(char: string): boolean {
-    return /[a-zA-Z0-9_]/.test(char);
-  }
-
-  private readString(quote: string): void {
-    const startPos = this.position;
-    this.advance();
-
-    let value = "";
-    while (this.position < this.input.length) {
-      const char = this.peek();
-
-      if (char === "\\") {
-        this.advance();
-        const escaped = this.advance();
-        switch (escaped) {
-          case "n":
-            value += "\n";
-            break;
-          case "t":
-            value += "\t";
-            break;
-          case "r":
-            value += "\r";
-            break;
-          case "\\":
-            value += "\\";
-            break;
-          case "'":
-            value += "'";
-            break;
-          case '"':
-            value += '"';
-            break;
-          default:
-            value += escaped;
-        }
-        continue;
-      }
-
-      if (char === quote) {
-        this.advance();
-        this.tokens.push({
-          type: "STRING",
-          value,
-          position: startPos,
-        });
-        return;
-      }
-
-      value += this.advance();
-    }
-
-    throw new Error(`Unterminated string starting at position ${startPos}`);
-  }
-
-  private readNumber(): void {
-    const startPos = this.position;
-    let value = "";
-
-    if (this.peek() === "-") {
-      value += this.advance();
-    }
-
-    while (this.isDigit(this.peek())) {
-      value += this.advance();
-    }
-
-    if (this.peek() === "." && this.isDigit(this.peekNext())) {
-      value += this.advance();
-      while (this.isDigit(this.peek())) {
-        value += this.advance();
-      }
-    }
-
-    this.tokens.push({
-      type: "NUMBER",
-      value,
-      position: startPos,
-    });
-  }
-
+  /**
+   * Read a reference starting with $ (domain-specific)
+   */
   private readRef(): void {
     const startPos = this.position;
-    this.advance();
+    this.advance(); // Skip $
 
     let path = "";
     while (
@@ -246,13 +128,13 @@ export class Lexer {
       }
     }
 
-    this.tokens.push({
-      type: "REF",
-      value: path,
-      position: startPos,
-    });
+    this.addToken("REF", path);
   }
 
+  /**
+   * Read identifier or path (domain-specific)
+   * Handles dots and bracket notation for property access
+   */
   private readIdentifierOrPath(): void {
     const startPos = this.position;
     let value = "";
@@ -279,34 +161,23 @@ export class Lexer {
       break;
     }
 
+    // Check for keywords
     if (value === "true" || value === "false") {
-      this.tokens.push({
-        type: "BOOLEAN",
-        value,
-        position: startPos,
-      });
+      this.addToken("BOOLEAN", value);
       return;
     }
 
     if (value === "null") {
-      this.tokens.push({
-        type: "NULL",
-        value,
-        position: startPos,
-      });
+      this.addToken("NULL", value);
       return;
     }
 
+    // Determine if it's a PATH or simple IDENTIFIER
     const tokenType = value.includes(".") || value.includes("[") ? "PATH" : "IDENTIFIER";
-
-    this.tokens.push({
-      type: tokenType,
-      value,
-      position: startPos,
-    });
+    this.addToken(tokenType, value);
   }
 }
 
-export function tokenize(expression: string): Token[] {
+export function tokenize(expression: string): Token<TokenType>[] {
   return new Lexer(expression).tokenize();
 }

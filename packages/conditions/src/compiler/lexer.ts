@@ -1,3 +1,5 @@
+import { BaseLexer, type Token } from "@ouni/compiler";
+
 export type TokenType =
   | "IDENTIFIER"
   | "NUMBER"
@@ -10,22 +12,12 @@ export type TokenType =
   | "COMMA"
   | "EOF";
 
-export interface Token {
-  type: TokenType;
-  value: string;
-  position: number;
-}
-
-export class Lexer {
-  private input: string;
-  private position = 0;
-  private tokens: Token[] = [];
-
+export class Lexer extends BaseLexer<TokenType> {
   constructor(input: string) {
-    this.input = input.trim();
+    super(input.trim());
   }
 
-  tokenize(): Token[] {
+  tokenize(): Token<TokenType>[] {
     this.tokens = [];
     this.position = 0;
 
@@ -57,7 +49,8 @@ export class Lexer {
       }
 
       if (char === "'" || char === '"') {
-        this.readString(char);
+        const value = this.readString(char);
+        this.addToken("STRING", value);
         continue;
       }
 
@@ -67,12 +60,13 @@ export class Lexer {
       }
 
       if (this.isDigit(char) || (char === "-" && this.isDigit(this.peekNext()))) {
-        this.readNumber();
+        const value = this.readNumber();
+        this.addToken("NUMBER", value);
         continue;
       }
 
       if (this.isIdentifierStart(char)) {
-        this.readIdentifier();
+        this.readIdentifierOrKeyword();
         continue;
       }
 
@@ -81,44 +75,6 @@ export class Lexer {
 
     this.addToken("EOF", "");
     return this.tokens;
-  }
-
-  private peek(): string {
-    return this.input[this.position] ?? "";
-  }
-
-  private peekNext(): string {
-    return this.input[this.position + 1] ?? "";
-  }
-
-  private advance(): string {
-    return this.input[this.position++] ?? "";
-  }
-
-  private addToken(type: TokenType, value: string): void {
-    this.tokens.push({
-      type,
-      value,
-      position: this.position - value.length,
-    });
-  }
-
-  private skipWhitespace(): void {
-    while (this.position < this.input.length && /\s/.test(this.input[this.position]!)) {
-      this.position++;
-    }
-  }
-
-  private isDigit(char: string): boolean {
-    return char >= "0" && char <= "9";
-  }
-
-  private isIdentifierStart(char: string): boolean {
-    return /[a-zA-Z_$]/.test(char);
-  }
-
-  private isIdentifierChar(char: string): boolean {
-    return /[a-zA-Z0-9_$.]/.test(char);
   }
 
   private matchOperator(): boolean {
@@ -155,120 +111,25 @@ export class Lexer {
     return false;
   }
 
-  private readString(quote: string): void {
-    const startPos = this.position;
-    this.advance(); // Skip opening quote
-
-    let value = "";
-    while (this.position < this.input.length) {
-      const char = this.peek();
-
-      if (char === "\\") {
-        this.advance();
-        const escaped = this.advance();
-        switch (escaped) {
-          case "n":
-            value += "\n";
-            break;
-          case "t":
-            value += "\t";
-            break;
-          case "r":
-            value += "\r";
-            break;
-          case "\\":
-            value += "\\";
-            break;
-          case "'":
-            value += "'";
-            break;
-          case '"':
-            value += '"';
-            break;
-          default:
-            value += escaped;
-        }
-        continue;
-      }
-
-      if (char === quote) {
-        this.advance(); // Skip closing quote
-        this.tokens.push({
-          type: "STRING",
-          value,
-          position: startPos,
-        });
-        return;
-      }
-
-      value += this.advance();
-    }
-
-    throw new Error(`Unterminated string starting at position ${startPos}`);
-  }
-
-  private readNumber(): void {
-    const startPos = this.position;
-    let value = "";
-
-    if (this.peek() === "-") {
-      value += this.advance();
-    }
-
-    while (this.isDigit(this.peek())) {
-      value += this.advance();
-    }
-
-    if (this.peek() === "." && this.isDigit(this.peekNext())) {
-      value += this.advance(); // Add decimal point
-      while (this.isDigit(this.peek())) {
-        value += this.advance();
-      }
-    }
-
-    this.tokens.push({
-      type: "NUMBER",
-      value,
-      position: startPos,
-    });
-  }
-
-  private readIdentifier(): void {
-    const startPos = this.position;
-    let value = "";
-
-    while (this.position < this.input.length && this.isIdentifierChar(this.peek())) {
-      value += this.advance();
-    }
+  private readIdentifierOrKeyword(): void {
+    const value = this.readIdentifier();
 
     // Check for keywords
     if (value === "true" || value === "false") {
-      this.tokens.push({
-        type: "BOOLEAN",
-        value,
-        position: startPos,
-      });
+      this.addToken("BOOLEAN", value);
       return;
     }
 
     if (value === "null") {
-      this.tokens.push({
-        type: "NULL",
-        value,
-        position: startPos,
-      });
+      this.addToken("NULL", value);
       return;
     }
 
     // Regular identifier (function name or path)
-    this.tokens.push({
-      type: "IDENTIFIER",
-      value,
-      position: startPos,
-    });
+    this.addToken("IDENTIFIER", value);
   }
 }
 
-export function tokenize(expression: string): Token[] {
+export function tokenize(expression: string): Token<TokenType>[] {
   return new Lexer(expression).tokenize();
 }

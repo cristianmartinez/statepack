@@ -10,17 +10,14 @@
  * 5. Function calls, parentheses
  */
 
+import { BaseParser } from "@ouni/compiler";
 import type { CompareOp, Condition, Value } from "../types";
 import { AST, type CompiledCondition } from "./ast";
-import { Lexer, type Token, type TokenType } from "./lexer";
+import { Lexer, type TokenType } from "./lexer";
 
-export class Parser {
-  private tokens: Token[] = [];
-  private position = 0;
-  private source: string;
-
+export class Parser extends BaseParser<TokenType, Condition, CompiledCondition> {
   constructor(source: string) {
-    this.source = source;
+    super(source);
   }
 
   /**
@@ -227,59 +224,5 @@ export class Parser {
           `Unexpected token '${token.value}' at position ${token.position}. Expected a value.`
         );
     }
-  }
-
-  /**
-   * Check if current token matches type and optional value
-   */
-  private check(type: TokenType, value?: string): boolean {
-    if (this.isAtEnd()) return false;
-    const token = this.peek();
-    return token.type === type && (value === undefined || token.value === value);
-  }
-
-  /**
-   * Check if current token matches, and consume if it does
-   */
-  private match(type: TokenType, value?: string): boolean {
-    if (this.check(type, value)) {
-      this.advance();
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Consume a token or throw error
-   */
-  private consume(type: TokenType, message: string): Token {
-    if (this.check(type)) return this.advance();
-
-    const token = this.peek();
-    throw new Error(`${message} at position ${token.position}. Got '${token.value}' instead.`);
-  }
-
-  /**
-   * Get current token without advancing
-   */
-  private peek(): Token {
-    return this.tokens[this.position] ?? { type: "EOF", value: "", position: this.source.length };
-  }
-
-  /**
-   * Get current token and advance
-   */
-  private advance(): Token {
-    if (!this.isAtEnd()) {
-      this.position++;
-    }
-    return this.tokens[this.position - 1]!;
-  }
-
-  /**
-   * Check if we're at end of tokens
-   */
-  private isAtEnd(): boolean {
-    return this.peek().type === "EOF";
   }
 }

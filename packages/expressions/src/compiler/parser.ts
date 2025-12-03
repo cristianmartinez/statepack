@@ -5,6 +5,7 @@
  * that can be serialized, validated, and evaluated.
  */
 
+import { BaseParser } from "@ouni/compiler";
 import {
   type ArgumentNode,
   AST,
@@ -13,15 +14,11 @@ import {
   type PathNode,
   type TransformNode,
 } from "./ast";
-import { Lexer, type Token, type TokenType } from "./lexer";
+import { Lexer, type TokenType } from "./lexer";
 
-export class Parser {
-  private tokens: Token[] = [];
-  private position = 0;
-  private source: string;
-
+export class Parser extends BaseParser<TokenType, ExpressionNode, ExpressionAST> {
   constructor(source: string) {
-    this.source = source;
+    super(source);
   }
 
   /**
@@ -133,40 +130,6 @@ export class Parser {
       default:
         throw new Error(`Unexpected token '${token.value}' at position ${token.position}`);
     }
-  }
-
-  private peek(): Token {
-    return this.tokens[this.position] ?? { type: "EOF", value: "", position: this.source.length };
-  }
-
-  private advance(): Token {
-    if (!this.isAtEnd()) {
-      this.position++;
-    }
-    return this.tokens[this.position - 1]!;
-  }
-
-  private isAtEnd(): boolean {
-    return this.peek().type === "EOF";
-  }
-
-  private check(type: TokenType): boolean {
-    return this.peek().type === type;
-  }
-
-  private match(type: TokenType): boolean {
-    if (this.check(type)) {
-      this.advance();
-      return true;
-    }
-    return false;
-  }
-
-  private consume(type: TokenType, message: string): Token {
-    if (this.check(type)) {
-      return this.advance();
-    }
-    throw new Error(`${message} at position ${this.peek().position}`);
   }
 }
 

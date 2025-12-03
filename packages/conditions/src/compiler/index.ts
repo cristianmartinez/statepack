@@ -32,5 +32,6 @@ export function compileToAST(expr: string): Condition {
 export { tokenize, Lexer } from "./lexer";
 export { Parser } from "./parser";
 export { AST } from "./ast";
-export type { Token, TokenType } from "./lexer";
+export type { TokenType } from "./lexer";
+export type { Token } from "@ouni/compiler";
 export type { CompiledCondition } from "./ast";
