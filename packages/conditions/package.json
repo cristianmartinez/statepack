@@ -12,9 +12,6 @@
     "test": "bun test",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {
-    "@ouni/compiler": "workspace:*"
-  },
   "devDependencies": {
     "typescript": "^5"
   }

@@ -1,10 +1,6 @@
 // Types
 
-// Compiler (string expression to Condition AST)
-export { compile, compileToAST, AST, Lexer, Parser, tokenize } from "./compiler";
-export type { CompiledCondition, Token, TokenType } from "./compiler";
-
-// Legacy parser (use compiler instead)
+// Parser (string expression to Condition JSON)
 export { parseExpression } from "./parse";
 
 // Evaluator
