@@ -113,8 +113,22 @@ describe("Interpreter", () => {
       initial: "idle",
       context: { value: 5 },
       guards: {
-        isPositive: { condition: "context.value > 0" },
-        isNegative: { condition: "context.value < 0" },
+        isPositive: {
+          condition: {
+            type: "compare",
+            op: ">",
+            left: { type: "ref", path: "context.value" },
+            right: { type: "literal", value: 0 },
+          },
+        },
+        isNegative: {
+          condition: {
+            type: "compare",
+            op: "<",
+            left: { type: "ref", path: "context.value" },
+            right: { type: "literal", value: 0 },
+          },
+        },
       },
       states: {
         idle: {

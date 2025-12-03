@@ -1,6 +1,5 @@
 import {
   evaluate as evaluateCondition,
-  parseExpression,
   type Condition,
   type Scope,
   type StateValue,
@@ -18,19 +17,12 @@ export interface GuardContext {
   };
 }
 
-function evaluateStringCondition(
-  expr: string,
+function evaluateConditionObject(
+  condition: Condition,
   ctx: GuardContext,
-  compiled?: CompiledCache
+  _compiled?: CompiledCache
 ): boolean {
-  // Check compiled cache first
-  const cached = compiled?.guards.get(expr);
-  if (cached) {
-    return evaluateCondition(cached.ast, ctx as Scope);
-  }
-
-  // Fallback to runtime parse (backward compatible)
-  const condition = parseExpression(expr);
+  // Conditions are now JSON objects, evaluated directly
   return evaluateCondition(condition, ctx as Scope);
 }
 
@@ -48,13 +40,14 @@ export function evaluateGuard(
       console.warn(`Guard "${guard}" not found`);
       return false;
     }
-    return evaluateStringCondition(namedGuard.condition, ctx, compiled);
+    return evaluateConditionObject(namedGuard.condition, ctx, compiled);
   }
 
   const guardObj = guard as Record<string, unknown>;
 
-  if ("condition" in guardObj && typeof guardObj.condition === "string") {
-    return evaluateStringCondition(guardObj.condition, ctx, compiled);
+  if ("condition" in guardObj) {
+    // Condition is now a Condition object, not a string
+    return evaluateConditionObject(guardObj.condition as Condition, ctx, compiled);
   }
 
   if ("and" in guardObj && Array.isArray(guardObj.and)) {

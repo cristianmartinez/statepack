@@ -24,9 +24,6 @@ export {
   EvaluatorOptionsSchema,
 } from "./schema";
 
-// Parser (string expression to Condition JSON)
-export { parseExpression } from "./parse";
-
 // Evaluator
 export { createEvaluator, evaluate } from "./evaluate";
 export type { BuiltinFunction } from "./functions";

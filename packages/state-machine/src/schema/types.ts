@@ -1,13 +1,15 @@
+import { ConditionSchema } from "@ouni/conditions";
 import { z } from "zod";
 
 /**
  * Simple Guard Schema (inline guards use condition, compound use and/or/not)
  * Note: Recursive guards are validated at runtime, not compile time
+ * Guards now use Condition objects from @ouni/conditions instead of strings
  */
 export const GuardSchema = z.union([
   z.string(), // Reference to named guard
   z.object({
-    condition: z.string(), // Expression to evaluate
+    condition: ConditionSchema, // Condition object to evaluate
   }),
   z.object({
     and: z.array(z.union([z.string(), z.any()])), // Array of guards
@@ -298,9 +300,10 @@ export const StateNodeSchema: z.ZodType<StateNode> = z.lazy(() =>
 
 /**
  * Guard Definition Schema
+ * Guards now use Condition objects from @ouni/conditions instead of strings
  */
 export const GuardDefinitionSchema = z.object({
-  condition: z.string(),
+  condition: ConditionSchema,
 });
 
 export type GuardDefinition = z.infer<typeof GuardDefinitionSchema>;

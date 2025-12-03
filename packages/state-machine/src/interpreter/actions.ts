@@ -1,25 +1,18 @@
-import { evaluate as evalCondition, parseExpression } from "@ouni/conditions";
+import { evaluate as evalCondition, type Condition } from "@ouni/conditions";
 import { evaluate as evaluateExpression, evaluateCompiledTemplate } from "@ouni/expressions";
 import type { CompiledCache } from "../compiler/types";
 import type { Action, Actions } from "../schema/types";
 import type { Event } from "./state";
 
 /**
- * Evaluate a string condition expression using the conditions package
+ * Evaluate a condition object using the conditions package
  */
 function evaluateCondition(
-  expr: string,
+  condition: Condition,
   ctx: { context: Record<string, unknown>; event: Event },
-  compiled?: CompiledCache
+  _compiled?: CompiledCache
 ): boolean {
-  // Check compiled cache first
-  const cached = compiled?.guards.get(expr);
-  if (cached) {
-    return evalCondition(cached.ast, ctx);
-  }
-
-  // Fallback to runtime parse (backward compatible)
-  const condition = parseExpression(expr);
+  // Conditions are now JSON objects, evaluated directly
   return evalCondition(condition, ctx);
 }
 
