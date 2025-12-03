@@ -204,4 +204,80 @@ describe("parser", () => {
       }
     }
   });
+
+  test("compiles object with pipe expression in property value", () => {
+    const result = compile("context.todos | append: {id: '' | id, text: context.input}");
+    if (result.ast.type === "pipe") {
+      const transform = result.ast.transforms[0]!;
+      expect(transform.name).toBe("append");
+
+      const objectArg = transform.args[0]!;
+      expect(objectArg.type).toBe("object");
+
+      if (objectArg.type === "object") {
+        // id property should be a pipe expression
+        const idProp = objectArg.properties.id;
+        expect(idProp?.type).toBe("pipe");
+        if (idProp?.type === "pipe") {
+          expect(idProp.source.value).toBe("");
+          expect(idProp.transforms).toHaveLength(1);
+          expect(idProp.transforms[0]?.name).toBe("id");
+        }
+
+        // text property should be a literal
+        expect(objectArg.properties.text).toEqual({ type: "literal", value: "context.input" });
+      }
+    }
+  });
+
+  test("compiles object with multiple pipe expressions", () => {
+    const result = compile("context.items | map: {id: item.id | id, name: item.name | uppercase}");
+    if (result.ast.type === "pipe") {
+      const objectArg = result.ast.transforms[0]!.args[0]!;
+
+      if (objectArg.type === "object") {
+        // Both properties should be pipe expressions
+        const idProp = objectArg.properties.id;
+        expect(idProp?.type).toBe("pipe");
+        if (idProp?.type === "pipe") {
+          expect(idProp.transforms[0]?.name).toBe("id");
+        }
+
+        const nameProp = objectArg.properties.name;
+        expect(nameProp?.type).toBe("pipe");
+        if (nameProp?.type === "pipe") {
+          expect(nameProp.transforms[0]?.name).toBe("uppercase");
+        }
+      }
+    }
+  });
+
+  test("compiles array with pipe expressions", () => {
+    const result = compile("context.data | set: ['' | id, '' | now, item.name | uppercase]");
+    if (result.ast.type === "pipe") {
+      const arrayArg = result.ast.transforms[0]!.args[0]!;
+
+      if (arrayArg.type === "array") {
+        expect(arrayArg.elements).toHaveLength(3);
+
+        // First element: '' | id
+        expect(arrayArg.elements[0]?.type).toBe("pipe");
+        if (arrayArg.elements[0]?.type === "pipe") {
+          expect(arrayArg.elements[0].transforms[0]?.name).toBe("id");
+        }
+
+        // Second element: '' | now
+        expect(arrayArg.elements[1]?.type).toBe("pipe");
+        if (arrayArg.elements[1]?.type === "pipe") {
+          expect(arrayArg.elements[1].transforms[0]?.name).toBe("now");
+        }
+
+        // Third element: item.name | uppercase
+        expect(arrayArg.elements[2]?.type).toBe("pipe");
+        if (arrayArg.elements[2]?.type === "pipe") {
+          expect(arrayArg.elements[2].transforms[0]?.name).toBe("uppercase");
+        }
+      }
+    }
+  });
 });

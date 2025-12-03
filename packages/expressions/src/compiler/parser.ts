@@ -270,9 +270,9 @@ export class Parser extends BaseParser<TokenType, ExpressionNode, ExpressionAST>
       return AST.array(elements);
     }
 
-    // Parse elements
+    // Parse elements (can be expressions with pipes)
     while (!this.check("RBRACKET") && !this.isAtEnd()) {
-      elements.push(this.parseArgument());
+      elements.push(this.parseValueExpression());
 
       // Handle comma or end
       if (this.check("COMMA")) {
