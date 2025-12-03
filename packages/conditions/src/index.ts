@@ -2,6 +2,7 @@
 export type {
   Condition,
   Scope,
+  StateValue,
   EvaluatorOptions,
   Value,
   RefValue,
@@ -25,6 +26,9 @@ export type {
 
 // Evaluator
 export { evaluate, createEvaluator } from "./evaluate.ts";
+
+// Parser (string expression to Condition)
+export { parseExpression } from "./parse.ts";
 
 // Utilities
 export { getPath, resolveValue, isEmpty, isPathLike } from "./utils.ts";

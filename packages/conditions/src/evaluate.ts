@@ -180,11 +180,16 @@ function evaluateState(condition: StateCondition, scope: Scope): boolean {
   if (!state) return false;
 
   if (condition.matches !== undefined) {
-    // Check if current state matches (supports nested states with dot notation)
+    // Use matches function if available (for hierarchical states)
+    if (state.matches) {
+      return state.matches(condition.matches);
+    }
+    // Fallback for simple string states
     const currentState = state.value;
-    if (condition.matches === currentState) return true;
-    // Check for nested state match (e.g., "authenticated.settings" matches "authenticated.settings.security")
-    if (currentState.startsWith(condition.matches + ".")) return true;
+    if (typeof currentState === "string") {
+      if (condition.matches === currentState) return true;
+      if (currentState.startsWith(condition.matches + ".")) return true;
+    }
     return false;
   }
 

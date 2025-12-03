@@ -1,0 +1,21 @@
+{
+  "name": "@ouni/state-machine",
+  "version": "0.0.1",
+  "description": "XState-inspired declarative state machine for mini-apps",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ouni/conditions": "workspace:*",
+    "@ouni/expressions": "workspace:*",
+    "@sinclair/typebox": "^0.34.41"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.0.0"
+  }
+}

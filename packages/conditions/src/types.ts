@@ -116,6 +116,9 @@ export type Condition =
   | StateCondition
   | NamedCondition;
 
+// StateValue type for hierarchical states
+export type StateValue = string | { [key: string]: StateValue };
+
 // Scope for evaluation
 export interface Scope {
   context?: Record<string, unknown>;
@@ -125,8 +128,9 @@ export interface Scope {
   item?: unknown;
   index?: number;
   state?: {
-    value: string;
+    value: StateValue;
     tags?: string[];
+    matches?: (pattern: string) => boolean;
   };
 }
 

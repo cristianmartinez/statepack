@@ -1,0 +1,31 @@
+export {
+  GuardSchema,
+  ActionSchema,
+  ActionsSchema,
+  TransitionSchema,
+  TransitionsSchema,
+  InvokeSchema,
+  StateNodeSchema,
+  GuardDefinitionSchema,
+  MachineSchema,
+  MiniAppSchema,
+  type Action,
+  type Actions,
+  type Transition,
+  type Transitions,
+  type Invoke,
+  type StateNode,
+  type GuardDefinition,
+  type Machine,
+  type MiniApp,
+} from "./types.ts";
+
+export {
+  validateMachine,
+  validateMiniApp,
+  isMachine,
+  isMiniApp,
+  assertMachine,
+  assertMiniApp,
+  type ValidationResult,
+} from "./validate.ts";
