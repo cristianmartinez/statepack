@@ -94,4 +94,114 @@ describe("parser", () => {
     expect(node.type).toBe("pipe");
     expect("source" in node).toBe(true);
   });
+
+  test("compiles object literal with simple values", () => {
+    const result = compile("context.todos | append:{id: 1, text: 'Hello', completed: false}");
+    if (result.ast.type === "pipe") {
+      const transform = result.ast.transforms[0]!;
+      expect(transform.name).toBe("append");
+      expect(transform.args).toHaveLength(1);
+
+      const objectArg = transform.args[0]!;
+      expect(objectArg.type).toBe("object");
+      if (objectArg.type === "object") {
+        expect(objectArg.properties.id).toEqual({ type: "literal", value: 1 });
+        expect(objectArg.properties.text).toEqual({ type: "literal", value: "Hello" });
+        expect(objectArg.properties.completed).toEqual({ type: "literal", value: false });
+      }
+    }
+  });
+
+  test("compiles object literal with references", () => {
+    const result = compile("context.todos | append:{id: $eventId, text: $text}");
+    if (result.ast.type === "pipe") {
+      const transform = result.ast.transforms[0]!;
+      const objectArg = transform.args[0]!;
+
+      if (objectArg.type === "object") {
+        expect(objectArg.properties.id).toEqual({ type: "ref", path: "eventId" });
+        expect(objectArg.properties.text).toEqual({ type: "ref", path: "text" });
+      }
+    }
+  });
+
+  test("compiles nested object literals", () => {
+    const result = compile("context.data | set:{user: {name: 'Alice', age: 30}}");
+    if (result.ast.type === "pipe") {
+      const transform = result.ast.transforms[0]!;
+      const objectArg = transform.args[0]!;
+
+      if (objectArg.type === "object") {
+        const userProp = objectArg.properties.user;
+        expect(userProp?.type).toBe("object");
+        if (userProp?.type === "object") {
+          expect(userProp.properties.name).toEqual({ type: "literal", value: "Alice" });
+          expect(userProp.properties.age).toEqual({ type: "literal", value: 30 });
+        }
+      }
+    }
+  });
+
+  test("compiles array literal with simple values", () => {
+    const result = compile("context.items | concat:[1, 2, 3]");
+    if (result.ast.type === "pipe") {
+      const transform = result.ast.transforms[0]!;
+      expect(transform.args).toHaveLength(1);
+
+      const arrayArg = transform.args[0]!;
+      expect(arrayArg.type).toBe("array");
+      if (arrayArg.type === "array") {
+        expect(arrayArg.elements).toHaveLength(3);
+        expect(arrayArg.elements[0]).toEqual({ type: "literal", value: 1 });
+        expect(arrayArg.elements[1]).toEqual({ type: "literal", value: 2 });
+        expect(arrayArg.elements[2]).toEqual({ type: "literal", value: 3 });
+      }
+    }
+  });
+
+  test("compiles array literal with references", () => {
+    const result = compile("context.list | merge:[$item1, $item2]");
+    if (result.ast.type === "pipe") {
+      const transform = result.ast.transforms[0]!;
+      const arrayArg = transform.args[0]!;
+
+      if (arrayArg.type === "array") {
+        expect(arrayArg.elements[0]).toEqual({ type: "ref", path: "item1" });
+        expect(arrayArg.elements[1]).toEqual({ type: "ref", path: "item2" });
+      }
+    }
+  });
+
+  test("compiles empty object literal", () => {
+    const result = compile("context.data | merge:{}");
+    if (result.ast.type === "pipe") {
+      const objectArg = result.ast.transforms[0]!.args[0]!;
+      expect(objectArg.type).toBe("object");
+      if (objectArg.type === "object") {
+        expect(Object.keys(objectArg.properties)).toHaveLength(0);
+      }
+    }
+  });
+
+  test("compiles empty array literal", () => {
+    const result = compile("context.data | merge:[]");
+    if (result.ast.type === "pipe") {
+      const arrayArg = result.ast.transforms[0]!.args[0]!;
+      expect(arrayArg.type).toBe("array");
+      if (arrayArg.type === "array") {
+        expect(arrayArg.elements).toHaveLength(0);
+      }
+    }
+  });
+
+  test("compiles object with quoted string keys", () => {
+    const result = compile("context.data | set:{'first-name': 'John', 'last-name': 'Doe'}");
+    if (result.ast.type === "pipe") {
+      const objectArg = result.ast.transforms[0]!.args[0]!;
+      if (objectArg.type === "object") {
+        expect(objectArg.properties["first-name"]).toEqual({ type: "literal", value: "John" });
+        expect(objectArg.properties["last-name"]).toEqual({ type: "literal", value: "Doe" });
+      }
+    }
+  });
 });

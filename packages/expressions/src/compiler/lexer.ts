@@ -133,10 +133,7 @@ export class Lexer extends BaseLexer<TokenType> {
     let path = "";
     while (
       this.position < this.input.length &&
-      (this.isIdentifierChar(this.peek()) ||
-        this.peek() === "." ||
-        this.peek() === "[" ||
-        this.peek() === "]")
+      (this.isIdentifierChar(this.peek()) || this.peek() === "." || this.peek() === "[")
     ) {
       if (this.peek() === "[") {
         path += this.advance();
