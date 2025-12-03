@@ -31,26 +31,30 @@ export class Lexer extends BaseLexer<TokenType> {
       const char = this.peek();
 
       if (char === "(") {
-        this.addToken("LPAREN", "(");
+        const startPos = this.position;
         this.advance();
+        this.addToken("LPAREN", "(", startPos);
         continue;
       }
 
       if (char === ")") {
-        this.addToken("RPAREN", ")");
+        const startPos = this.position;
         this.advance();
+        this.addToken("RPAREN", ")", startPos);
         continue;
       }
 
       if (char === ",") {
-        this.addToken("COMMA", ",");
+        const startPos = this.position;
         this.advance();
+        this.addToken("COMMA", ",", startPos);
         continue;
       }
 
       if (char === "'" || char === '"') {
+        const startPos = this.position;
         const value = this.readString(char);
-        this.addToken("STRING", value);
+        this.addToken("STRING", value, startPos);
         continue;
       }
 
@@ -60,13 +64,15 @@ export class Lexer extends BaseLexer<TokenType> {
       }
 
       if (this.isDigit(char) || (char === "-" && this.isDigit(this.peekNext()))) {
+        const startPos = this.position;
         const value = this.readNumber();
-        this.addToken("NUMBER", value);
+        this.addToken("NUMBER", value, startPos);
         continue;
       }
 
       if (this.isIdentifierStart(char)) {
-        this.readIdentifierOrKeyword();
+        const startPos = this.position;
+        this.readIdentifierOrKeyword(startPos);
         continue;
       }
 
@@ -111,22 +117,22 @@ export class Lexer extends BaseLexer<TokenType> {
     return false;
   }
 
-  private readIdentifierOrKeyword(): void {
+  private readIdentifierOrKeyword(startPos: number): void {
     const value = this.readIdentifier();
 
     // Check for keywords
     if (value === "true" || value === "false") {
-      this.addToken("BOOLEAN", value);
+      this.addToken("BOOLEAN", value, startPos);
       return;
     }
 
     if (value === "null") {
-      this.addToken("NULL", value);
+      this.addToken("NULL", value, startPos);
       return;
     }
 
     // Regular identifier (function name or path)
-    this.addToken("IDENTIFIER", value);
+    this.addToken("IDENTIFIER", value, startPos);
   }
 }
 

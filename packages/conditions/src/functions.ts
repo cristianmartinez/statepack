@@ -99,6 +99,21 @@ export const builtinFunctions: Record<string, BuiltinFunction> = {
     return num >= min && num <= max;
   },
 
+  // Value checking functions
+  isEmpty: (args) => {
+    const [value] = args;
+    if (value === null || value === undefined) return true;
+    if (typeof value === "string") return value.length === 0;
+    if (Array.isArray(value)) return value.length === 0;
+    if (typeof value === "object") return Object.keys(value).length === 0;
+    return false;
+  },
+
+  isDefined: (args) => {
+    const [value] = args;
+    return value !== null && value !== undefined;
+  },
+
   // Date functions
   isPast: (args) => {
     const [timestamp] = args;

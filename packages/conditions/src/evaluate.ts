@@ -3,7 +3,7 @@ import type {
   CompareCondition,
   Condition,
   EvaluatorOptions,
-  FunctionCondition,
+  FunctionValue,
   MatchCondition,
   Scope,
   StateCondition,
@@ -117,7 +117,7 @@ function evaluateCompare(condition: CompareCondition, scope: Scope): boolean {
  * Evaluate a function condition
  */
 function evaluateFunction(
-  condition: FunctionCondition,
+  condition: FunctionValue,
   scope: Scope,
   options: EvaluatorOptions
 ): boolean {

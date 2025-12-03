@@ -17,7 +17,13 @@ export interface LiteralValue {
   value: string | number | boolean | null;
 }
 
-export type Value = RefValue | LiteralValue | string | number | boolean | null;
+export interface FunctionValue {
+  type: "fn";
+  name: string;
+  args: Value[];
+}
+
+export type Value = RefValue | LiteralValue | FunctionValue | string | number | boolean | null;
 
 // Condition types
 export interface TruthyCondition {
@@ -73,12 +79,6 @@ export interface IsNotEmptyCondition {
   path: string;
 }
 
-export interface FunctionCondition {
-  type: "fn";
-  name: string;
-  args: Value[];
-}
-
 export interface MatchCondition {
   type: "match";
   value: string | RefValue;
@@ -111,7 +111,7 @@ export type Condition =
   | IsNullCondition
   | IsEmptyCondition
   | IsNotEmptyCondition
-  | FunctionCondition
+  | FunctionValue // Functions can be used as conditions (truthy check)
   | MatchCondition
   | StateCondition
   | NamedCondition;

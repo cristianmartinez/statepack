@@ -3,7 +3,7 @@ import type {
   CompareCondition,
   CompareOp,
   Condition,
-  FunctionCondition,
+  FunctionValue,
   LiteralValue,
   NotCondition,
   OrCondition,
@@ -77,7 +77,7 @@ export const AST = {
   /**
    * Create a function condition
    */
-  fn: (name: string, args: Value[]): FunctionCondition => ({
+  fn: (name: string, args: Value[]): FunctionValue => ({
     type: "fn",
     name,
     args,
@@ -131,8 +131,8 @@ export function isNotCondition(condition: unknown): condition is NotCondition {
   );
 }
 
-export function isFunctionCondition(condition: unknown): condition is FunctionCondition {
+export function isFunctionCondition(condition: unknown): condition is FunctionValue {
   return (
-    typeof condition === "object" && condition !== null && (condition as FunctionCondition).type === "fn"
+    typeof condition === "object" && condition !== null && (condition as FunctionValue).type === "fn"
   );
 }

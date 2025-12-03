@@ -135,7 +135,7 @@ export class Parser extends BaseParser<TokenType, Condition, CompiledCondition> 
     }
     if (typeof result === "object" && "type" in result) {
       // Already a structured type - check if it's a Value
-      if (result.type === "literal" || result.type === "ref") {
+      if (result.type === "literal" || result.type === "ref" || result.type === "fn") {
         return result as Value;
       }
     }

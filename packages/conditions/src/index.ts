@@ -18,7 +18,7 @@ export type {
   CompareOp,
   Condition,
   EvaluatorOptions,
-  FunctionCondition,
+  FunctionValue,
   IsDefinedCondition,
   IsEmptyCondition,
   IsNotEmptyCondition,
