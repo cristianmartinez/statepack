@@ -6,21 +6,21 @@ import type { TransformRegistry } from "../types";
 export const utilityTransforms: TransformRegistry = {
   /**
    * Get current timestamp in milliseconds
-   * Usage: now
+   * Usage: '' | now
    * Returns: number (current timestamp)
    */
   now: () => Date.now(),
 
   /**
    * Generate unique ID based on timestamp
-   * Usage: id
+   * Usage: '' | id
    * Returns: string (timestamp-based ID)
    */
   id: () => Date.now().toString(),
 
   /**
    * Generate random UUID-like string
-   * Usage: uuid
+   * Usage: '' | uuid
    * Returns: string (random ID)
    */
   uuid: () => {
