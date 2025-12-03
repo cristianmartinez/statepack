@@ -17,10 +17,6 @@ import {
   AST,
 } from "./ast";
 
-// ============================================================================
-// Parser Class
-// ============================================================================
-
 export class Parser {
   private tokens: Token[] = [];
   private position = 0;
@@ -51,10 +47,6 @@ export class Parser {
 
     return AST.expression(this.source, ast);
   }
-
-  // ============================================================================
-  // Parsing Methods
-  // ============================================================================
 
   private parseExpression(): ExpressionNode {
     // Parse the source path
@@ -152,10 +144,6 @@ export class Parser {
     }
   }
 
-  // ============================================================================
-  // Helper Methods
-  // ============================================================================
-
   private peek(): Token {
     return this.tokens[this.position] ?? { type: "EOF", value: "", position: this.source.length };
   }
@@ -191,20 +179,10 @@ export class Parser {
   }
 }
 
-// ============================================================================
-// Public API
-// ============================================================================
-
-/**
- * Compile an expression string to an AST
- */
 export function compile(expression: string): ExpressionAST {
   return new Parser(expression).compile();
 }
 
-/**
- * Compile and return just the AST node (without source wrapper)
- */
 export function compileToNode(expression: string): ExpressionNode {
   return compile(expression).ast;
 }

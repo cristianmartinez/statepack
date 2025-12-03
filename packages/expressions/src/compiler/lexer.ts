@@ -1,39 +1,24 @@
-/**
- * Lexer (Tokenizer) for the expression engine
- *
- * Converts an expression string into a stream of tokens
- * that can be processed by the parser.
- */
-
-// ============================================================================
-// Token Types
-// ============================================================================
-
 export type TokenType =
-  | "PATH" // identifier.path.here
-  | "PIPE" // |
-  | "COLON" // :
-  | "STRING" // 'hello' or "hello"
-  | "NUMBER" // 123, 45.67
-  | "BOOLEAN" // true, false
-  | "NULL" // null
-  | "REF" // $path.ref
-  | "IDENTIFIER" // transform name
-  | "LPAREN" // (
-  | "RPAREN" // )
-  | "LBRACKET" // [
-  | "RBRACKET" // ]
-  | "EOF"; // end of input
+  | "PATH"
+  | "PIPE"
+  | "COLON"
+  | "STRING"
+  | "NUMBER"
+  | "BOOLEAN"
+  | "NULL"
+  | "REF"
+  | "IDENTIFIER"
+  | "LPAREN"
+  | "RPAREN"
+  | "LBRACKET"
+  | "RBRACKET"
+  | "EOF";
 
 export interface Token {
   type: TokenType;
   value: string;
   position: number;
 }
-
-// ============================================================================
-// Lexer Class
-// ============================================================================
 
 export class Lexer {
   private input: string;
@@ -44,9 +29,6 @@ export class Lexer {
     this.input = input.trim();
   }
 
-  /**
-   * Tokenize the input and return all tokens
-   */
   tokenize(): Token[] {
     this.tokens = [];
     this.position = 0;
@@ -60,7 +42,6 @@ export class Lexer {
 
       const char = this.peek();
 
-      // Single character tokens
       if (char === "|") {
         this.addToken("PIPE", "|");
         this.advance();
@@ -97,25 +78,21 @@ export class Lexer {
         continue;
       }
 
-      // String literals
       if (char === "'" || char === '"') {
         this.readString(char);
         continue;
       }
 
-      // Reference ($path)
       if (char === "$") {
         this.readRef();
         continue;
       }
 
-      // Numbers (including negative)
       if (this.isDigit(char) || (char === "-" && this.isDigit(this.peekNext()))) {
         this.readNumber();
         continue;
       }
 
-      // Identifiers, paths, keywords
       if (this.isIdentifierStart(char)) {
         this.readIdentifierOrPath();
         continue;
@@ -129,10 +106,6 @@ export class Lexer {
     this.addToken("EOF", "");
     return this.tokens;
   }
-
-  // ============================================================================
-  // Helper Methods
-  // ============================================================================
 
   private peek(): string {
     return this.input[this.position] ?? "";
@@ -177,7 +150,7 @@ export class Lexer {
 
   private readString(quote: string): void {
     const startPos = this.position;
-    this.advance(); // consume opening quote
+    this.advance();
 
     let value = "";
     while (this.position < this.input.length) {
@@ -212,7 +185,7 @@ export class Lexer {
       }
 
       if (char === quote) {
-        this.advance(); // consume closing quote
+        this.advance();
         this.tokens.push({
           type: "STRING",
           value,
@@ -231,19 +204,16 @@ export class Lexer {
     const startPos = this.position;
     let value = "";
 
-    // Handle negative sign
     if (this.peek() === "-") {
       value += this.advance();
     }
 
-    // Read integer part
     while (this.isDigit(this.peek())) {
       value += this.advance();
     }
 
-    // Read decimal part
     if (this.peek() === "." && this.isDigit(this.peekNext())) {
-      value += this.advance(); // consume .
+      value += this.advance();
       while (this.isDigit(this.peek())) {
         value += this.advance();
       }
@@ -258,7 +228,7 @@ export class Lexer {
 
   private readRef(): void {
     const startPos = this.position;
-    this.advance(); // consume $
+    this.advance();
 
     let path = "";
     while (
@@ -268,10 +238,8 @@ export class Lexer {
         this.peek() === "[" ||
         this.peek() === "]")
     ) {
-      // Handle bracket notation
       if (this.peek() === "[") {
         path += this.advance();
-        // Read until closing bracket
         while (this.position < this.input.length && this.peek() !== "]") {
           path += this.advance();
         }
@@ -294,20 +262,16 @@ export class Lexer {
     const startPos = this.position;
     let value = "";
 
-    // Read the full path including dots and brackets
     while (this.position < this.input.length) {
       const char = this.peek();
 
-      // Handle dot notation
       if (this.isIdentifierChar(char) || char === ".") {
         value += this.advance();
         continue;
       }
 
-      // Handle bracket notation
       if (char === "[") {
         value += this.advance();
-        // Read until closing bracket
         while (this.position < this.input.length && this.peek() !== "]") {
           value += this.advance();
         }
@@ -320,7 +284,6 @@ export class Lexer {
       break;
     }
 
-    // Check for keywords
     if (value === "true" || value === "false") {
       this.tokens.push({
         type: "BOOLEAN",
@@ -339,7 +302,6 @@ export class Lexer {
       return;
     }
 
-    // Determine if it's a path (has dots/brackets) or simple identifier
     const tokenType = value.includes(".") || value.includes("[") ? "PATH" : "IDENTIFIER";
 
     this.tokens.push({
@@ -350,9 +312,6 @@ export class Lexer {
   }
 }
 
-/**
- * Convenience function to tokenize an expression
- */
 export function tokenize(expression: string): Token[] {
   return new Lexer(expression).tokenize();
 }
