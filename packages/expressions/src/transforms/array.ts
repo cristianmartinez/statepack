@@ -54,6 +54,7 @@ export const arrayTransforms: Record<string, TransformFn> = {
 
   filter: (value, args) => {
     if (!Array.isArray(value)) return value;
+
     const prop = String(args[0] ?? "");
     const filterVal = args[1];
 
@@ -66,11 +67,45 @@ export const arrayTransforms: Record<string, TransformFn> = {
   reject: (value, args) => {
     if (!Array.isArray(value)) return value;
     const prop = String(args[0] ?? "");
+    const rejectVal = args[1];
+
+    // If rejectVal provided, filter out items where prop === rejectVal
+    if (rejectVal !== undefined) {
+      return value.filter((item) => {
+        const itemVal = getPath(item, prop);
+        return itemVal !== rejectVal;
+      });
+    }
+
+    // Otherwise filter out truthy values (legacy behavior)
     return value.filter((item) => !getPath(item, prop));
   },
 
   map: (value, args) => {
     if (!Array.isArray(value)) return value;
+
+    // map: 'id', matchId, 'completed', 'toggle' - update specific item's property
+    if (args.length === 4) {
+      const matchProp = String(args[0]);
+      const matchVal = args[1];
+      const updateProp = String(args[2]);
+      const updateVal = args[3];
+
+      return value.map((item) => {
+        const itemVal = getPath(item, matchProp);
+        if (itemVal === matchVal) {
+          // Special case: 'toggle' means flip boolean
+          if (updateVal === "toggle") {
+            const currentVal = getPath(item, updateProp);
+            return { ...item, [updateProp]: !currentVal };
+          }
+          return { ...item, [updateProp]: updateVal };
+        }
+        return item;
+      });
+    }
+
+    // map: 'propName' - extract property (legacy behavior)
     const prop = String(args[0] ?? "");
     return value.map((item) => getPath(item, prop));
   },
