@@ -18,7 +18,7 @@ export {
   type GuardDefinition,
   type Machine,
   type MiniApp,
-} from "./types.ts";
+} from "./types";
 
 export {
   validateMachine,
@@ -28,4 +28,4 @@ export {
   assertMachine,
   assertMiniApp,
   type ValidationResult,
-} from "./validate.ts";
+} from "./validate";

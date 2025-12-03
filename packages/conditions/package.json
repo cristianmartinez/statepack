@@ -1,6 +1,7 @@
 {
   "name": "@ouni/conditions",
   "version": "0.0.1",
+  "description": "Condition evaluation engine for declarative UI",
   "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",

@@ -1,4 +1,4 @@
-import type { TransformFn } from "../types.ts";
+import type { TransformFn } from "../types";
 
 export const numberTransforms: Record<string, TransformFn> = {
   number: (value) => {

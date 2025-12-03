@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { evaluate, createEvaluator } from "./evaluate.ts";
-import type { Condition, Scope } from "./types.ts";
+import { evaluate, createEvaluator } from "./evaluate";
+import type { Condition, Scope } from "./types";
 
 describe("evaluate", () => {
   describe("string shorthand (truthy)", () => {

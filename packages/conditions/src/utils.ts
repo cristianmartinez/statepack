@@ -1,4 +1,4 @@
-import type { Value, Scope, RefValue, LiteralValue } from "./types.ts";
+import type { Value, Scope, RefValue, LiteralValue } from "./types";
 
 /** Known scope prefixes for path detection */
 const PATH_PREFIXES = [

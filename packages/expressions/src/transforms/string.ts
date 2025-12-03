@@ -1,4 +1,4 @@
-import type { TransformFn } from "../types.ts";
+import type { TransformFn } from "../types";
 
 export const stringTransforms: Record<string, TransformFn> = {
   uppercase: (value) => String(value).toUpperCase(),

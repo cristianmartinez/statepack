@@ -1,6 +1,6 @@
-import { parseExpression, evaluate as evaluateCondition } from "@ouni/conditions";
-import type { GuardDefinition, Transition } from "../schema/types.ts";
-import type { State, Event } from "./state.ts";
+import { parseExpression, evaluate as evaluateCondition, type Scope } from "@ouni/conditions";
+import type { GuardDefinition, Transition } from "../schema/types";
+import type { State, StateValue, Event } from "./state";
 
 /**
  * Guard context passed to condition evaluation
@@ -9,7 +9,7 @@ export interface GuardContext {
   context: Record<string, unknown>;
   event: Event;
   state: {
-    value: string | Record<string, unknown>;
+    value: StateValue;
     matches: (pattern: string) => boolean;
   };
 }
@@ -19,7 +19,8 @@ export interface GuardContext {
  */
 function evaluateStringCondition(expr: string, ctx: GuardContext): boolean {
   const condition = parseExpression(expr);
-  return evaluateCondition(condition, ctx);
+  // Cast to Scope - both StateValue types are structurally identical
+  return evaluateCondition(condition, ctx as unknown as Scope);
 }
 
 /**

@@ -1,5 +1,5 @@
-import type { TransformFn, Scope } from "../types.ts";
-import { getPath } from "../utils.ts";
+import type { TransformFn, Scope } from "../types";
+import { getPath } from "../utils";
 
 export const arrayTransforms: Record<string, TransformFn> = {
   length: (value) => {

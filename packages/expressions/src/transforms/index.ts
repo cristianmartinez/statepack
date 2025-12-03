@@ -1,11 +1,11 @@
-import type { TransformRegistry } from "../types.ts";
-import { stringTransforms } from "./string.ts";
-import { numberTransforms } from "./number.ts";
-import { formatTransforms } from "./format.ts";
-import { arrayTransforms } from "./array.ts";
-import { objectTransforms } from "./object.ts";
-import { booleanTransforms } from "./boolean.ts";
-import { predicateTransforms } from "./predicate.ts";
+import type { TransformRegistry } from "../types";
+import { stringTransforms } from "./string";
+import { numberTransforms } from "./number";
+import { formatTransforms } from "./format";
+import { arrayTransforms } from "./array";
+import { objectTransforms } from "./object";
+import { booleanTransforms } from "./boolean";
+import { predicateTransforms } from "./predicate";
 
 /**
  * All built-in transforms

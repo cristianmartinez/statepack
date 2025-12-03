@@ -5,7 +5,7 @@
  * that can be serialized, validated, and evaluated.
  */
 
-import { Lexer, type Token, type TokenType } from "./lexer.ts";
+import { Lexer, type Token, type TokenType } from "./lexer";
 import {
   type ExpressionAST,
   type ExpressionNode,
@@ -15,7 +15,7 @@ import {
   type LiteralNode,
   type RefNode,
   AST,
-} from "./ast.ts";
+} from "./ast";
 
 // ============================================================================
 // Parser Class

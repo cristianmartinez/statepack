@@ -1,5 +1,5 @@
-import type { Scope, Value } from "./types.ts";
-import { getPath, resolveValue } from "./utils.ts";
+import type { Scope, Value } from "./types";
+import { getPath, resolveValue } from "./utils";
 
 export type BuiltinFunction = (
   args: unknown[],

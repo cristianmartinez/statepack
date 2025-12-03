@@ -1,10 +1,10 @@
-import type { StateNode, Machine } from "../schema/types.ts";
+import type { StateNode, Machine } from "../schema/types";
 
 /**
  * Represents the current state value
  * Can be a simple string or nested object for hierarchical states
  */
-export type StateValue = string | Record<string, StateValue>;
+export type StateValue = string | { [key: string]: StateValue };
 
 /**
  * The current snapshot of the state machine
@@ -141,14 +141,17 @@ export function matchesState(
 function matchesStateValue(value: StateValue, parts: string[]): boolean {
   if (parts.length === 0) return true;
 
-  const [first, ...rest] = parts;
+  const first = parts[0];
+  const rest = parts.slice(1);
+
+  if (first === undefined) return true;
 
   if (typeof value === "string") {
     return first === value && rest.length === 0;
   }
 
   if (first in value) {
-    return matchesStateValue(value[first], rest);
+    return matchesStateValue(value[first]!, rest);
   }
 
   return false;

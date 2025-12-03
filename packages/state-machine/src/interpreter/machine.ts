@@ -1,4 +1,4 @@
-import type { Machine, StateNode, Action, GuardDefinition, Transition } from "../schema/types.ts";
+import type { Machine, StateNode, Action, GuardDefinition, Transition } from "../schema/types";
 import {
   createInitialState,
   matchesState,
@@ -7,18 +7,18 @@ import {
   type State,
   type StateValue,
   type Event,
-} from "./state.ts";
+} from "./state";
 import {
   evaluateGuard,
   findMatchingTransition,
   createGuardContext,
-} from "./guards.ts";
+} from "./guards";
 import {
   executeActions,
   normalizeActions,
   type ActionResult,
   type ActionEffect,
-} from "./actions.ts";
+} from "./actions";
 
 /**
  * Options for the interpreter
@@ -457,7 +457,9 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
     }
     const entries = Object.entries(value);
     if (entries.length === 1) {
-      const [key, childValue] = entries[0];
+      const entry = entries[0]!;
+      const key = entry[0];
+      const childValue = entry[1];
       return { [key]: this.replaceLeaf(childValue, newLeaf) };
     }
     // For parallel states, can't replace leaf
@@ -488,8 +490,10 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
    * Build nested state value from path
    */
   private buildNestedValue(path: string[]): StateValue {
-    if (path.length === 1) return path[0];
-    const [first, ...rest] = path;
+    if (path.length === 0) return "";
+    if (path.length === 1) return path[0]!;
+    const first = path[0]!;
+    const rest = path.slice(1);
     return { [first]: this.buildNestedValue(rest) };
   }
 
@@ -502,7 +506,9 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
     }
     const entries = Object.entries(value);
     if (entries.length === 1) {
-      const [key, childValue] = entries[0];
+      const entry = entries[0]!;
+      const key = entry[0];
+      const childValue = entry[1];
       return { [key]: this.appendToDeepest(childValue, child) };
     }
     return value;

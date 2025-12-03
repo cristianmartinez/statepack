@@ -3,8 +3,7 @@
  * Supports: path lookups, comparisons, && and ||
  */
 
-import type { Condition, CompareOp, Value } from "./types.ts";
-import { getPath } from "./utils.ts";
+import type { Condition, CompareOp, Value } from "./types";
 
 /**
  * Parse a string expression into a structured Condition

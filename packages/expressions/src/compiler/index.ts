@@ -10,7 +10,7 @@ export type {
   LiteralNode,
   RefNode,
   ValueNode,
-} from "./ast.ts";
+} from "./ast";
 
 export {
   AST,
@@ -20,11 +20,11 @@ export {
   isTransformNode,
   isPipeNode,
   isSimplePathNode,
-} from "./ast.ts";
+} from "./ast";
 
 // Lexer
-export { Lexer, tokenize } from "./lexer.ts";
-export type { Token, TokenType } from "./lexer.ts";
+export { Lexer, tokenize } from "./lexer";
+export type { Token, TokenType } from "./lexer";
 
 // Parser/Compiler
-export { Parser, compile, compileToNode } from "./parser.ts";
+export { Parser, compile, compileToNode } from "./parser";

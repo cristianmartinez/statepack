@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { evaluate, evaluateTemplate, createEvaluator } from "./evaluate.ts";
-import type { Scope } from "./types.ts";
+import { evaluate, evaluateTemplate, createEvaluator } from "./evaluate";
+import type { Scope } from "./types";
 
 describe("evaluate", () => {
   describe("path access", () => {

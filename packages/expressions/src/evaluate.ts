@@ -4,7 +4,7 @@ import type {
   Scope,
   EvaluatorOptions,
   TransformRegistry,
-} from "./types.ts";
+} from "./types";
 import {
   compile,
   type ExpressionNode,
@@ -13,10 +13,10 @@ import {
   isSimplePathNode,
   isLiteralNode,
   isRefNode,
-} from "./compiler/index.ts";
-import { extractBindings, hasBindings } from "./template.ts";
-import { builtinTransforms } from "./transforms/index.ts";
-import { resolveFromScope } from "./utils.ts";
+} from "./compiler/index";
+import { extractBindings, hasBindings } from "./template";
+import { builtinTransforms } from "./transforms/index";
+import { resolveFromScope } from "./utils";
 
 /**
  * Evaluate an expression against a scope

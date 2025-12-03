@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { tokenize } from "./lexer.ts";
+import { tokenize } from "./lexer";
 
 describe("lexer", () => {
   test("tokenizes simple path", () => {

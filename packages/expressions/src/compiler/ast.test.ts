@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { compile } from "./parser.ts";
+import { compile } from "./parser";
 
 describe("AST JSON structure", () => {
   test("simple path produces expected JSON", () => {

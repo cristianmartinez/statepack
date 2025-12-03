@@ -8,7 +8,7 @@ export type {
   EvaluatorOptions,
   TransformFn,
   TransformRegistry,
-} from "./types.ts";
+} from "./types";
 
 // Compiler (AST, Lexer, Parser)
 export type {
@@ -24,7 +24,7 @@ export type {
   ValueNode,
   Token,
   TokenType,
-} from "./compiler/index.ts";
+} from "./compiler/index";
 
 export {
   AST,
@@ -39,10 +39,10 @@ export {
   Parser,
   compile,
   compileToNode,
-} from "./compiler/index.ts";
+} from "./compiler/index";
 
 // Template utilities
-export { extractBindings, hasBindings } from "./template.ts";
+export { extractBindings, hasBindings } from "./template";
 
 // Evaluator
 export {
@@ -50,13 +50,13 @@ export {
   evaluateTemplate,
   createEvaluator,
   registerTransforms,
-} from "./evaluate.ts";
+} from "./evaluate";
 
 // Utilities
-export { getPath, setPath, isPathReference, resolveFromScope } from "./utils.ts";
+export { getPath, setPath, isPathReference, resolveFromScope } from "./utils";
 
 // Transforms
-export { builtinTransforms } from "./transforms/index.ts";
+export { builtinTransforms } from "./transforms/index";
 export {
   stringTransforms,
   numberTransforms,
@@ -65,4 +65,4 @@ export {
   objectTransforms,
   booleanTransforms,
   predicateTransforms,
-} from "./transforms/index.ts";
+} from "./transforms/index";

@@ -7,14 +7,14 @@ export {
   toStateString,
   getActiveStateNodes,
   getLeafStates,
-} from "./state.ts";
+} from "./state";
 
 export {
   type GuardContext,
   evaluateGuard,
   findMatchingTransition,
   createGuardContext,
-} from "./guards.ts";
+} from "./guards";
 
 export {
   type ActionContext,
@@ -23,10 +23,10 @@ export {
   type ActionExecutor,
   executeActions,
   normalizeActions,
-} from "./actions.ts";
+} from "./actions";
 
 export {
   Interpreter,
   interpret,
   type InterpreterOptions,
-} from "./machine.ts";
+} from "./machine";

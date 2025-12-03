@@ -32,7 +32,7 @@ export {
   assertMachine,
   assertMiniApp,
   type ValidationResult,
-} from "./schema/index.ts";
+} from "./schema/index";
 
 // Interpreter exports
 export {
@@ -57,4 +57,4 @@ export {
   Interpreter,
   interpret,
   type InterpreterOptions,
-} from "./interpreter/index.ts";
+} from "./interpreter/index";

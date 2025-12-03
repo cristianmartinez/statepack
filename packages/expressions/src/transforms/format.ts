@@ -1,4 +1,4 @@
-import type { TransformFn, Scope } from "../types.ts";
+import type { TransformFn, Scope } from "../types";
 
 function getLocale(scope: Scope): string {
   return "en-US"; // Could be extended via scope or options

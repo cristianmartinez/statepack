@@ -22,17 +22,17 @@ export type {
   MatchCondition,
   StateCondition,
   NamedCondition,
-} from "./types.ts";
+} from "./types";
 
 // Evaluator
-export { evaluate, createEvaluator } from "./evaluate.ts";
+export { evaluate, createEvaluator } from "./evaluate";
 
 // Parser (string expression to Condition)
-export { parseExpression } from "./parse.ts";
+export { parseExpression } from "./parse";
 
 // Utilities
-export { getPath, resolveValue, isEmpty, isPathLike } from "./utils.ts";
+export { getPath, resolveValue, isEmpty, isPathLike } from "./utils";
 
 // Functions
-export { builtinFunctions } from "./functions.ts";
-export type { BuiltinFunction } from "./functions.ts";
+export { builtinFunctions } from "./functions";
+export type { BuiltinFunction } from "./functions";

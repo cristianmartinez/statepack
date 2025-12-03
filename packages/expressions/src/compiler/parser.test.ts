@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { compile, compileToNode } from "./parser.ts";
+import { compile, compileToNode } from "./parser";
 
 describe("parser", () => {
   test("compiles simple path to AST", () => {

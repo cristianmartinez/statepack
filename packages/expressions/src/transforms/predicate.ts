@@ -1,5 +1,5 @@
-import type { TransformFn, Scope } from "../types.ts";
-import { getPath } from "../utils.ts";
+import type { TransformFn, Scope } from "../types";
+import { getPath } from "../utils";
 
 /**
  * Advanced array transforms that use predicate expressions

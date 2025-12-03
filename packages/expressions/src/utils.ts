@@ -1,4 +1,4 @@
-import type { Scope } from "./types.ts";
+import type { Scope } from "./types";
 
 /**
  * Known scope prefixes for path detection

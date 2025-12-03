@@ -6,9 +6,9 @@ import type {
   FunctionCondition,
   MatchCondition,
   StateCondition,
-} from "./types.ts";
-import { getPath, resolveValue, isEmpty } from "./utils.ts";
-import { builtinFunctions, resolveFunctionArgs } from "./functions.ts";
+} from "./types";
+import { getPath, resolveValue, isEmpty } from "./utils";
+import { builtinFunctions, resolveFunctionArgs } from "./functions";
 
 /**
  * Evaluate a condition against a scope

@@ -1,5 +1,5 @@
-import type { TransformFn } from "../types.ts";
-import { getPath, setPath } from "../utils.ts";
+import type { TransformFn } from "../types";
+import { getPath, setPath } from "../utils";
 
 export const objectTransforms: Record<string, TransformFn> = {
   keys: (value) => {

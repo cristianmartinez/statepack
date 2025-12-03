@@ -5,8 +5,8 @@ import {
   isMachine,
   isMiniApp,
   assertMachine,
-} from "./validate.ts";
-import type { Machine, MiniApp } from "./types.ts";
+} from "./validate";
+import type { Machine, MiniApp } from "./types";
 
 describe("validateMachine", () => {
   test("validates simple machine", () => {
