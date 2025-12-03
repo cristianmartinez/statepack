@@ -376,6 +376,54 @@ describe("evaluate", () => {
         )
       ).toBe(33);
     });
+
+    test("todo filtering patterns", () => {
+      const todos = [
+        { id: "1", text: "Buy milk", completed: false },
+        { id: "2", text: "Walk dog", completed: true },
+        { id: "3", text: "Write code", completed: false },
+        { id: "4", text: "Review PR", completed: true },
+      ];
+
+      // Test filter with two arguments using colon separator
+      const activeResult = evaluate(
+        "context.todos | filter:'completed':false",
+        { context: { todos } }
+      ) as unknown[];
+      expect(activeResult).toHaveLength(2);
+      expect((activeResult[0] as any).completed).toBe(false);
+      expect((activeResult[1] as any).completed).toBe(false);
+
+      // Test filter completed todos
+      const completedResult = evaluate(
+        "context.todos | filter:'completed':true",
+        { context: { todos } }
+      ) as unknown[];
+      expect(completedResult).toHaveLength(2);
+      expect((completedResult[0] as any).completed).toBe(true);
+      expect((completedResult[1] as any).completed).toBe(true);
+
+      // Test conditional with simple values
+      const conditionalResult = evaluate(
+        "context.mode | if:'active':100:200",
+        { context: { mode: "active" } }
+      );
+      expect(conditionalResult).toBe(100);
+
+      // Test map with 4 arguments for updating items
+      const toggleResult = evaluate(
+        "context.todos | map:'id':'2':'completed':'toggle'",
+        { context: { todos } }
+      ) as unknown[];
+      expect((toggleResult[1] as any).completed).toBe(false); // Was true, now false
+
+      // Test reject with value
+      const rejectResult = evaluate(
+        "context.todos | reject:'id':'2'",
+        { context: { todos } }
+      ) as unknown[];
+      expect(rejectResult).toHaveLength(3);
+    });
   });
 });
 
