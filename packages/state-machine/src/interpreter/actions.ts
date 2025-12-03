@@ -105,9 +105,10 @@ function executeAction(
   }
 
   const actionObj = action as Record<string, unknown>;
+  const actionType = actionObj.type as string;
 
-  // Check condition
-  if (actionObj.condition && typeof actionObj.condition === "string") {
+  // Check condition guard (but not for conditional actions which use condition for branching)
+  if (actionType !== "conditional" && actionObj.condition && typeof actionObj.condition === "string") {
     const conditionCtx = {
       context: result.context,
       event: ctx.event,
@@ -116,8 +117,6 @@ function executeAction(
       return;
     }
   }
-
-  const actionType = actionObj.type as string;
 
   switch (actionType) {
     case "assign":
@@ -253,7 +252,7 @@ function handleConditional(
   result: ActionResult,
   compiled?: CompiledCache
 ): void {
-  const condition = action.condition as string;
+  const condition = action.condition as Condition;
   const conditionCtx = {
     context: result.context,
     event: ctx.event,
