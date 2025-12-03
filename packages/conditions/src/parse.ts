@@ -1,6 +1,13 @@
 /**
  * Parse a string expression into a Condition
- * Supports: path lookups, comparisons, && and ||
+ * Supports: path lookups, comparisons, &&, ||, !, functions
+ *
+ * Operator precedence (lowest to highest):
+ * 1. || (OR)
+ * 2. && (AND)
+ * 3. ! (NOT)
+ * 4. Comparisons (===, !==, >, <, etc.)
+ * 5. Function calls, parentheses
  */
 
 import type { CompareOp, Condition, Value } from "./types";
@@ -13,20 +20,20 @@ import type { CompareOp, Condition, Value } from "./types";
 export function parseExpression(expr: string): Condition {
   const trimmed = expr.trim();
 
-  // Handle && (AND) - lowest precedence
-  if (hasOperator(trimmed, " && ")) {
-    const parts = splitByOperator(trimmed, " && ");
-    return {
-      type: "and",
-      conditions: parts.map(parseExpression),
-    };
-  }
-
-  // Handle || (OR) - second lowest precedence
+  // Handle || (OR) - LOWEST precedence (parse first)
   if (hasOperator(trimmed, " || ")) {
     const parts = splitByOperator(trimmed, " || ");
     return {
       type: "or",
+      conditions: parts.map(parseExpression),
+    };
+  }
+
+  // Handle && (AND) - HIGHER precedence than ||
+  if (hasOperator(trimmed, " && ")) {
+    const parts = splitByOperator(trimmed, " && ");
+    return {
+      type: "and",
       conditions: parts.map(parseExpression),
     };
   }
@@ -41,6 +48,24 @@ export function parseExpression(expr: string): Condition {
     return {
       type: "not",
       condition: parseExpression(trimmed.slice(1)),
+    };
+  }
+
+  // Handle function calls: isEmpty(), isDefined(), etc.
+  const funcMatch = trimmed.match(/^(\w+)\((.*)\)$/);
+  if (funcMatch) {
+    const funcName = funcMatch[1]!;
+    const argsStr = funcMatch[2] || "";
+    const args: Value[] = argsStr
+      .split(",")
+      .map((arg) => arg.trim())
+      .filter((arg) => arg.length > 0)
+      .map(parseValue);
+
+    return {
+      type: "fn",
+      name: funcName,
+      args,
     };
   }
 

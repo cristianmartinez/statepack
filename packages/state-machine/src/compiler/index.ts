@@ -27,8 +27,11 @@ export function compileMachine(machine: Machine): CompiledMachine {
     for (const [name, guardDef] of Object.entries(machine.guards)) {
       const conditionStr = guardDef.condition;
       if (!compiled.guards.has(conditionStr)) {
-        const ast = compileCondition(conditionStr);
-        compiled.guards.set(conditionStr, { source: conditionStr, ast });
+        const compiledCondition = compileCondition(conditionStr);
+        compiled.guards.set(conditionStr, {
+          source: compiledCondition.source,
+          ast: compiledCondition.ast,
+        });
       }
     }
   }
@@ -148,8 +151,11 @@ function compileGuard(guard: unknown, compiled: CompiledMachine["compiled"]): vo
   if ("condition" in guardObj && typeof guardObj.condition === "string") {
     const conditionStr = guardObj.condition;
     if (!compiled.guards.has(conditionStr)) {
-      const ast = compileCondition(conditionStr);
-      compiled.guards.set(conditionStr, { source: conditionStr, ast });
+      const compiledCondition = compileCondition(conditionStr);
+      compiled.guards.set(conditionStr, {
+        source: compiledCondition.source,
+        ast: compiledCondition.ast,
+      });
     }
   }
 
@@ -196,8 +202,11 @@ function compileAction(action: Action, compiled: CompiledMachine["compiled"]): v
   if (actionObj.condition && typeof actionObj.condition === "string") {
     const conditionStr = actionObj.condition;
     if (!compiled.guards.has(conditionStr)) {
-      const ast = compileCondition(conditionStr);
-      compiled.guards.set(conditionStr, { source: conditionStr, ast });
+      const compiledCondition = compileCondition(conditionStr);
+      compiled.guards.set(conditionStr, {
+        source: compiledCondition.source,
+        ast: compiledCondition.ast,
+      });
     }
   }
 
@@ -218,8 +227,11 @@ function compileAction(action: Action, compiled: CompiledMachine["compiled"]): v
       if (actionObj.condition && typeof actionObj.condition === "string") {
         const conditionStr = actionObj.condition;
         if (!compiled.guards.has(conditionStr)) {
-          const ast = compileCondition(conditionStr);
-          compiled.guards.set(conditionStr, { source: conditionStr, ast });
+          const compiledCondition = compileCondition(conditionStr);
+          compiled.guards.set(conditionStr, {
+            source: compiledCondition.source,
+            ast: compiledCondition.ast,
+          });
         }
       }
       if (actionObj.then) {

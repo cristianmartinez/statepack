@@ -1,15 +1,17 @@
 // Types
 
+// Compiler (string expression to Condition AST)
+export { compile, compileToAST, AST, Lexer, Parser, tokenize } from "./compiler";
+export type { CompiledCondition, Token, TokenType } from "./compiler";
+
+// Legacy parser (use compiler instead)
+export { parseExpression } from "./parse";
+
 // Evaluator
 export { createEvaluator, evaluate } from "./evaluate";
 export type { BuiltinFunction } from "./functions";
 // Functions
 export { builtinFunctions } from "./functions";
-// Parser (string expression to Condition)
-export { parseExpression } from "./parse";
-
-// Compiler alias for consistency with other packages
-export { parseExpression as compile } from "./parse";
 export type {
   AndCondition,
   CompareCondition,
