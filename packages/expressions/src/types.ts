@@ -29,6 +29,7 @@ export interface Scope {
   item?: unknown;
   index?: number;
   state?: Record<string, unknown>;
+  [key: string]: unknown;
 }
 
 // Transform function signature
