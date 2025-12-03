@@ -1,342 +1,332 @@
-import { type Static, Type } from "@sinclair/typebox";
+import { z } from "zod";
 
 /**
  * Simple Guard Schema (inline guards use condition, compound use and/or/not)
  * Note: Recursive guards are validated at runtime, not compile time
  */
-export const GuardSchema = Type.Union([
-  Type.String(), // Reference to named guard
-  Type.Object({
-    condition: Type.String(), // Expression to evaluate
+export const GuardSchema = z.union([
+  z.string(), // Reference to named guard
+  z.object({
+    condition: z.string(), // Expression to evaluate
   }),
-  Type.Object({
-    and: Type.Array(Type.Union([Type.String(), Type.Any()])), // Array of guards
+  z.object({
+    and: z.array(z.union([z.string(), z.any()])), // Array of guards
   }),
-  Type.Object({
-    or: Type.Array(Type.Union([Type.String(), Type.Any()])), // Array of guards
+  z.object({
+    or: z.array(z.union([z.string(), z.any()])), // Array of guards
   }),
-  Type.Object({
-    not: Type.Union([Type.String(), Type.Any()]), // Nested guard
+  z.object({
+    not: z.union([z.string(), z.any()]), // Nested guard
   }),
 ]);
 
 /**
  * Action Schema - side effects during transitions
  */
-export const ActionSchema = Type.Union([
-  Type.String(), // Reference to named action
-  Type.Object({
-    type: Type.Literal("assign"),
-    values: Type.Record(Type.String(), Type.Unknown()),
-    condition: Type.Optional(Type.String()),
+export const ActionSchema = z.union([
+  z.string(), // Reference to named action
+  z.object({
+    type: z.literal("assign"),
+    values: z.record(z.string(), z.unknown()),
+    condition: z.string().optional(),
   }),
-  Type.Object({
-    type: Type.Literal("send"),
-    event: Type.String(),
-    payload: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-    delay: Type.Optional(Type.Number()),
-    condition: Type.Optional(Type.String()),
+  z.object({
+    type: z.literal("send"),
+    event: z.string(),
+    payload: z.record(z.string(), z.unknown()).optional(),
+    delay: z.number().optional(),
+    condition: z.string().optional(),
   }),
-  Type.Object({
-    type: Type.Literal("raise"),
-    event: Type.String(),
-    payload: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-    condition: Type.Optional(Type.String()),
+  z.object({
+    type: z.literal("raise"),
+    event: z.string(),
+    payload: z.record(z.string(), z.unknown()).optional(),
+    condition: z.string().optional(),
   }),
-  Type.Object({
-    type: Type.Literal("log"),
-    message: Type.String(),
-    level: Type.Optional(
-      Type.Union([
-        Type.Literal("debug"),
-        Type.Literal("info"),
-        Type.Literal("warn"),
-        Type.Literal("error"),
+  z.object({
+    type: z.literal("log"),
+    message: z.string(),
+    level: z
+      .union([z.literal("debug"), z.literal("info"), z.literal("warn"), z.literal("error")])
+      .optional(),
+    condition: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal("navigate"),
+    screen: z.string(),
+    params: z.record(z.string(), z.unknown()).optional(),
+    transition: z
+      .union([z.literal("push"), z.literal("replace"), z.literal("modal"), z.literal("fade")])
+      .optional(),
+    condition: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal("back"),
+    fallback: z.string().optional(),
+    condition: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal("fetch"),
+    id: z.string().optional(),
+    url: z.string(),
+    method: z
+      .union([
+        z.literal("GET"),
+        z.literal("POST"),
+        z.literal("PUT"),
+        z.literal("PATCH"),
+        z.literal("DELETE"),
       ])
-    ),
-    condition: Type.Optional(Type.String()),
-  }),
-  Type.Object({
-    type: Type.Literal("navigate"),
-    screen: Type.String(),
-    params: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-    transition: Type.Optional(
-      Type.Union([
-        Type.Literal("push"),
-        Type.Literal("replace"),
-        Type.Literal("modal"),
-        Type.Literal("fade"),
-      ])
-    ),
-    condition: Type.Optional(Type.String()),
-  }),
-  Type.Object({
-    type: Type.Literal("back"),
-    fallback: Type.Optional(Type.String()),
-    condition: Type.Optional(Type.String()),
-  }),
-  Type.Object({
-    type: Type.Literal("fetch"),
-    id: Type.Optional(Type.String()),
-    url: Type.String(),
-    method: Type.Optional(
-      Type.Union([
-        Type.Literal("GET"),
-        Type.Literal("POST"),
-        Type.Literal("PUT"),
-        Type.Literal("PATCH"),
-        Type.Literal("DELETE"),
-      ])
-    ),
-    headers: Type.Optional(Type.Record(Type.String(), Type.String())),
-    body: Type.Optional(Type.Unknown()),
-    timeout: Type.Optional(Type.Number()),
-    onSuccess: Type.Optional(
-      Type.Object({
-        event: Type.Optional(Type.String()),
-        assign: Type.Optional(Type.Record(Type.String(), Type.String())),
+      .optional(),
+    headers: z.record(z.string(), z.string()).optional(),
+    body: z.unknown().optional(),
+    timeout: z.number().optional(),
+    onSuccess: z
+      .object({
+        event: z.string().optional(),
+        assign: z.record(z.string(), z.string()).optional(),
       })
-    ),
-    onError: Type.Optional(
-      Type.Object({
-        event: Type.Optional(Type.String()),
-        assign: Type.Optional(Type.Record(Type.String(), Type.String())),
+      .optional(),
+    onError: z
+      .object({
+        event: z.string().optional(),
+        assign: z.record(z.string(), z.string()).optional(),
       })
-    ),
-    debounce: Type.Optional(Type.Number()),
-    throttle: Type.Optional(Type.Number()),
-    condition: Type.Optional(Type.String()),
+      .optional(),
+    debounce: z.number().optional(),
+    throttle: z.number().optional(),
+    condition: z.string().optional(),
   }),
-  Type.Object({
-    type: Type.Literal("storage.get"),
-    key: Type.String(),
-    default: Type.Optional(Type.Unknown()),
-    assign: Type.String(),
-    condition: Type.Optional(Type.String()),
+  z.object({
+    type: z.literal("storage.get"),
+    key: z.string(),
+    default: z.unknown().optional(),
+    assign: z.string(),
+    condition: z.string().optional(),
   }),
-  Type.Object({
-    type: Type.Literal("storage.set"),
-    key: Type.String(),
-    value: Type.Unknown(),
-    condition: Type.Optional(Type.String()),
+  z.object({
+    type: z.literal("storage.set"),
+    key: z.string(),
+    value: z.unknown(),
+    condition: z.string().optional(),
   }),
-  Type.Object({
-    type: Type.Literal("storage.remove"),
-    key: Type.String(),
-    condition: Type.Optional(Type.String()),
+  z.object({
+    type: z.literal("storage.remove"),
+    key: z.string(),
+    condition: z.string().optional(),
   }),
-  Type.Object({
-    type: Type.Literal("toast"),
-    message: Type.String(),
-    variant: Type.Optional(
-      Type.Union([Type.Literal("default"), Type.Literal("success"), Type.Literal("error")])
-    ),
-    duration: Type.Optional(Type.Number()),
-    condition: Type.Optional(Type.String()),
+  z.object({
+    type: z.literal("toast"),
+    message: z.string(),
+    variant: z.union([z.literal("default"), z.literal("success"), z.literal("error")]).optional(),
+    duration: z.number().optional(),
+    condition: z.string().optional(),
   }),
-  Type.Object({
-    type: Type.Literal("haptic"),
-    style: Type.Union([
-      Type.Literal("impact"),
-      Type.Literal("notification"),
-      Type.Literal("selection"),
+  z.object({
+    type: z.literal("haptic"),
+    style: z.union([z.literal("impact"), z.literal("notification"), z.literal("selection")]),
+    intensity: z.union([z.literal("light"), z.literal("medium"), z.literal("heavy")]).optional(),
+    condition: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal("clipboard"),
+    text: z.string(),
+    onSuccess: z.unknown().optional(), // Nested action
+    condition: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal("focus"),
+    target: z.string(),
+    condition: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal("host.event"),
+    name: z.string(),
+    data: z.record(z.string(), z.unknown()).optional(),
+    condition: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal("host.close"),
+    result: z.record(z.string(), z.unknown()).optional(),
+    condition: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal("host.analytics"),
+    event: z.string(),
+    properties: z.record(z.string(), z.unknown()).optional(),
+    condition: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal("conditional"),
+    condition: z.string(),
+    then: z.array(z.unknown()), // Nested actions
+    else: z.array(z.unknown()).optional(),
+  }),
+  z.object({
+    type: z.literal("transform"),
+    input: z.string(),
+    operation: z.union([
+      z.literal("filter"),
+      z.literal("map"),
+      z.literal("sort"),
+      z.literal("find"),
+      z.literal("slice"),
+      z.literal("concat"),
+      z.literal("unique"),
+      z.literal("groupBy"),
+      z.literal("sum"),
+      z.literal("count"),
     ]),
-    intensity: Type.Optional(
-      Type.Union([Type.Literal("light"), Type.Literal("medium"), Type.Literal("heavy")])
-    ),
-    condition: Type.Optional(Type.String()),
+    params: z.record(z.string(), z.unknown()).optional(),
+    output: z.string(),
+    condition: z.string().optional(),
   }),
-  Type.Object({
-    type: Type.Literal("clipboard"),
-    text: Type.String(),
-    onSuccess: Type.Optional(Type.Unknown()), // Nested action
-    condition: Type.Optional(Type.String()),
+  z.object({
+    type: z.literal("spawn"),
+    machine: z.string(),
+    id: z.string(),
+    input: z.record(z.string(), z.unknown()).optional(),
+    condition: z.string().optional(),
   }),
-  Type.Object({
-    type: Type.Literal("focus"),
-    target: Type.String(),
-    condition: Type.Optional(Type.String()),
+  z.object({
+    type: z.literal("sendTo"),
+    to: z.string(),
+    event: z.string(),
+    payload: z.record(z.string(), z.unknown()).optional(),
+    condition: z.string().optional(),
   }),
-  Type.Object({
-    type: Type.Literal("host.event"),
-    name: Type.String(),
-    data: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-    condition: Type.Optional(Type.String()),
-  }),
-  Type.Object({
-    type: Type.Literal("host.close"),
-    result: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-    condition: Type.Optional(Type.String()),
-  }),
-  Type.Object({
-    type: Type.Literal("host.analytics"),
-    event: Type.String(),
-    properties: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-    condition: Type.Optional(Type.String()),
-  }),
-  Type.Object({
-    type: Type.Literal("conditional"),
-    condition: Type.String(),
-    then: Type.Array(Type.Unknown()), // Nested actions
-    else: Type.Optional(Type.Array(Type.Unknown())),
-  }),
-  Type.Object({
-    type: Type.Literal("transform"),
-    input: Type.String(),
-    operation: Type.Union([
-      Type.Literal("filter"),
-      Type.Literal("map"),
-      Type.Literal("sort"),
-      Type.Literal("find"),
-      Type.Literal("slice"),
-      Type.Literal("concat"),
-      Type.Literal("unique"),
-      Type.Literal("groupBy"),
-      Type.Literal("sum"),
-      Type.Literal("count"),
-    ]),
-    params: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-    output: Type.String(),
-    condition: Type.Optional(Type.String()),
-  }),
-  Type.Object({
-    type: Type.Literal("spawn"),
-    machine: Type.String(),
-    id: Type.String(),
-    input: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-    condition: Type.Optional(Type.String()),
-  }),
-  Type.Object({
-    type: Type.Literal("sendTo"),
-    to: Type.String(),
-    event: Type.String(),
-    payload: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-    condition: Type.Optional(Type.String()),
-  }),
-  Type.Object({
-    type: Type.Literal("stop"),
-    actor: Type.String(),
-    condition: Type.Optional(Type.String()),
+  z.object({
+    type: z.literal("stop"),
+    actor: z.string(),
+    condition: z.string().optional(),
   }),
 ]);
 
-export type Action = Static<typeof ActionSchema>;
+export type Action = z.infer<typeof ActionSchema>;
 
 /**
  * Actions can be a single action or array of actions
  */
-export const ActionsSchema = Type.Union([ActionSchema, Type.Array(ActionSchema)]);
+export const ActionsSchema = z.union([ActionSchema, z.array(ActionSchema)]);
 
-export type Actions = Static<typeof ActionsSchema>;
+export type Actions = z.infer<typeof ActionsSchema>;
 
 /**
  * Transition Schema - what happens when an event occurs
  */
-export const TransitionSchema = Type.Union([
-  Type.String(), // Simple target state
-  Type.Object({
-    target: Type.Optional(Type.String()),
-    actions: Type.Optional(ActionsSchema),
-    guard: Type.Optional(GuardSchema),
-    internal: Type.Optional(Type.Boolean()),
+export const TransitionSchema = z.union([
+  z.string(), // Simple target state
+  z.object({
+    target: z.string().optional(),
+    actions: ActionsSchema.optional(),
+    guard: GuardSchema.optional(),
+    internal: z.boolean().optional(),
   }),
 ]);
 
-export type Transition = Static<typeof TransitionSchema>;
+export type Transition = z.infer<typeof TransitionSchema>;
 
 /**
  * Transitions can be a single transition or array (first match wins)
  */
-export const TransitionsSchema = Type.Union([TransitionSchema, Type.Array(TransitionSchema)]);
+export const TransitionsSchema = z.union([TransitionSchema, z.array(TransitionSchema)]);
 
-export type Transitions = Static<typeof TransitionsSchema>;
+export type Transitions = z.infer<typeof TransitionsSchema>;
 
 /**
  * Invoke Schema - for invoking services (like fetch)
  */
-export const InvokeSchema = Type.Object({
-  id: Type.Optional(Type.String()),
-  src: Type.Union([
-    Type.String(),
-    Type.Object({
-      type: Type.Literal("fetch"),
-      url: Type.String(),
-      method: Type.Optional(Type.String()),
-      headers: Type.Optional(Type.Record(Type.String(), Type.String())),
-      body: Type.Optional(Type.Unknown()),
+export const InvokeSchema = z.object({
+  id: z.string().optional(),
+  src: z.union([
+    z.string(),
+    z.object({
+      type: z.literal("fetch"),
+      url: z.string(),
+      method: z.string().optional(),
+      headers: z.record(z.string(), z.string()).optional(),
+      body: z.unknown().optional(),
     }),
   ]),
-  onDone: Type.Optional(TransitionSchema),
-  onError: Type.Optional(TransitionSchema),
+  onDone: TransitionSchema.optional(),
+  onError: TransitionSchema.optional(),
 });
 
-export type Invoke = Static<typeof InvokeSchema>;
+export type Invoke = z.infer<typeof InvokeSchema>;
 
 /**
- * State Node Schema
+ * State Node Schema - recursive type for nested states
  */
-export const StateNodeSchema = Type.Recursive(
-  (Self) =>
-    Type.Object({
-      id: Type.Optional(Type.String()),
-      type: Type.Optional(
-        Type.Union([
-          Type.Literal("atomic"),
-          Type.Literal("compound"),
-          Type.Literal("parallel"),
-          Type.Literal("final"),
-        ])
-      ),
-      initial: Type.Optional(Type.String()),
-      entry: Type.Optional(ActionsSchema),
-      exit: Type.Optional(ActionsSchema),
-      on: Type.Optional(Type.Record(Type.String(), TransitionsSchema)),
-      after: Type.Optional(Type.Record(Type.String(), TransitionsSchema)),
-      always: Type.Optional(Type.Array(TransitionSchema)),
-      invoke: Type.Optional(Type.Union([InvokeSchema, Type.Array(InvokeSchema)])),
-      states: Type.Optional(Type.Record(Type.String(), Self)),
-      meta: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-    }),
-  { $id: "StateNode" }
-);
+// Define the StateNode type interface first for recursive reference
+export interface StateNode {
+  id?: string;
+  type?: "atomic" | "compound" | "parallel" | "final";
+  initial?: string;
+  entry?: Actions;
+  exit?: Actions;
+  on?: Record<string, Transitions>;
+  after?: Record<string, Transitions>;
+  always?: Transition[];
+  invoke?: Invoke | Invoke[];
+  states?: Record<string, StateNode>;
+  meta?: Record<string, unknown>;
+}
 
-export type StateNode = Static<typeof StateNodeSchema>;
+// Create the schema with lazy evaluation for recursion
+export const StateNodeSchema: z.ZodType<StateNode> = z.lazy(() =>
+  z.object({
+    id: z.string().optional(),
+    type: z
+      .union([
+        z.literal("atomic"),
+        z.literal("compound"),
+        z.literal("parallel"),
+        z.literal("final"),
+      ])
+      .optional(),
+    initial: z.string().optional(),
+    entry: ActionsSchema.optional(),
+    exit: ActionsSchema.optional(),
+    on: z.record(z.string(), TransitionsSchema).optional(),
+    after: z.record(z.string(), TransitionsSchema).optional(),
+    always: z.array(TransitionSchema).optional(),
+    invoke: z.union([InvokeSchema, z.array(InvokeSchema)]).optional(),
+    states: z.record(z.string(), StateNodeSchema).optional(),
+    meta: z.record(z.string(), z.unknown()).optional(),
+  })
+);
 
 /**
  * Guard Definition Schema
  */
-export const GuardDefinitionSchema = Type.Object({
-  condition: Type.String(),
+export const GuardDefinitionSchema = z.object({
+  condition: z.string(),
 });
 
-export type GuardDefinition = Static<typeof GuardDefinitionSchema>;
+export type GuardDefinition = z.infer<typeof GuardDefinitionSchema>;
 
 /**
  * Machine Schema - the complete state machine definition
  */
-export const MachineSchema = Type.Object({
-  id: Type.String(),
-  initial: Type.String(),
-  context: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-  states: Type.Record(Type.String(), StateNodeSchema),
-  on: Type.Optional(Type.Record(Type.String(), TransitionsSchema)), // Global handlers
-  guards: Type.Optional(Type.Record(Type.String(), GuardDefinitionSchema)),
-  actions: Type.Optional(
-    Type.Record(Type.String(), Type.Union([ActionSchema, Type.Array(ActionSchema)]))
-  ),
+export const MachineSchema = z.object({
+  id: z.string(),
+  initial: z.string(),
+  context: z.record(z.string(), z.unknown()).optional(),
+  states: z.record(z.string(), StateNodeSchema),
+  on: z.record(z.string(), TransitionsSchema).optional(), // Global handlers
+  guards: z.record(z.string(), GuardDefinitionSchema).optional(),
+  actions: z.record(z.string(), z.union([ActionSchema, z.array(ActionSchema)])).optional(),
 });
 
-export type Machine = Static<typeof MachineSchema>;
+export type Machine = z.infer<typeof MachineSchema>;
 
 /**
  * Mini-App Definition Schema - includes machine and named definitions
  */
-export const MiniAppSchema = Type.Object({
+export const MiniAppSchema = z.object({
   machine: MachineSchema,
-  guards: Type.Optional(Type.Record(Type.String(), GuardDefinitionSchema)),
-  actions: Type.Optional(
-    Type.Record(Type.String(), Type.Union([ActionSchema, Type.Array(ActionSchema)]))
-  ),
+  guards: z.record(z.string(), GuardDefinitionSchema).optional(),
+  actions: z.record(z.string(), z.union([ActionSchema, z.array(ActionSchema)])).optional(),
 });
 
-export type MiniApp = Static<typeof MiniAppSchema>;
+export type MiniApp = z.infer<typeof MiniAppSchema>;

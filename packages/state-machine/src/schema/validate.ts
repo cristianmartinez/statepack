@@ -1,43 +1,25 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler";
 import { type Machine, MachineSchema, type MiniApp, MiniAppSchema } from "./types";
-
-const machineValidator = TypeCompiler.Compile(MachineSchema);
-const miniAppValidator = TypeCompiler.Compile(MiniAppSchema);
 
 export interface ValidationResult {
   valid: boolean;
   errors: string[];
 }
 
-function formatError(error: { path: string; message: string }): string {
-  return `${error.path}: ${error.message}`;
-}
-
 export function validateMachine(machine: unknown): ValidationResult {
-  const valid = machineValidator.Check(machine);
-  if (valid) {
-    return validateMachineSemantics(machine as Machine);
+  const result = MachineSchema.safeParse(machine);
+  if (result.success) {
+    return validateMachineSemantics(result.data);
   }
-  const errors = [...machineValidator.Errors(machine)].map((e) =>
-    formatError({
-      path: e.path,
-      message: e.message,
-    })
-  );
+  const errors = result.error.issues.map((e) => `${e.path.join(".")}: ${e.message}`);
   return { valid: false, errors };
 }
 
 export function validateMiniApp(app: unknown): ValidationResult {
-  const valid = miniAppValidator.Check(app);
-  if (valid) {
-    return validateMiniAppSemantics(app as MiniApp);
+  const result = MiniAppSchema.safeParse(app);
+  if (result.success) {
+    return validateMiniAppSemantics(result.data);
   }
-  const errors = [...miniAppValidator.Errors(app)].map((e) =>
-    formatError({
-      path: e.path,
-      message: e.message,
-    })
-  );
+  const errors = result.error.issues.map((e) => `${e.path.join(".")}: ${e.message}`);
   return { valid: false, errors };
 }
 
@@ -127,11 +109,11 @@ function validateMiniAppSemantics(app: MiniApp): ValidationResult {
 }
 
 export function isMachine(value: unknown): value is Machine {
-  return machineValidator.Check(value);
+  return MachineSchema.safeParse(value).success;
 }
 
 export function isMiniApp(value: unknown): value is MiniApp {
-  return miniAppValidator.Check(value);
+  return MiniAppSchema.safeParse(value).success;
 }
 
 export function assertMachine(value: unknown): asserts value is Machine {

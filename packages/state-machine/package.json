@@ -15,7 +15,7 @@
   "dependencies": {
     "@ouni/conditions": "workspace:*",
     "@ouni/expressions": "workspace:*",
-    "@sinclair/typebox": "^0.34.41"
+    "zod": "3"
   },
   "devDependencies": {
     "@types/bun": "latest",
