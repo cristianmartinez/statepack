@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { parseExpression } from "./parse";
 import { evaluate } from "./evaluate";
+import { parseExpression } from "./parse";
 
 describe("parseExpression", () => {
   test("parses simple path (truthy check)", () => {

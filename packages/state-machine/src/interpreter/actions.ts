@@ -1,5 +1,5 @@
+import { evaluate as evalCondition, parseExpression } from "@ouni/conditions";
 import { evaluate as evaluateExpression } from "@ouni/expressions";
-import { parseExpression, evaluate as evalCondition } from "@ouni/conditions";
 import type { Action, Actions } from "../schema/types";
 import type { Event } from "./state";
 

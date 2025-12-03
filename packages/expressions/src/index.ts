@@ -1,63 +1,59 @@
 // Types
-export type {
-  Expression,
-  PathExpression,
-  Transform,
-  TransformArg,
-  Scope,
-  EvaluatorOptions,
-  TransformFn,
-  TransformRegistry,
-} from "./types";
 
 // Compiler (AST, Lexer, Parser)
 export type {
+  ArgumentNode,
   ExpressionAST,
   ExpressionNode,
-  PipeNode,
-  SimplePathNode,
-  PathNode,
-  TransformNode,
-  ArgumentNode,
   LiteralNode,
+  PathNode,
+  PipeNode,
   RefNode,
-  ValueNode,
+  SimplePathNode,
   Token,
   TokenType,
+  TransformNode,
+  ValueNode,
 } from "./compiler/index";
-
 export {
   AST,
-  isLiteralNode,
-  isPathNode,
-  isRefNode,
-  isTransformNode,
-  isPipeNode,
-  isSimplePathNode,
-  Lexer,
-  tokenize,
-  Parser,
   compile,
   compileToNode,
+  isLiteralNode,
+  isPathNode,
+  isPipeNode,
+  isRefNode,
+  isSimplePathNode,
+  isTransformNode,
+  Lexer,
+  Parser,
+  tokenize,
 } from "./compiler/index";
+// Evaluator
+export { createEvaluator, evaluate, evaluateTemplate, registerTransforms } from "./evaluate";
 
 // Template utilities
 export { extractBindings, hasBindings } from "./template";
-
-// Evaluator
-export { evaluate, evaluateTemplate, createEvaluator, registerTransforms } from "./evaluate";
-
-// Utilities
-export { getPath, setPath, isPathReference, resolveFromScope } from "./utils";
-
 // Transforms
-export { builtinTransforms } from "./transforms/index";
 export {
-  stringTransforms,
-  numberTransforms,
-  formatTransforms,
   arrayTransforms,
-  objectTransforms,
   booleanTransforms,
+  builtinTransforms,
+  formatTransforms,
+  numberTransforms,
+  objectTransforms,
   predicateTransforms,
+  stringTransforms,
 } from "./transforms/index";
+export type {
+  EvaluatorOptions,
+  Expression,
+  PathExpression,
+  Scope,
+  Transform,
+  TransformArg,
+  TransformFn,
+  TransformRegistry,
+} from "./types";
+// Utilities
+export { getPath, isPathReference, resolveFromScope, setPath } from "./utils";

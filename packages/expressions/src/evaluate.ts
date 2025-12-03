@@ -1,21 +1,21 @@
-import type {
-  Expression,
-  PathExpression,
-  Scope,
-  EvaluatorOptions,
-  TransformRegistry,
-} from "./types";
 import {
+  type ArgumentNode,
   compile,
   type ExpressionNode,
-  type ArgumentNode,
-  isPipeNode,
-  isSimplePathNode,
   isLiteralNode,
+  isPipeNode,
   isRefNode,
+  isSimplePathNode,
 } from "./compiler/index";
 import { extractBindings, hasBindings } from "./template";
 import { builtinTransforms } from "./transforms/index";
+import type {
+  EvaluatorOptions,
+  Expression,
+  PathExpression,
+  Scope,
+  TransformRegistry,
+} from "./types";
 import { resolveFromScope } from "./utils";
 
 /**

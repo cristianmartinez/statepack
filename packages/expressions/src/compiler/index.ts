@@ -1,14 +1,14 @@
 // AST Types and Helpers
 export type {
+  ArgumentNode,
   ExpressionAST,
   ExpressionNode,
-  PipeNode,
-  SimplePathNode,
-  PathNode,
-  TransformNode,
-  ArgumentNode,
   LiteralNode,
+  PathNode,
+  PipeNode,
   RefNode,
+  SimplePathNode,
+  TransformNode,
   ValueNode,
 } from "./ast";
 
@@ -16,15 +16,14 @@ export {
   AST,
   isLiteralNode,
   isPathNode,
-  isRefNode,
-  isTransformNode,
   isPipeNode,
+  isRefNode,
   isSimplePathNode,
+  isTransformNode,
 } from "./ast";
-
+export type { Token, TokenType } from "./lexer";
 // Lexer
 export { Lexer, tokenize } from "./lexer";
-export type { Token, TokenType } from "./lexer";
 
 // Parser/Compiler
-export { Parser, compile, compileToNode } from "./parser";
+export { compile, compileToNode, Parser } from "./parser";

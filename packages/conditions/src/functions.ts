@@ -21,7 +21,7 @@ export const builtinFunctions: Record<string, BuiltinFunction> = {
     return 0;
   },
 
-  some: (args, scope) => {
+  some: (args, _scope) => {
     const [arr, property] = args;
     if (!Array.isArray(arr)) return false;
     if (typeof property !== "string") return false;
@@ -31,7 +31,7 @@ export const builtinFunctions: Record<string, BuiltinFunction> = {
     });
   },
 
-  every: (args, scope) => {
+  every: (args, _scope) => {
     const [arr, property] = args;
     if (!Array.isArray(arr)) return false;
     if (typeof property !== "string") return false;
@@ -41,7 +41,7 @@ export const builtinFunctions: Record<string, BuiltinFunction> = {
     });
   },
 
-  none: (args, scope) => {
+  none: (args, _scope) => {
     const [arr, property] = args;
     if (!Array.isArray(arr)) return false;
     if (typeof property !== "string") return false;
@@ -51,7 +51,7 @@ export const builtinFunctions: Record<string, BuiltinFunction> = {
     });
   },
 
-  count: (args, scope) => {
+  count: (args, _scope) => {
     const [arr, property] = args;
     if (!Array.isArray(arr)) return 0;
     if (typeof property !== "string") return arr.length;

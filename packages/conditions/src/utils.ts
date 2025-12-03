@@ -1,4 +1,4 @@
-import type { Value, Scope, RefValue, LiteralValue } from "./types";
+import type { LiteralValue, RefValue, Scope, Value } from "./types";
 
 /** Known scope prefixes for path detection */
 const PATH_PREFIXES = ["context.", "params.", "loaderData.", "event.", "item.", "state."];

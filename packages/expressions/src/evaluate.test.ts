@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { evaluate, evaluateTemplate, createEvaluator } from "./evaluate";
+import { createEvaluator, evaluate, evaluateTemplate } from "./evaluate";
 import type { Scope } from "./types";
 
 describe("evaluate", () => {

@@ -78,7 +78,7 @@ export const stringTransforms: Record<string, TransformFn> = {
     return result;
   },
 
-  template: (value, args, scope) => {
+  template: (_value, args, scope) => {
     // Template string with {property} placeholders
     const template = String(args[0] ?? "");
     return template.replace(/\{(\w+)\}/g, (_, key) => {

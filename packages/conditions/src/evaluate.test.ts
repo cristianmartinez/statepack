@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { evaluate, createEvaluator } from "./evaluate";
+import { createEvaluator, evaluate } from "./evaluate";
 import type { Condition, Scope } from "./types";
 
 describe("evaluate", () => {
@@ -266,13 +266,6 @@ describe("evaluate", () => {
 
     test("length", () => {
       const scope: Scope = { context: { items: [1, 2, 3] } };
-      const condition: Condition = {
-        type: "compare",
-        op: ">",
-        left: { type: "fn", name: "length", args: ["context.items"] } as any,
-        right: 2,
-      };
-      // Note: fn in compare left is not directly supported, test includes separately
       const fnCondition: Condition = {
         type: "fn",
         name: "length",

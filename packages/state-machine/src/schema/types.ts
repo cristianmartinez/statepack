@@ -1,4 +1,4 @@
-import { Type, type Static } from "@sinclair/typebox";
+import { type Static, Type } from "@sinclair/typebox";
 
 /**
  * Simple Guard Schema (inline guards use condition, compound use and/or/not)

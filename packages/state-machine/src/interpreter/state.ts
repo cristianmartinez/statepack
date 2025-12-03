@@ -1,4 +1,4 @@
-import type { StateNode, Machine } from "../schema/types";
+import type { Machine, StateNode } from "../schema/types";
 
 /**
  * Represents the current state value

@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { validateMachine, validateMiniApp, isMachine, isMiniApp, assertMachine } from "./validate";
-import type { Machine, MiniApp } from "./types";
+import { assertMachine, isMachine, isMiniApp, validateMachine, validateMiniApp } from "./validate";
 
 describe("validateMachine", () => {
   test("validates simple machine", () => {

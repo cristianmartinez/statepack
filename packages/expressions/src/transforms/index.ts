@@ -1,11 +1,11 @@
 import type { TransformRegistry } from "../types";
-import { stringTransforms } from "./string";
-import { numberTransforms } from "./number";
-import { formatTransforms } from "./format";
 import { arrayTransforms } from "./array";
-import { objectTransforms } from "./object";
 import { booleanTransforms } from "./boolean";
+import { formatTransforms } from "./format";
+import { numberTransforms } from "./number";
+import { objectTransforms } from "./object";
 import { predicateTransforms } from "./predicate";
+import { stringTransforms } from "./string";
 
 /**
  * All built-in transforms

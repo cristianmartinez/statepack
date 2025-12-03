@@ -3,13 +3,13 @@ import type { TransformFn } from "../types";
 export const numberTransforms: Record<string, TransformFn> = {
   number: (value) => {
     const num = Number(value);
-    return isNaN(num) ? 0 : num;
+    return Number.isNaN(num) ? 0 : num;
   },
 
   round: (value, args) => {
     const num = Number(value);
     const decimals = Number(args[0] ?? 0);
-    const factor = Math.pow(10, decimals);
+    const factor = 10 ** decimals;
     return Math.round(num * factor) / factor;
   },
 
@@ -41,7 +41,7 @@ export const numberTransforms: Record<string, TransformFn> = {
 
   mod: (value, args) => Number(value) % Number(args[0] ?? 1),
 
-  pow: (value, args) => Math.pow(Number(value), Number(args[0] ?? 1)),
+  pow: (value, args) => Number(value) ** Number(args[0] ?? 1),
 
   sqrt: (value) => Math.sqrt(Number(value)),
 

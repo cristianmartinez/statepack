@@ -1,6 +1,6 @@
-import type { TransformFn, Scope } from "../types";
+import type { Scope, TransformFn } from "../types";
 
-function getLocale(scope: Scope): string {
+function getLocale(_scope: Scope): string {
   return "en-US"; // Could be extended via scope or options
 }
 
@@ -18,7 +18,7 @@ export const formatTransforms: Record<string, TransformFn> = {
 
   date: (value, args, scope) => {
     const date = value instanceof Date ? value : new Date(value as string | number);
-    if (isNaN(date.getTime())) return String(value);
+    if (Number.isNaN(date.getTime())) return String(value);
 
     const format = String(args[0] ?? "medium");
     const locale = getLocale(scope);
@@ -33,7 +33,7 @@ export const formatTransforms: Record<string, TransformFn> = {
 
   time: (value, args, scope) => {
     const date = value instanceof Date ? value : new Date(value as string | number);
-    if (isNaN(date.getTime())) return String(value);
+    if (Number.isNaN(date.getTime())) return String(value);
 
     const format = String(args[0] ?? "short");
     const locale = getLocale(scope);
@@ -48,7 +48,7 @@ export const formatTransforms: Record<string, TransformFn> = {
 
   duration: (value) => {
     const seconds = Number(value);
-    if (isNaN(seconds)) return String(value);
+    if (Number.isNaN(seconds)) return String(value);
 
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -64,7 +64,7 @@ export const formatTransforms: Record<string, TransformFn> = {
 
   bytes: (value) => {
     const bytes = Number(value);
-    if (isNaN(bytes)) return String(value);
+    if (Number.isNaN(bytes)) return String(value);
 
     const units = ["B", "KB", "MB", "GB", "TB"];
     let unitIndex = 0;
@@ -80,7 +80,7 @@ export const formatTransforms: Record<string, TransformFn> = {
 
   ordinal: (value) => {
     const num = Number(value);
-    if (isNaN(num)) return String(value);
+    if (Number.isNaN(num)) return String(value);
 
     const suffix = getOrdinalSuffix(num);
     return `${num}${suffix}`;
@@ -106,7 +106,7 @@ export const formatTransforms: Record<string, TransformFn> = {
     return new Intl.NumberFormat(locale).format(num);
   },
 
-  "percent:format": (value, args, scope) => {
+  "percent:format": (value, _args, scope) => {
     const num = Number(value);
     const locale = getLocale(scope);
 

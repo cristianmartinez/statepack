@@ -1,14 +1,14 @@
+import { builtinFunctions, resolveFunctionArgs } from "./functions";
 import type {
-  Condition,
-  Scope,
-  EvaluatorOptions,
   CompareCondition,
+  Condition,
+  EvaluatorOptions,
   FunctionCondition,
   MatchCondition,
+  Scope,
   StateCondition,
 } from "./types";
-import { getPath, resolveValue, isEmpty } from "./utils";
-import { builtinFunctions, resolveFunctionArgs } from "./functions";
+import { getPath, isEmpty, resolveValue } from "./utils";
 
 /**
  * Evaluate a condition against a scope

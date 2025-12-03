@@ -1,5 +1,5 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler";
-import { MachineSchema, MiniAppSchema, type Machine, type MiniApp } from "./types";
+import { type Machine, MachineSchema, type MiniApp, MiniAppSchema } from "./types";
 
 const machineValidator = TypeCompiler.Compile(MachineSchema);
 const miniAppValidator = TypeCompiler.Compile(MiniAppSchema);

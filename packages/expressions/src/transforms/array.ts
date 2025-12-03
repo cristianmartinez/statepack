@@ -1,4 +1,4 @@
-import type { TransformFn, Scope } from "../types";
+import type { TransformFn } from "../types";
 import { getPath } from "../utils";
 
 export const arrayTransforms: Record<string, TransformFn> = {

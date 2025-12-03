@@ -5,17 +5,15 @@
  * that can be serialized, validated, and evaluated.
  */
 
-import { Lexer, type Token, type TokenType } from "./lexer";
 import {
+  type ArgumentNode,
+  AST,
   type ExpressionAST,
   type ExpressionNode,
   type PathNode,
   type TransformNode,
-  type ArgumentNode,
-  type LiteralNode,
-  type RefNode,
-  AST,
 } from "./ast";
+import { Lexer, type Token, type TokenType } from "./lexer";
 
 export class Parser {
   private tokens: Token[] = [];

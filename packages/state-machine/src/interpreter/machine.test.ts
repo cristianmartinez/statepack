@@ -1,6 +1,6 @@
-import { describe, expect, test, beforeEach, mock } from "bun:test";
-import { interpret, Interpreter } from "./machine";
+import { describe, expect, test } from "bun:test";
 import type { Machine } from "../schema/types";
+import { interpret } from "./machine";
 
 describe("Interpreter", () => {
   describe("basic transitions", () => {

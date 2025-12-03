@@ -3,7 +3,7 @@
  * Supports: path lookups, comparisons, && and ||
  */
 
-import type { Condition, CompareOp, Value } from "./types";
+import type { CompareOp, Condition, Value } from "./types";
 
 /**
  * Parse a string expression into a structured Condition

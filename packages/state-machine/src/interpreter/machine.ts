@@ -1,15 +1,15 @@
-import type { Machine, StateNode, Action, GuardDefinition, Transition } from "../schema/types";
+import type { Action, GuardDefinition, Machine, StateNode, Transition } from "../schema/types";
+import { type ActionEffect, executeActions, normalizeActions } from "./actions";
+import { createGuardContext, findMatchingTransition } from "./guards";
 import {
   createInitialState,
-  matchesState,
+  type Event,
   getActiveStateNodes,
-  toStateString,
+  matchesState,
   type State,
   type StateValue,
-  type Event,
+  toStateString,
 } from "./state";
-import { evaluateGuard, findMatchingTransition, createGuardContext } from "./guards";
-import { executeActions, normalizeActions, type ActionResult, type ActionEffect } from "./actions";
 
 /**
  * Options for the interpreter
@@ -170,7 +170,7 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
   private executeTransition(
     transition: Transition,
     event: Event,
-    sourceNode?: StateNode
+    _sourceNode?: StateNode
   ): State<TContext> {
     const target = typeof transition === "string" ? transition : transition.target;
     const actions = typeof transition === "string" ? undefined : transition.actions;
@@ -353,7 +353,7 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
       if (node.after) {
         for (const [delay, transition] of Object.entries(node.after)) {
           const delayMs = parseInt(delay, 10);
-          if (isNaN(delayMs)) continue;
+          if (Number.isNaN(delayMs)) continue;
 
           const timerId = setTimeout(() => {
             const guardCtx = createGuardContext(

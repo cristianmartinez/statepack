@@ -1,28 +1,26 @@
 export {
-  type State,
-  type StateValue,
-  type Event,
-  createInitialState,
-  matchesState,
-  toStateString,
-  getActiveStateNodes,
-  getLeafStates,
-} from "./state";
-
-export {
-  type GuardContext,
-  evaluateGuard,
-  findMatchingTransition,
-  createGuardContext,
-} from "./guards";
-
-export {
   type ActionContext,
-  type ActionResult,
   type ActionEffect,
   type ActionExecutor,
+  type ActionResult,
   executeActions,
   normalizeActions,
 } from "./actions";
 
-export { Interpreter, interpret, type InterpreterOptions } from "./machine";
+export {
+  createGuardContext,
+  evaluateGuard,
+  findMatchingTransition,
+  type GuardContext,
+} from "./guards";
+export { Interpreter, type InterpreterOptions, interpret } from "./machine";
+export {
+  createInitialState,
+  type Event,
+  getActiveStateNodes,
+  getLeafStates,
+  matchesState,
+  type State,
+  type StateValue,
+  toStateString,
+} from "./state";

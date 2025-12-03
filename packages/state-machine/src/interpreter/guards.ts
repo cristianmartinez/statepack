@@ -1,11 +1,11 @@
 import {
-  parseExpression,
   evaluate as evaluateCondition,
+  parseExpression,
   type Scope,
   type StateValue,
 } from "@ouni/conditions";
 import type { GuardDefinition, Transition } from "../schema/types";
-import type { State, Event } from "./state";
+import type { Event, State } from "./state";
 
 export interface GuardContext {
   context: Record<string, unknown>;

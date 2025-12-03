@@ -1,4 +1,4 @@
-import type { TransformFn, Scope } from "../types";
+import type { Scope, TransformFn } from "../types";
 import { getPath } from "../utils";
 
 /**
@@ -44,7 +44,7 @@ export const predicateTransforms: Record<string, TransformFn> = {
     });
   },
 
-  mapWith: (value, args, scope) => {
+  mapWith: (value, args, _scope) => {
     if (!Array.isArray(value)) return value;
     const expr = String(args[0] ?? "");
 
@@ -147,7 +147,7 @@ function resolvePredicateArg(arg: unknown, scope: Scope, item: unknown): unknown
 
   // Number
   const num = Number(str);
-  if (!isNaN(num)) return num;
+  if (!Number.isNaN(num)) return num;
 
   // Return as string
   return str;
