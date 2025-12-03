@@ -4,6 +4,13 @@
  * XState-inspired declarative state machine for mini-apps
  */
 
+// Compiler exports
+export {
+  compileMachine,
+  type CompiledCache,
+  type CompiledMachine,
+  isCompiledMachine,
+} from "./compiler/index";
 // Interpreter exports
 export {
   type ActionContext,

@@ -27,3 +27,7 @@ export { Lexer, tokenize } from "./lexer";
 
 // Parser/Compiler
 export { compile, compileToNode, Parser } from "./parser";
+
+// Template Compilation
+export type { CompiledTemplate, TemplatePart } from "./template-compiler";
+export { compileTemplate } from "./template-compiler";

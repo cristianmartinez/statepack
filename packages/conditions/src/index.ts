@@ -7,6 +7,9 @@ export type { BuiltinFunction } from "./functions";
 export { builtinFunctions } from "./functions";
 // Parser (string expression to Condition)
 export { parseExpression } from "./parse";
+
+// Compiler alias for consistency with other packages
+export { parseExpression as compile } from "./parse";
 export type {
   AndCondition,
   CompareCondition,

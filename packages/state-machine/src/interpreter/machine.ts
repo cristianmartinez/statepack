@@ -1,3 +1,5 @@
+import type { CompiledCache, CompiledMachine } from "../compiler/types";
+import { isCompiledMachine } from "../compiler/types";
 import type { Action, GuardDefinition, Machine, StateNode, Transition } from "../schema/types";
 import { type ActionEffect, executeActions, normalizeActions } from "./actions";
 import { createGuardContext, findMatchingTransition } from "./guards";
@@ -37,16 +39,25 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
   private subscribers: Set<(state: State<TContext>) => void>;
   private timers: Map<string, ReturnType<typeof setTimeout>>;
   private running: boolean;
+  private compiled?: CompiledCache;
 
-  constructor(machine: Machine, options: InterpreterOptions = {}) {
-    this.machine = machine;
+  constructor(machine: Machine | CompiledMachine, options: InterpreterOptions = {}) {
+    // Extract source machine and compiled cache
+    if (isCompiledMachine(machine)) {
+      this.machine = machine.source;
+      this.compiled = machine.compiled;
+    } else {
+      this.machine = machine;
+      this.compiled = undefined;
+    }
+
     this.options = options;
-    this.namedGuards = machine.guards ?? {};
-    this.namedActions = machine.actions ?? {};
+    this.namedGuards = this.machine.guards ?? {};
+    this.namedActions = this.machine.actions ?? {};
     this.subscribers = new Set();
     this.timers = new Map();
     this.running = false;
-    this.state = createInitialState<TContext>(machine);
+    this.state = createInitialState<TContext>(this.machine);
   }
 
   /**
@@ -138,7 +149,12 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
     for (const node of [...activeNodes].reverse()) {
       if (node.on && event.type in node.on) {
         const transitions = node.on[event.type];
-        matchedTransition = findMatchingTransition(transitions, guardCtx, this.namedGuards);
+        matchedTransition = findMatchingTransition(
+          transitions,
+          guardCtx,
+          this.namedGuards,
+          this.compiled
+        );
         if (matchedTransition) {
           matchedNode = node;
           break;
@@ -151,7 +167,8 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
       matchedTransition = findMatchingTransition(
         this.machine.on[event.type],
         guardCtx,
-        this.namedGuards
+        this.namedGuards,
+        this.compiled
       );
     }
 
@@ -244,7 +261,7 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
       state: { value: this.state.value },
     };
 
-    const result = executeActions(actions, ctx, this.namedActions);
+    const result = executeActions(actions, ctx, this.namedActions, this.compiled);
 
     // Update context
     this.state = {
@@ -333,7 +350,12 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
     for (const node of nodes) {
       if (node.always) {
         for (const transition of node.always) {
-          const matched = findMatchingTransition(transition, guardCtx, this.namedGuards);
+          const matched = findMatchingTransition(
+            transition,
+            guardCtx,
+            this.namedGuards,
+            this.compiled
+          );
           if (matched) {
             this.executeTransition(matched, { type: "" }, node);
             return; // Only execute first match
@@ -362,7 +384,12 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
               (pattern) => this.matches(pattern)
             );
 
-            const matched = findMatchingTransition(transition, guardCtx, this.namedGuards);
+            const matched = findMatchingTransition(
+              transition,
+              guardCtx,
+              this.namedGuards,
+              this.compiled
+            );
 
             if (matched) {
               this.executeTransition(matched, { type: `xstate.after.${delay}` }, node);
@@ -531,7 +558,7 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
  * Create an interpreter for a machine
  */
 export function interpret<TContext extends Record<string, unknown> = Record<string, unknown>>(
-  machine: Machine,
+  machine: Machine | CompiledMachine,
   options?: InterpreterOptions
 ): Interpreter<TContext> {
   return new Interpreter<TContext>(machine, options);

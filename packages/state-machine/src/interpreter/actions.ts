@@ -1,5 +1,6 @@
 import { evaluate as evalCondition, parseExpression } from "@ouni/conditions";
-import { evaluate as evaluateExpression } from "@ouni/expressions";
+import { evaluate as evaluateExpression, evaluateCompiledTemplate } from "@ouni/expressions";
+import type { CompiledCache } from "../compiler/types";
 import type { Action, Actions } from "../schema/types";
 import type { Event } from "./state";
 
@@ -8,8 +9,16 @@ import type { Event } from "./state";
  */
 function evaluateCondition(
   expr: string,
-  ctx: { context: Record<string, unknown>; event: Event }
+  ctx: { context: Record<string, unknown>; event: Event },
+  compiled?: CompiledCache
 ): boolean {
+  // Check compiled cache first
+  const cached = compiled?.guards.get(expr);
+  if (cached) {
+    return evalCondition(cached.ast, ctx);
+  }
+
+  // Fallback to runtime parse (backward compatible)
   const condition = parseExpression(expr);
   return evalCondition(condition, ctx);
 }
@@ -60,7 +69,8 @@ export interface ActionExecutor {
 export function executeActions(
   actions: Actions | undefined,
   ctx: ActionContext,
-  namedActions: Record<string, Action | Action[]>
+  namedActions: Record<string, Action | Action[]>,
+  compiled?: CompiledCache
 ): ActionResult {
   const result: ActionResult = {
     context: { ...ctx.context },
@@ -74,7 +84,7 @@ export function executeActions(
   const actionList = Array.isArray(actions) ? actions : [actions];
 
   for (const action of actionList) {
-    executeAction(action, ctx, namedActions, result);
+    executeAction(action, ctx, namedActions, result, compiled);
   }
 
   return result;
@@ -84,7 +94,8 @@ function executeAction(
   action: Action,
   ctx: ActionContext,
   namedActions: Record<string, Action | Action[]>,
-  result: ActionResult
+  result: ActionResult,
+  compiled?: CompiledCache
 ): void {
   // String reference to named action
   if (typeof action === "string") {
@@ -95,7 +106,7 @@ function executeAction(
     }
     const actionList = Array.isArray(namedAction) ? namedAction : [namedAction];
     for (const a of actionList) {
-      executeAction(a, ctx, namedActions, result);
+      executeAction(a, ctx, namedActions, result, compiled);
     }
     return;
   }
@@ -108,7 +119,7 @@ function executeAction(
       context: result.context,
       event: ctx.event,
     };
-    if (!evaluateCondition(actionObj.condition, conditionCtx)) {
+    if (!evaluateCondition(actionObj.condition, conditionCtx, compiled)) {
       return;
     }
   }
@@ -117,19 +128,19 @@ function executeAction(
 
   switch (actionType) {
     case "assign":
-      handleAssign(actionObj, ctx, result);
+      handleAssign(actionObj, ctx, result, compiled);
       break;
 
     case "raise":
-      handleRaise(actionObj, ctx, result);
+      handleRaise(actionObj, ctx, result, compiled);
       break;
 
     case "send":
-      handleSend(actionObj, ctx, result);
+      handleSend(actionObj, ctx, result, compiled);
       break;
 
     case "conditional":
-      handleConditional(actionObj, ctx, namedActions, result);
+      handleConditional(actionObj, ctx, namedActions, result, compiled);
       break;
 
     case "log":
@@ -150,7 +161,7 @@ function executeAction(
     case "spawn":
     case "sendTo":
     case "stop":
-      handleEffect(actionObj, ctx, result);
+      handleEffect(actionObj, ctx, result, compiled);
       break;
 
     default:
@@ -161,34 +172,48 @@ function executeAction(
 function handleAssign(
   action: Record<string, unknown>,
   ctx: ActionContext,
-  result: ActionResult
+  result: ActionResult,
+  compiled?: CompiledCache
 ): void {
   const values = action.values as Record<string, unknown>;
   if (!values) return;
 
   for (const [key, value] of Object.entries(values)) {
-    result.context[key] = resolveValue(value, {
-      context: result.context,
-      event: ctx.event,
-    });
+    result.context[key] = resolveValue(
+      value,
+      {
+        context: result.context,
+        event: ctx.event,
+      },
+      compiled
+    );
   }
 }
 
 function handleRaise(
   action: Record<string, unknown>,
   ctx: ActionContext,
-  result: ActionResult
+  result: ActionResult,
+  compiled?: CompiledCache
 ): void {
-  const eventType = resolveValue(action.event, {
-    context: result.context,
-    event: ctx.event,
-  }) as string;
+  const eventType = resolveValue(
+    action.event,
+    {
+      context: result.context,
+      event: ctx.event,
+    },
+    compiled
+  ) as string;
 
   const payload = action.payload
-    ? resolveValues(action.payload as Record<string, unknown>, {
-        context: result.context,
-        event: ctx.event,
-      })
+    ? resolveValues(
+        action.payload as Record<string, unknown>,
+        {
+          context: result.context,
+          event: ctx.event,
+        },
+        compiled
+      )
     : {};
 
   result.raisedEvents.push({ type: eventType, ...payload });
@@ -197,18 +222,27 @@ function handleRaise(
 function handleSend(
   action: Record<string, unknown>,
   ctx: ActionContext,
-  result: ActionResult
+  result: ActionResult,
+  compiled?: CompiledCache
 ): void {
-  const eventType = resolveValue(action.event, {
-    context: result.context,
-    event: ctx.event,
-  }) as string;
+  const eventType = resolveValue(
+    action.event,
+    {
+      context: result.context,
+      event: ctx.event,
+    },
+    compiled
+  ) as string;
 
   const payload = action.payload
-    ? resolveValues(action.payload as Record<string, unknown>, {
-        context: result.context,
-        event: ctx.event,
-      })
+    ? resolveValues(
+        action.payload as Record<string, unknown>,
+        {
+          context: result.context,
+          event: ctx.event,
+        },
+        compiled
+      )
     : {};
 
   const delay = action.delay as number | undefined;
@@ -223,7 +257,8 @@ function handleConditional(
   action: Record<string, unknown>,
   ctx: ActionContext,
   namedActions: Record<string, Action | Action[]>,
-  result: ActionResult
+  result: ActionResult,
+  compiled?: CompiledCache
 ): void {
   const condition = action.condition as string;
   const conditionCtx = {
@@ -231,13 +266,13 @@ function handleConditional(
     event: ctx.event,
   };
 
-  const conditionMet = evaluateCondition(condition, conditionCtx);
+  const conditionMet = evaluateCondition(condition, conditionCtx, compiled);
 
   const actions = conditionMet ? (action.then as Action[]) : (action.else as Action[] | undefined);
 
   if (actions) {
     for (const a of actions) {
-      executeAction(a, { ...ctx, context: result.context }, namedActions, result);
+      executeAction(a, { ...ctx, context: result.context }, namedActions, result, compiled);
     }
   }
 }
@@ -245,13 +280,18 @@ function handleConditional(
 function handleEffect(
   action: Record<string, unknown>,
   ctx: ActionContext,
-  result: ActionResult
+  result: ActionResult,
+  compiled?: CompiledCache
 ): void {
   // Resolve all template values in the action params
-  const resolvedParams = resolveValues(action, {
-    context: result.context,
-    event: ctx.event,
-  });
+  const resolvedParams = resolveValues(
+    action,
+    {
+      context: result.context,
+      event: ctx.event,
+    },
+    compiled
+  );
 
   result.effects.push({
     type: action.type as string,
@@ -264,30 +304,55 @@ function handleEffect(
  */
 function resolveValue(
   value: unknown,
-  scope: { context: Record<string, unknown>; event: Event }
+  scope: { context: Record<string, unknown>; event: Event },
+  compiled?: CompiledCache
 ): unknown {
   if (typeof value === "string") {
-    // Check for template expression
+    // Check for full template expression "{{ ... }}"
     if (value.startsWith("{{") && value.endsWith("}}")) {
+      // Check compiled template cache first (it has the whole string as key)
+      const cachedTemplate = compiled?.templates.get(value);
+      if (cachedTemplate) {
+        return evaluateCompiledTemplate(cachedTemplate.compilation, scope);
+      }
+
+      // Try expression cache with trimmed expression
       const expr = value.slice(2, -2).trim();
+      const cachedExpr = compiled?.expressions.get(expr);
+      if (cachedExpr) {
+        // For now, use the string-based evaluator as fallback
+        // TODO: Add AST-only evaluation support to expressions package
+        return evaluateExpression(expr, scope);
+      }
+
+      // Fallback to runtime parse
       return evaluateExpression(expr, scope);
     }
-    // Check for inline template parts
+
+    // Check for inline template parts "Hello {{ name }}"
     if (value.includes("{{")) {
+      // Check compiled template cache
+      const cachedTemplate = compiled?.templates.get(value);
+      if (cachedTemplate) {
+        return evaluateCompiledTemplate(cachedTemplate.compilation, scope);
+      }
+
+      // Fallback to runtime template evaluation
       return value.replace(/\{\{([^}]+)\}\}/g, (_, expr) => {
         const result = evaluateExpression(expr.trim(), scope);
         return String(result ?? "");
       });
     }
+
     return value;
   }
 
   if (Array.isArray(value)) {
-    return value.map((v) => resolveValue(v, scope));
+    return value.map((v) => resolveValue(v, scope, compiled));
   }
 
   if (value !== null && typeof value === "object") {
-    return resolveValues(value as Record<string, unknown>, scope);
+    return resolveValues(value as Record<string, unknown>, scope, compiled);
   }
 
   return value;
@@ -298,14 +363,15 @@ function resolveValue(
  */
 function resolveValues(
   obj: Record<string, unknown>,
-  scope: { context: Record<string, unknown>; event: Event }
+  scope: { context: Record<string, unknown>; event: Event },
+  compiled?: CompiledCache
 ): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(obj)) {
     if (key === "type" || key === "condition") {
       result[key] = value; // Don't resolve these
     } else {
-      result[key] = resolveValue(value, scope);
+      result[key] = resolveValue(value, scope, compiled);
     }
   }
   return result;

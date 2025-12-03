@@ -3,6 +3,7 @@
 // Compiler (AST, Lexer, Parser)
 export type {
   ArgumentNode,
+  CompiledTemplate,
   ExpressionAST,
   ExpressionNode,
   LiteralNode,
@@ -10,6 +11,7 @@ export type {
   PipeNode,
   RefNode,
   SimplePathNode,
+  TemplatePart,
   Token,
   TokenType,
   TransformNode,
@@ -18,6 +20,7 @@ export type {
 export {
   AST,
   compile,
+  compileTemplate,
   compileToNode,
   isLiteralNode,
   isPathNode,
@@ -30,7 +33,13 @@ export {
   tokenize,
 } from "./compiler/index";
 // Evaluator
-export { createEvaluator, evaluate, evaluateTemplate, registerTransforms } from "./evaluate";
+export {
+  createEvaluator,
+  evaluate,
+  evaluateCompiledTemplate,
+  evaluateTemplate,
+  registerTransforms,
+} from "./evaluate";
 
 // Template utilities
 export { extractBindings, hasBindings } from "./template";

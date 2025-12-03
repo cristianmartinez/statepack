@@ -1,6 +1,7 @@
 import {
   type ArgumentNode,
   compile,
+  type CompiledTemplate,
   type ExpressionNode,
   isLiteralNode,
   isPipeNode,
@@ -88,6 +89,65 @@ export function evaluateTemplate(
   }
 
   return result;
+}
+
+/**
+ * Evaluate a pre-compiled template with AST nodes
+ */
+export function evaluateCompiledTemplate(
+  compiled: CompiledTemplate,
+  scope: Scope,
+  options: EvaluatorOptions = {}
+): string {
+  let result = "";
+
+  for (const part of compiled.parts) {
+    if (part.type === "static") {
+      result += part.value as string;
+    } else {
+      // part.type === "expression", part.value is ExpressionNode
+      const ast = part.value as ExpressionNode;
+      const value = evaluateAST(ast, scope, options);
+      result += String(value ?? "");
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Evaluate an AST node directly (internal helper)
+ */
+function evaluateAST(
+  ast: ExpressionNode,
+  scope: Scope,
+  options: EvaluatorOptions = {}
+): unknown {
+  const transforms = options.transforms
+    ? { ...builtinTransforms, ...options.transforms }
+    : builtinTransforms;
+
+  if (isSimplePathNode(ast)) {
+    return resolveFromScope(ast.path.value, scope);
+  }
+
+  if (isPipeNode(ast)) {
+    let value = resolveFromScope(ast.source.value, scope);
+
+    for (const transform of ast.transforms) {
+      const transformFn = transforms[transform.name];
+      if (!transformFn) {
+        throw new Error(`Unknown transform: ${transform.name}`);
+      }
+
+      const args = transform.args.map((arg) => resolveArg(arg, scope));
+      value = transformFn(value, args, scope);
+    }
+
+    return value;
+  }
+
+  throw new Error("Unknown AST node type");
 }
 
 /**
