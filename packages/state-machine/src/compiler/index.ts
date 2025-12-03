@@ -1,4 +1,3 @@
-import { compile as compileCondition } from "@ouni/conditions";
 import { compile as compileExpression, compileTemplate } from "@ouni/expressions";
 import type { Action, Actions, Machine, StateNode, Transition, Transitions } from "../schema/types";
 import type { CompiledMachine } from "./types";
@@ -22,19 +21,9 @@ export function compileMachine(machine: Machine): CompiledMachine {
     templates: new Map(),
   };
 
-  // Compile named guards
-  if (machine.guards) {
-    for (const [name, guardDef] of Object.entries(machine.guards)) {
-      const conditionStr = guardDef.condition;
-      if (!compiled.guards.has(conditionStr)) {
-        const compiledCondition = compileCondition(conditionStr);
-        compiled.guards.set(conditionStr, {
-          source: compiledCondition.source,
-          ast: compiledCondition.ast,
-        });
-      }
-    }
-  }
+  // Note: Guards (conditions) are no longer compiled.
+  // The @ouni/conditions package uses JSON condition objects directly.
+  // Guards will be evaluated at runtime using the condition objects.
 
   // Compile named actions
   if (machine.actions) {
@@ -139,42 +128,14 @@ function compileTransition(transition: Transition, compiled: CompiledMachine["co
 
 /**
  * Compile a guard (can be string, inline, or compound)
+ *
+ * Note: Guards are no longer compiled. The @ouni/conditions package
+ * uses JSON condition objects directly without string compilation.
  */
-function compileGuard(guard: unknown, compiled: CompiledMachine["compiled"]): void {
-  if (typeof guard === "string") {
-    return; // Named guard reference, will be resolved at runtime
-  }
-
-  const guardObj = guard as Record<string, unknown>;
-
-  // Inline condition
-  if ("condition" in guardObj && typeof guardObj.condition === "string") {
-    const conditionStr = guardObj.condition;
-    if (!compiled.guards.has(conditionStr)) {
-      const compiledCondition = compileCondition(conditionStr);
-      compiled.guards.set(conditionStr, {
-        source: compiledCondition.source,
-        ast: compiledCondition.ast,
-      });
-    }
-  }
-
-  // Compound guards (and/or/not)
-  if ("and" in guardObj && Array.isArray(guardObj.and)) {
-    for (const g of guardObj.and) {
-      compileGuard(g, compiled);
-    }
-  }
-
-  if ("or" in guardObj && Array.isArray(guardObj.or)) {
-    for (const g of guardObj.or) {
-      compileGuard(g, compiled);
-    }
-  }
-
-  if ("not" in guardObj) {
-    compileGuard(guardObj.not, compiled);
-  }
+function compileGuard(_guard: unknown, _compiled: CompiledMachine["compiled"]): void {
+  // Guards are evaluated at runtime using condition objects
+  // No compilation needed
+  return;
 }
 
 /**
@@ -198,17 +159,8 @@ function compileAction(action: Action, compiled: CompiledMachine["compiled"]): v
 
   const actionObj = action as Record<string, unknown>;
 
-  // Compile condition if present
-  if (actionObj.condition && typeof actionObj.condition === "string") {
-    const conditionStr = actionObj.condition;
-    if (!compiled.guards.has(conditionStr)) {
-      const compiledCondition = compileCondition(conditionStr);
-      compiled.guards.set(conditionStr, {
-        source: compiledCondition.source,
-        ast: compiledCondition.ast,
-      });
-    }
-  }
+  // Note: Conditions are no longer compiled (they are JSON objects)
+  // Skip condition compilation
 
   const actionType = actionObj.type as string;
 
@@ -223,17 +175,8 @@ function compileAction(action: Action, compiled: CompiledMachine["compiled"]): v
       break;
 
     case "conditional":
-      // Compile conditional condition and nested actions
-      if (actionObj.condition && typeof actionObj.condition === "string") {
-        const conditionStr = actionObj.condition;
-        if (!compiled.guards.has(conditionStr)) {
-          const compiledCondition = compileCondition(conditionStr);
-          compiled.guards.set(conditionStr, {
-            source: compiledCondition.source,
-            ast: compiledCondition.ast,
-          });
-        }
-      }
+      // Note: Conditions are no longer compiled (they are JSON objects)
+      // Compile nested actions only
       if (actionObj.then) {
         compileActions(actionObj.then as Actions, compiled);
       }

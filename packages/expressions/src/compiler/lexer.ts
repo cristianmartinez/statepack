@@ -1,5 +1,7 @@
 import { BaseLexer, type Token } from "@ouni/compiler";
 
+export type { Token };
+
 export type TokenType =
   | "PATH"
   | "PIPE"
