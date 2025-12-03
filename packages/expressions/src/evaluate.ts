@@ -139,19 +139,32 @@ function resolveArg(arg: ArgumentNode, scope: Scope): unknown {
   }
 
   if (isRefNode(arg)) {
-    // Path references - resolve from scope
     const path = arg.path;
-
-    // Check if it's a nested expression (contains pipes)
     if (path.includes("|")) {
       return evaluate(path, scope);
     }
-
     return resolveFromScope(path, scope);
   }
 
-  // Nested expression node - evaluate it
-  return evaluate(arg as unknown as string, scope);
+  // ExpressionNode (PipeNode or SimplePathNode)
+  if (isSimplePathNode(arg)) {
+    return resolveFromScope(arg.path.value, scope);
+  }
+
+  if (isPipeNode(arg)) {
+    let value = resolveFromScope(arg.source.value, scope);
+    for (const transform of arg.transforms) {
+      const transformFn = builtinTransforms[transform.name];
+      if (!transformFn) {
+        throw new Error(`Unknown transform: ${transform.name}`);
+      }
+      const args = transform.args.map((a) => resolveArg(a, scope));
+      value = transformFn(value, args, scope);
+    }
+    return value;
+  }
+
+  return undefined;
 }
 
 /**

@@ -1,10 +1,7 @@
-import { parseExpression, evaluate as evaluateCondition, type Scope } from "@ouni/conditions";
+import { parseExpression, evaluate as evaluateCondition, type Scope, type StateValue } from "@ouni/conditions";
 import type { GuardDefinition, Transition } from "../schema/types";
-import type { State, StateValue, Event } from "./state";
+import type { State, Event } from "./state";
 
-/**
- * Guard context passed to condition evaluation
- */
 export interface GuardContext {
   context: Record<string, unknown>;
   event: Event;
@@ -14,18 +11,11 @@ export interface GuardContext {
   };
 }
 
-/**
- * Evaluate a string expression condition using the conditions package
- */
 function evaluateStringCondition(expr: string, ctx: GuardContext): boolean {
   const condition = parseExpression(expr);
-  // Cast to Scope - both StateValue types are structurally identical
-  return evaluateCondition(condition, ctx as unknown as Scope);
+  return evaluateCondition(condition, ctx as Scope);
 }
 
-/**
- * Resolve a guard and evaluate it
- */
 export function evaluateGuard(
   guard: unknown,
   ctx: GuardContext,
@@ -33,7 +23,6 @@ export function evaluateGuard(
 ): boolean {
   if (!guard) return true;
 
-  // String reference to named guard
   if (typeof guard === "string") {
     const namedGuard = namedGuards[guard];
     if (!namedGuard) {
@@ -45,22 +34,18 @@ export function evaluateGuard(
 
   const guardObj = guard as Record<string, unknown>;
 
-  // Inline condition
   if ("condition" in guardObj && typeof guardObj.condition === "string") {
     return evaluateStringCondition(guardObj.condition, ctx);
   }
 
-  // AND guard
   if ("and" in guardObj && Array.isArray(guardObj.and)) {
     return guardObj.and.every((g) => evaluateGuard(g, ctx, namedGuards));
   }
 
-  // OR guard
   if ("or" in guardObj && Array.isArray(guardObj.or)) {
     return guardObj.or.some((g) => evaluateGuard(g, ctx, namedGuards));
   }
 
-  // NOT guard
   if ("not" in guardObj) {
     return !evaluateGuard(guardObj.not, ctx, namedGuards);
   }
@@ -68,9 +53,6 @@ export function evaluateGuard(
   return true;
 }
 
-/**
- * Find the first matching transition for an event
- */
 export function findMatchingTransition(
   transitions: unknown,
   ctx: GuardContext,
@@ -78,12 +60,10 @@ export function findMatchingTransition(
 ): Transition | undefined {
   if (!transitions) return undefined;
 
-  // Simple string target
   if (typeof transitions === "string") {
     return transitions;
   }
 
-  // Single transition object
   if (!Array.isArray(transitions)) {
     const transitionObj = transitions as Record<string, unknown>;
     const guard = transitionObj.guard;
@@ -93,7 +73,6 @@ export function findMatchingTransition(
     return undefined;
   }
 
-  // Array of transitions - find first match
   for (const transition of transitions) {
     if (typeof transition === "string") {
       return transition;
@@ -108,9 +87,6 @@ export function findMatchingTransition(
   return undefined;
 }
 
-/**
- * Create a guard context from machine state
- */
 export function createGuardContext<TContext extends Record<string, unknown>>(
   state: State<TContext>,
   event: Event,
