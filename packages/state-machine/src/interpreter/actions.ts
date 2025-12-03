@@ -233,9 +233,7 @@ function handleConditional(
 
   const conditionMet = evaluateCondition(condition, conditionCtx);
 
-  const actions = conditionMet
-    ? (action.then as Action[])
-    : (action.else as Action[] | undefined);
+  const actions = conditionMet ? (action.then as Action[]) : (action.else as Action[] | undefined);
 
   if (actions) {
     for (const a of actions) {

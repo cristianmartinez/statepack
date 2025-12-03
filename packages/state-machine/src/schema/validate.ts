@@ -18,10 +18,12 @@ export function validateMachine(machine: unknown): ValidationResult {
   if (valid) {
     return validateMachineSemantics(machine as Machine);
   }
-  const errors = [...machineValidator.Errors(machine)].map((e) => formatError({
-    path: e.path,
-    message: e.message,
-  }));
+  const errors = [...machineValidator.Errors(machine)].map((e) =>
+    formatError({
+      path: e.path,
+      message: e.message,
+    })
+  );
   return { valid: false, errors };
 }
 
@@ -30,10 +32,12 @@ export function validateMiniApp(app: unknown): ValidationResult {
   if (valid) {
     return validateMiniAppSemantics(app as MiniApp);
   }
-  const errors = [...miniAppValidator.Errors(app)].map((e) => formatError({
-    path: e.path,
-    message: e.message,
-  }));
+  const errors = [...miniAppValidator.Errors(app)].map((e) =>
+    formatError({
+      path: e.path,
+      message: e.message,
+    })
+  );
   return { valid: false, errors };
 }
 

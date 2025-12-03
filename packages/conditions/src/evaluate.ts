@@ -80,9 +80,7 @@ export function evaluate(
     }
 
     default:
-      throw new Error(
-        `Unknown condition type: ${(condition as { type: string }).type}`
-      );
+      throw new Error(`Unknown condition type: ${(condition as { type: string }).type}`);
   }
 }
 

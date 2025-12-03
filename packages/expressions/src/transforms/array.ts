@@ -209,5 +209,4 @@ export const arrayTransforms: Record<string, TransformFn> = {
     const index = Number(args[0] ?? 0);
     return value.filter((_, i) => i !== index);
   },
-
 };

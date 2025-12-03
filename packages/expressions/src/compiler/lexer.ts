@@ -98,9 +98,7 @@ export class Lexer {
         continue;
       }
 
-      throw new Error(
-        `Unexpected character '${char}' at position ${this.position}`
-      );
+      throw new Error(`Unexpected character '${char}' at position ${this.position}`);
     }
 
     this.addToken("EOF", "");
@@ -128,10 +126,7 @@ export class Lexer {
   }
 
   private skipWhitespace(): void {
-    while (
-      this.position < this.input.length &&
-      /\s/.test(this.input[this.position]!)
-    ) {
+    while (this.position < this.input.length && /\s/.test(this.input[this.position]!)) {
       this.position++;
     }
   }

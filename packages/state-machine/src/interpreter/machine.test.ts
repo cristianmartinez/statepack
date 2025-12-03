@@ -517,9 +517,7 @@ describe("Interpreter", () => {
           idle: {
             on: {
               TOAST: {
-                actions: [
-                  { type: "toast", message: "Hello!", variant: "success" },
-                ],
+                actions: [{ type: "toast", message: "Hello!", variant: "success" }],
               },
             },
           },

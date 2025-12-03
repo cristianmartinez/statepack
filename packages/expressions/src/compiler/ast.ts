@@ -43,50 +43,28 @@ export interface ExpressionAST {
 }
 
 export function isLiteralNode(node: unknown): node is LiteralNode {
-  return (
-    typeof node === "object" &&
-    node !== null &&
-    (node as LiteralNode).type === "literal"
-  );
+  return typeof node === "object" && node !== null && (node as LiteralNode).type === "literal";
 }
 
 export function isPathNode(node: unknown): node is PathNode {
-  return (
-    typeof node === "object" &&
-    node !== null &&
-    (node as PathNode).type === "path"
-  );
+  return typeof node === "object" && node !== null && (node as PathNode).type === "path";
 }
 
 export function isRefNode(node: unknown): node is RefNode {
-  return (
-    typeof node === "object" &&
-    node !== null &&
-    (node as RefNode).type === "ref"
-  );
+  return typeof node === "object" && node !== null && (node as RefNode).type === "ref";
 }
 
 export function isTransformNode(node: unknown): node is TransformNode {
-  return (
-    typeof node === "object" &&
-    node !== null &&
-    (node as TransformNode).type === "transform"
-  );
+  return typeof node === "object" && node !== null && (node as TransformNode).type === "transform";
 }
 
 export function isPipeNode(node: unknown): node is PipeNode {
-  return (
-    typeof node === "object" &&
-    node !== null &&
-    (node as PipeNode).type === "pipe"
-  );
+  return typeof node === "object" && node !== null && (node as PipeNode).type === "pipe";
 }
 
 export function isSimplePathNode(node: unknown): node is SimplePathNode {
   return (
-    typeof node === "object" &&
-    node !== null &&
-    (node as SimplePathNode).type === "simplePath"
+    typeof node === "object" && node !== null && (node as SimplePathNode).type === "simplePath"
   );
 }
 

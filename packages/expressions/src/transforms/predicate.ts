@@ -62,25 +62,17 @@ export const predicateTransforms: Record<string, TransformFn> = {
 /**
  * Evaluate a predicate expression against an item
  */
-export function evaluatePredicate(
-  predicate: string,
-  item: unknown,
-  scope: Scope
-): boolean {
+export function evaluatePredicate(predicate: string, item: unknown, scope: Scope): boolean {
   const trimmed = predicate.trim();
 
   // Handle && (AND) - split and check all parts
   if (trimmed.includes("&&")) {
-    return trimmed
-      .split("&&")
-      .every((part) => evaluatePredicate(part.trim(), item, scope));
+    return trimmed.split("&&").every((part) => evaluatePredicate(part.trim(), item, scope));
   }
 
   // Handle || (OR) - split and check any part
   if (trimmed.includes("||")) {
-    return trimmed
-      .split("||")
-      .some((part) => evaluatePredicate(part.trim(), item, scope));
+    return trimmed.split("||").some((part) => evaluatePredicate(part.trim(), item, scope));
   }
 
   // Handle negation
@@ -89,9 +81,7 @@ export function evaluatePredicate(
   }
 
   // Handle comparison operators
-  const comparisonMatch = trimmed.match(
-    /^([\w.]+)\s*(===?|!==?|>=?|<=?)\s*(.+)$/
-  );
+  const comparisonMatch = trimmed.match(/^([\w.]+)\s*(===?|!==?|>=?|<=?)\s*(.+)$/);
   if (comparisonMatch) {
     const [, propPath, op, rightStr] = comparisonMatch;
     const left = getPath(item, propPath!);
@@ -126,11 +116,7 @@ export function evaluatePredicate(
 /**
  * Resolve a predicate argument that might be a path reference
  */
-function resolvePredicateArg(
-  arg: unknown,
-  scope: Scope,
-  item: unknown
-): unknown {
+function resolvePredicateArg(arg: unknown, scope: Scope, item: unknown): unknown {
   if (typeof arg !== "string") return arg;
 
   const str = arg.trim();
@@ -150,10 +136,7 @@ function resolvePredicateArg(
   }
 
   // Quoted string literal
-  if (
-    (str.startsWith("'") && str.endsWith("'")) ||
-    (str.startsWith('"') && str.endsWith('"'))
-  ) {
+  if ((str.startsWith("'") && str.endsWith("'")) || (str.startsWith('"') && str.endsWith('"'))) {
     return str.slice(1, -1);
   }
 

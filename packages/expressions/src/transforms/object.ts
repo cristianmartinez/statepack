@@ -115,10 +115,7 @@ export const objectTransforms: Record<string, TransformFn> = {
       return value;
     }
 
-    return deepMerge(
-      value as Record<string, unknown>,
-      other as Record<string, unknown>
-    );
+    return deepMerge(value as Record<string, unknown>, other as Record<string, unknown>);
   },
 
   toggle: (value, args) => {

@@ -25,8 +25,4 @@ export {
   normalizeActions,
 } from "./actions";
 
-export {
-  Interpreter,
-  interpret,
-  type InterpreterOptions,
-} from "./machine";
+export { Interpreter, interpret, type InterpreterOptions } from "./machine";

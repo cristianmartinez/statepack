@@ -8,17 +8,8 @@ import {
   type StateValue,
   type Event,
 } from "./state";
-import {
-  evaluateGuard,
-  findMatchingTransition,
-  createGuardContext,
-} from "./guards";
-import {
-  executeActions,
-  normalizeActions,
-  type ActionResult,
-  type ActionEffect,
-} from "./actions";
+import { evaluateGuard, findMatchingTransition, createGuardContext } from "./guards";
+import { executeActions, normalizeActions, type ActionResult, type ActionEffect } from "./actions";
 
 /**
  * Options for the interpreter
@@ -103,8 +94,7 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
       return this.state;
     }
 
-    const normalizedEvent: Event =
-      typeof event === "string" ? { type: event } : event;
+    const normalizedEvent: Event = typeof event === "string" ? { type: event } : event;
 
     this.log("Received event", normalizedEvent.type);
 
@@ -138,11 +128,7 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
    */
   private transition(event: Event): State<TContext> {
     const activeNodes = getActiveStateNodes(this.machine, this.state.value);
-    const guardCtx = createGuardContext(
-      this.state,
-      event,
-      (pattern) => this.matches(pattern)
-    );
+    const guardCtx = createGuardContext(this.state, event, (pattern) => this.matches(pattern));
 
     // Find matching transition
     let matchedTransition: Transition | undefined;
@@ -152,11 +138,7 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
     for (const node of [...activeNodes].reverse()) {
       if (node.on && event.type in node.on) {
         const transitions = node.on[event.type];
-        matchedTransition = findMatchingTransition(
-          transitions,
-          guardCtx,
-          this.namedGuards
-        );
+        matchedTransition = findMatchingTransition(transitions, guardCtx, this.namedGuards);
         if (matchedTransition) {
           matchedNode = node;
           break;
@@ -191,10 +173,8 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
     sourceNode?: StateNode
   ): State<TContext> {
     const target = typeof transition === "string" ? transition : transition.target;
-    const actions =
-      typeof transition === "string" ? undefined : transition.actions;
-    const internal =
-      typeof transition === "string" ? false : transition.internal ?? false;
+    const actions = typeof transition === "string" ? undefined : transition.actions;
+    const internal = typeof transition === "string" ? false : (transition.internal ?? false);
 
     const previousValue = this.state.value;
 
@@ -346,20 +326,14 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
    */
   private checkAlwaysTransitions(): void {
     const nodes = getActiveStateNodes(this.machine, this.state.value);
-    const guardCtx = createGuardContext(
-      this.state,
-      { type: "" },
-      (pattern) => this.matches(pattern)
+    const guardCtx = createGuardContext(this.state, { type: "" }, (pattern) =>
+      this.matches(pattern)
     );
 
     for (const node of nodes) {
       if (node.always) {
         for (const transition of node.always) {
-          const matched = findMatchingTransition(
-            transition,
-            guardCtx,
-            this.namedGuards
-          );
+          const matched = findMatchingTransition(transition, guardCtx, this.namedGuards);
           if (matched) {
             this.executeTransition(matched, { type: "" }, node);
             return; // Only execute first match
@@ -388,18 +362,10 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
               (pattern) => this.matches(pattern)
             );
 
-            const matched = findMatchingTransition(
-              transition,
-              guardCtx,
-              this.namedGuards
-            );
+            const matched = findMatchingTransition(transition, guardCtx, this.namedGuards);
 
             if (matched) {
-              this.executeTransition(
-                matched,
-                { type: `xstate.after.${delay}` },
-                node
-              );
+              this.executeTransition(matched, { type: `xstate.after.${delay}` }, node);
             }
           }, delayMs);
 

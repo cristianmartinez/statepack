@@ -45,12 +45,7 @@ export {
 export { extractBindings, hasBindings } from "./template";
 
 // Evaluator
-export {
-  evaluate,
-  evaluateTemplate,
-  createEvaluator,
-  registerTransforms,
-} from "./evaluate";
+export { evaluate, evaluateTemplate, createEvaluator, registerTransforms } from "./evaluate";
 
 // Utilities
 export { getPath, setPath, isPathReference, resolveFromScope } from "./utils";

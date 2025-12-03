@@ -46,24 +46,28 @@ export const ActionSchema = Type.Union([
   Type.Object({
     type: Type.Literal("log"),
     message: Type.String(),
-    level: Type.Optional(Type.Union([
-      Type.Literal("debug"),
-      Type.Literal("info"),
-      Type.Literal("warn"),
-      Type.Literal("error"),
-    ])),
+    level: Type.Optional(
+      Type.Union([
+        Type.Literal("debug"),
+        Type.Literal("info"),
+        Type.Literal("warn"),
+        Type.Literal("error"),
+      ])
+    ),
     condition: Type.Optional(Type.String()),
   }),
   Type.Object({
     type: Type.Literal("navigate"),
     screen: Type.String(),
     params: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-    transition: Type.Optional(Type.Union([
-      Type.Literal("push"),
-      Type.Literal("replace"),
-      Type.Literal("modal"),
-      Type.Literal("fade"),
-    ])),
+    transition: Type.Optional(
+      Type.Union([
+        Type.Literal("push"),
+        Type.Literal("replace"),
+        Type.Literal("modal"),
+        Type.Literal("fade"),
+      ])
+    ),
     condition: Type.Optional(Type.String()),
   }),
   Type.Object({
@@ -75,24 +79,30 @@ export const ActionSchema = Type.Union([
     type: Type.Literal("fetch"),
     id: Type.Optional(Type.String()),
     url: Type.String(),
-    method: Type.Optional(Type.Union([
-      Type.Literal("GET"),
-      Type.Literal("POST"),
-      Type.Literal("PUT"),
-      Type.Literal("PATCH"),
-      Type.Literal("DELETE"),
-    ])),
+    method: Type.Optional(
+      Type.Union([
+        Type.Literal("GET"),
+        Type.Literal("POST"),
+        Type.Literal("PUT"),
+        Type.Literal("PATCH"),
+        Type.Literal("DELETE"),
+      ])
+    ),
     headers: Type.Optional(Type.Record(Type.String(), Type.String())),
     body: Type.Optional(Type.Unknown()),
     timeout: Type.Optional(Type.Number()),
-    onSuccess: Type.Optional(Type.Object({
-      event: Type.Optional(Type.String()),
-      assign: Type.Optional(Type.Record(Type.String(), Type.String())),
-    })),
-    onError: Type.Optional(Type.Object({
-      event: Type.Optional(Type.String()),
-      assign: Type.Optional(Type.Record(Type.String(), Type.String())),
-    })),
+    onSuccess: Type.Optional(
+      Type.Object({
+        event: Type.Optional(Type.String()),
+        assign: Type.Optional(Type.Record(Type.String(), Type.String())),
+      })
+    ),
+    onError: Type.Optional(
+      Type.Object({
+        event: Type.Optional(Type.String()),
+        assign: Type.Optional(Type.Record(Type.String(), Type.String())),
+      })
+    ),
     debounce: Type.Optional(Type.Number()),
     throttle: Type.Optional(Type.Number()),
     condition: Type.Optional(Type.String()),
@@ -118,11 +128,9 @@ export const ActionSchema = Type.Union([
   Type.Object({
     type: Type.Literal("toast"),
     message: Type.String(),
-    variant: Type.Optional(Type.Union([
-      Type.Literal("default"),
-      Type.Literal("success"),
-      Type.Literal("error"),
-    ])),
+    variant: Type.Optional(
+      Type.Union([Type.Literal("default"), Type.Literal("success"), Type.Literal("error")])
+    ),
     duration: Type.Optional(Type.Number()),
     condition: Type.Optional(Type.String()),
   }),
@@ -133,11 +141,9 @@ export const ActionSchema = Type.Union([
       Type.Literal("notification"),
       Type.Literal("selection"),
     ]),
-    intensity: Type.Optional(Type.Union([
-      Type.Literal("light"),
-      Type.Literal("medium"),
-      Type.Literal("heavy"),
-    ])),
+    intensity: Type.Optional(
+      Type.Union([Type.Literal("light"), Type.Literal("medium"), Type.Literal("heavy")])
+    ),
     condition: Type.Optional(Type.String()),
   }),
   Type.Object({
@@ -219,10 +225,7 @@ export type Action = Static<typeof ActionSchema>;
 /**
  * Actions can be a single action or array of actions
  */
-export const ActionsSchema = Type.Union([
-  ActionSchema,
-  Type.Array(ActionSchema),
-]);
+export const ActionsSchema = Type.Union([ActionSchema, Type.Array(ActionSchema)]);
 
 export type Actions = Static<typeof ActionsSchema>;
 
@@ -244,10 +247,7 @@ export type Transition = Static<typeof TransitionSchema>;
 /**
  * Transitions can be a single transition or array (first match wins)
  */
-export const TransitionsSchema = Type.Union([
-  TransitionSchema,
-  Type.Array(TransitionSchema),
-]);
+export const TransitionsSchema = Type.Union([TransitionSchema, Type.Array(TransitionSchema)]);
 
 export type Transitions = Static<typeof TransitionsSchema>;
 
@@ -275,25 +275,28 @@ export type Invoke = Static<typeof InvokeSchema>;
 /**
  * State Node Schema
  */
-export const StateNodeSchema = Type.Recursive((Self) =>
-  Type.Object({
-    id: Type.Optional(Type.String()),
-    type: Type.Optional(Type.Union([
-      Type.Literal("atomic"),
-      Type.Literal("compound"),
-      Type.Literal("parallel"),
-      Type.Literal("final"),
-    ])),
-    initial: Type.Optional(Type.String()),
-    entry: Type.Optional(ActionsSchema),
-    exit: Type.Optional(ActionsSchema),
-    on: Type.Optional(Type.Record(Type.String(), TransitionsSchema)),
-    after: Type.Optional(Type.Record(Type.String(), TransitionsSchema)),
-    always: Type.Optional(Type.Array(TransitionSchema)),
-    invoke: Type.Optional(Type.Union([InvokeSchema, Type.Array(InvokeSchema)])),
-    states: Type.Optional(Type.Record(Type.String(), Self)),
-    meta: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-  }),
+export const StateNodeSchema = Type.Recursive(
+  (Self) =>
+    Type.Object({
+      id: Type.Optional(Type.String()),
+      type: Type.Optional(
+        Type.Union([
+          Type.Literal("atomic"),
+          Type.Literal("compound"),
+          Type.Literal("parallel"),
+          Type.Literal("final"),
+        ])
+      ),
+      initial: Type.Optional(Type.String()),
+      entry: Type.Optional(ActionsSchema),
+      exit: Type.Optional(ActionsSchema),
+      on: Type.Optional(Type.Record(Type.String(), TransitionsSchema)),
+      after: Type.Optional(Type.Record(Type.String(), TransitionsSchema)),
+      always: Type.Optional(Type.Array(TransitionSchema)),
+      invoke: Type.Optional(Type.Union([InvokeSchema, Type.Array(InvokeSchema)])),
+      states: Type.Optional(Type.Record(Type.String(), Self)),
+      meta: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
+    }),
   { $id: "StateNode" }
 );
 
@@ -318,7 +321,9 @@ export const MachineSchema = Type.Object({
   states: Type.Record(Type.String(), StateNodeSchema),
   on: Type.Optional(Type.Record(Type.String(), TransitionsSchema)), // Global handlers
   guards: Type.Optional(Type.Record(Type.String(), GuardDefinitionSchema)),
-  actions: Type.Optional(Type.Record(Type.String(), Type.Union([ActionSchema, Type.Array(ActionSchema)]))),
+  actions: Type.Optional(
+    Type.Record(Type.String(), Type.Union([ActionSchema, Type.Array(ActionSchema)]))
+  ),
 });
 
 export type Machine = Static<typeof MachineSchema>;
@@ -329,7 +334,9 @@ export type Machine = Static<typeof MachineSchema>;
 export const MiniAppSchema = Type.Object({
   machine: MachineSchema,
   guards: Type.Optional(Type.Record(Type.String(), GuardDefinitionSchema)),
-  actions: Type.Optional(Type.Record(Type.String(), Type.Union([ActionSchema, Type.Array(ActionSchema)]))),
+  actions: Type.Optional(
+    Type.Record(Type.String(), Type.Union([ActionSchema, Type.Array(ActionSchema)]))
+  ),
 });
 
 export type MiniApp = Static<typeof MiniAppSchema>;

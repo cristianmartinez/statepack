@@ -321,10 +321,7 @@ describe("evaluate", () => {
     test("every", () => {
       const scope: Scope = {
         context: {
-          items: [
-            { valid: true },
-            { valid: true },
-          ],
+          items: [{ valid: true }, { valid: true }],
         },
       };
       const condition: Condition = {

@@ -92,8 +92,10 @@ function parseValue(expr: string): Value {
   }
 
   // Handle string literals (quoted)
-  if ((trimmed.startsWith('"') && trimmed.endsWith('"')) ||
-      (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
     return {
       type: "literal",
       value: trimmed.slice(1, -1),

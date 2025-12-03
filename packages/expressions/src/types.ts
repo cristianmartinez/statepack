@@ -32,11 +32,7 @@ export interface Scope {
 }
 
 // Transform function signature
-export type TransformFn = (
-  value: unknown,
-  args: unknown[],
-  scope: Scope
-) => unknown;
+export type TransformFn = (value: unknown, args: unknown[], scope: Scope) => unknown;
 
 // Registry of transform functions
 export type TransformRegistry = Record<string, TransformFn>;

@@ -54,10 +54,7 @@ export function createInitialState<TContext extends Record<string, unknown>>(
 /**
  * Resolve the full initial state value including nested states
  */
-function resolveInitialValue(
-  states: Record<string, StateNode>,
-  initial: string
-): StateValue {
+function resolveInitialValue(states: Record<string, StateNode>, initial: string): StateValue {
   const state = states[initial];
   if (!state) return initial;
 
@@ -130,10 +127,7 @@ export function toStateString(value: StateValue): string {
 /**
  * Check if the current state matches a pattern
  */
-export function matchesState(
-  current: StateValue,
-  pattern: string
-): boolean {
+export function matchesState(current: StateValue, pattern: string): boolean {
   const patternParts = pattern.split(".");
   return matchesStateValue(current, patternParts);
 }
@@ -160,17 +154,11 @@ function matchesStateValue(value: StateValue, parts: string[]): boolean {
 /**
  * Get the active state node(s) from a machine definition
  */
-export function getActiveStateNodes(
-  machine: Machine,
-  value: StateValue
-): StateNode[] {
+export function getActiveStateNodes(machine: Machine, value: StateValue): StateNode[] {
   return getStateNodes(machine.states, value);
 }
 
-function getStateNodes(
-  states: Record<string, StateNode>,
-  value: StateValue
-): StateNode[] {
+function getStateNodes(states: Record<string, StateNode>, value: StateValue): StateNode[] {
   const nodes: StateNode[] = [];
 
   if (typeof value === "string") {

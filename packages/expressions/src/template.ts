@@ -9,9 +9,7 @@
  *
  * Example: "Hello, {{name}}!" -> { parts: ["Hello, ", "!"], expressions: ["name"] }
  */
-export function extractBindings(
-  template: string
-): { parts: string[]; expressions: string[] } {
+export function extractBindings(template: string): { parts: string[]; expressions: string[] } {
   const parts: string[] = [];
   const expressions: string[] = [];
   let current = "";

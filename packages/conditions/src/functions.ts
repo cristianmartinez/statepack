@@ -1,10 +1,7 @@
 import type { Scope, Value } from "./types";
 import { getPath, resolveValue } from "./utils";
 
-export type BuiltinFunction = (
-  args: unknown[],
-  scope: Scope
-) => boolean | number;
+export type BuiltinFunction = (args: unknown[], scope: Scope) => boolean | number;
 
 /**
  * Built-in functions for the conditions engine

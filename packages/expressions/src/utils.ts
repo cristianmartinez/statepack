@@ -3,15 +3,7 @@ import type { Scope } from "./types";
 /**
  * Known scope prefixes for path detection
  */
-const SCOPE_PREFIXES = [
-  "context.",
-  "params.",
-  "loaderData.",
-  "event.",
-  "item.",
-  "index",
-  "state.",
-];
+const SCOPE_PREFIXES = ["context.", "params.", "loaderData.", "event.", "item.", "index", "state."];
 
 /**
  * Get a value from an object using dot notation path
@@ -130,8 +122,9 @@ export function setPath(obj: unknown, path: string, value: unknown): unknown {
     const propIndexMatch = part.match(/^(\w+)\[(-?\d+)\]$/);
     if (propIndexMatch) {
       const [, prop, idxStr] = propIndexMatch;
-      const obj = current && typeof current === "object" ? { ...current as Record<string, unknown> } : {};
-      const arr = Array.isArray(obj[prop!]) ? [...obj[prop!] as unknown[]] : [];
+      const obj =
+        current && typeof current === "object" ? { ...(current as Record<string, unknown>) } : {};
+      const arr = Array.isArray(obj[prop!]) ? [...(obj[prop!] as unknown[])] : [];
       let idx = parseInt(idxStr!, 10);
       if (idx < 0) idx = arr.length + idx;
       arr[idx] = setRecursive(arr[idx], index + 1);
@@ -140,7 +133,8 @@ export function setPath(obj: unknown, path: string, value: unknown): unknown {
     }
 
     // Regular property
-    const obj = current && typeof current === "object" ? { ...current as Record<string, unknown> } : {};
+    const obj =
+      current && typeof current === "object" ? { ...(current as Record<string, unknown>) } : {};
     obj[part] = setRecursive(obj[part], index + 1);
     return obj;
   }

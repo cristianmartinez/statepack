@@ -28,9 +28,7 @@ export function evaluate(
 ): unknown {
   // Compile string expression to AST, or convert PathExpression to AST
   const ast: ExpressionNode =
-    typeof expression === "string"
-      ? compile(expression).ast
-      : pathExpressionToAST(expression);
+    typeof expression === "string" ? compile(expression).ast : pathExpressionToAST(expression);
 
   // Get transforms registry
   const transforms = options.transforms
@@ -97,8 +95,7 @@ export function evaluateTemplate(
  */
 export function createEvaluator(options: EvaluatorOptions = {}) {
   return {
-    evaluate: (expression: Expression, scope: Scope) =>
-      evaluate(expression, scope, options),
+    evaluate: (expression: Expression, scope: Scope) => evaluate(expression, scope, options),
     evaluateTemplate: (template: string, scope: Scope) =>
       evaluateTemplate(template, scope, options),
   };
@@ -170,8 +167,6 @@ function resolveArg(arg: ArgumentNode, scope: Scope): unknown {
 /**
  * Register custom transforms
  */
-export function registerTransforms(
-  transforms: TransformRegistry
-): TransformRegistry {
+export function registerTransforms(transforms: TransformRegistry): TransformRegistry {
   return { ...builtinTransforms, ...transforms };
 }

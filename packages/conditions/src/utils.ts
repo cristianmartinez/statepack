@@ -1,23 +1,12 @@
 import type { Value, Scope, RefValue, LiteralValue } from "./types";
 
 /** Known scope prefixes for path detection */
-const PATH_PREFIXES = [
-  "context.",
-  "params.",
-  "loaderData.",
-  "event.",
-  "item.",
-  "state.",
-];
+const PATH_PREFIXES = ["context.", "params.", "loaderData.", "event.", "item.", "state."];
 
 /**
  * Get a value from an object using dot notation path
  */
-export function getPath(
-  obj: unknown,
-  path: string,
-  optional = false
-): unknown {
+export function getPath(obj: unknown, path: string, optional = false): unknown {
   const parts = path.split(".");
   let current: unknown = obj;
 
@@ -50,11 +39,7 @@ export function getPath(
  * Check if a value looks like a path reference
  */
 export function isPathLike(value: string): boolean {
-  return (
-    PATH_PREFIXES.some((p) => value.startsWith(p)) ||
-    value === "index" ||
-    value === "item"
-  );
+  return PATH_PREFIXES.some((p) => value.startsWith(p)) || value === "index" || value === "item";
 }
 
 /**
@@ -88,22 +73,14 @@ export function resolveValue(value: Value, scope: Scope): unknown {
  * Type guard for RefValue
  */
 export function isRefValue(value: unknown): value is RefValue {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    (value as RefValue).type === "ref"
-  );
+  return typeof value === "object" && value !== null && (value as RefValue).type === "ref";
 }
 
 /**
  * Type guard for LiteralValue
  */
 export function isLiteralValue(value: unknown): value is LiteralValue {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    (value as LiteralValue).type === "literal"
-  );
+  return typeof value === "object" && value !== null && (value as LiteralValue).type === "literal";
 }
 
 /**

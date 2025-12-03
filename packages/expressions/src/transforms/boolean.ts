@@ -54,8 +54,7 @@ export const booleanTransforms: Record<string, TransformFn> = {
 
     // If condition is `true`, check truthiness of value
     // Otherwise check equality with condition
-    const matches =
-      condition === true ? !!value : value === condition;
+    const matches = condition === true ? !!value : value === condition;
 
     return matches ? thenVal : elseVal;
   },

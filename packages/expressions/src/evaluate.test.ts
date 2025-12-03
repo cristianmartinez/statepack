@@ -143,10 +143,7 @@ describe("evaluate", () => {
     test("map property", () => {
       const scope: Scope = {
         context: {
-          users: [
-            { name: "John" },
-            { name: "Jane" },
-          ],
+          users: [{ name: "John" }, { name: "Jane" }],
         },
       };
       expect(evaluate("context.users | map:'name'", scope)).toEqual(["John", "Jane"]);
@@ -155,11 +152,7 @@ describe("evaluate", () => {
     test("sortBy", () => {
       const scope: Scope = {
         context: {
-          users: [
-            { name: "Charlie" },
-            { name: "Alice" },
-            { name: "Bob" },
-          ],
+          users: [{ name: "Charlie" }, { name: "Alice" }, { name: "Bob" }],
         },
       };
       const result = evaluate("context.users | sortBy:'name'", scope) as { name: string }[];
@@ -185,11 +178,7 @@ describe("evaluate", () => {
     test("sum with property", () => {
       const scope: Scope = {
         context: {
-          items: [
-            { price: 10 },
-            { price: 20 },
-            { price: 30 },
-          ],
+          items: [{ price: 10 }, { price: 20 }, { price: 30 }],
         },
       };
       expect(evaluate("context.items | sum:'price'", scope)).toBe(60);
@@ -227,22 +216,22 @@ describe("evaluate", () => {
         },
         params: { todoId: 2 },
       };
-      const result = evaluate("context.todos | findWhere:'id == $params.todoId'", scope) as { title: string };
+      const result = evaluate("context.todos | findWhere:'id == $params.todoId'", scope) as {
+        title: string;
+      };
       expect(result.title).toBe("Second");
     });
 
     test("removeWhere", () => {
       const scope: Scope = {
         context: {
-          items: [
-            { id: 1 },
-            { id: 2 },
-            { id: 3 },
-          ],
+          items: [{ id: 1 }, { id: 2 }, { id: 3 }],
         },
         event: { itemId: 2 },
       };
-      const result = evaluate("context.items | removeWhere:'id == $event.itemId'", scope) as { id: number }[];
+      const result = evaluate("context.items | removeWhere:'id == $event.itemId'", scope) as {
+        id: number;
+      }[];
       expect(result).toHaveLength(2);
       expect(result.map((i) => i.id)).toEqual([1, 3]);
     });
@@ -257,7 +246,10 @@ describe("evaluate", () => {
         },
         event: { todoId: 1 },
       };
-      const result = evaluate("context.todos | updateWhere:'id == $event.todoId':completed:true", scope) as { id: number; completed: boolean }[];
+      const result = evaluate(
+        "context.todos | updateWhere:'id == $event.todoId':completed:true",
+        scope
+      ) as { id: number; completed: boolean }[];
       expect(result[0]?.completed).toBe(true);
       expect(result[1]?.completed).toBe(false);
     });
@@ -293,7 +285,10 @@ describe("evaluate", () => {
           overrides: { b: 3, c: 4 },
         },
       };
-      const result = evaluate("context.defaults | merge:$context.overrides", scope) as Record<string, number>;
+      const result = evaluate("context.defaults | merge:$context.overrides", scope) as Record<
+        string,
+        number
+      >;
       expect(result).toEqual({ a: 1, b: 3, c: 4 });
     });
   });
@@ -367,12 +362,19 @@ describe("evaluate", () => {
           ],
         },
       };
-      expect(evaluate("context.users | filter:'active' | map:'name' | join:', '", scope)).toBe("John, Bob");
+      expect(evaluate("context.users | filter:'active' | map:'name' | join:', '", scope)).toBe(
+        "John, Bob"
+      );
     });
 
     test("arithmetic chain", () => {
       const scope: Scope = { context: { price: 10, quantity: 3, tax: 1.1 } };
-      expect(evaluate("context.price | multiply:$context.quantity | multiply:$context.tax | round:2", scope)).toBe(33);
+      expect(
+        evaluate(
+          "context.price | multiply:$context.quantity | multiply:$context.tax | round:2",
+          scope
+        )
+      ).toBe(33);
     });
   });
 });
@@ -399,7 +401,9 @@ describe("evaluateTemplate", () => {
 
   test("handles null values", () => {
     const scope: Scope = { context: { name: null } };
-    expect(evaluateTemplate("Hello, {{context.name | default:'Guest'}}!", scope)).toBe("Hello, Guest!");
+    expect(evaluateTemplate("Hello, {{context.name | default:'Guest'}}!", scope)).toBe(
+      "Hello, Guest!"
+    );
   });
 });
 

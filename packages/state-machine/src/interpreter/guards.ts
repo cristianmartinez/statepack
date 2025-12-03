@@ -1,4 +1,9 @@
-import { parseExpression, evaluate as evaluateCondition, type Scope, type StateValue } from "@ouni/conditions";
+import {
+  parseExpression,
+  evaluate as evaluateCondition,
+  type Scope,
+  type StateValue,
+} from "@ouni/conditions";
 import type { GuardDefinition, Transition } from "../schema/types";
 import type { State, Event } from "./state";
 

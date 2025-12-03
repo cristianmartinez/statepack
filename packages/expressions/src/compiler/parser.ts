@@ -71,9 +71,7 @@ export class Parser {
       return AST.path(token.value);
     }
 
-    throw new Error(
-      `Expected path at position ${token.position}, got ${token.type}`
-    );
+    throw new Error(`Expected path at position ${token.position}, got ${token.type}`);
   }
 
   private parseTransforms(): TransformNode[] {
@@ -88,10 +86,7 @@ export class Parser {
 
   private parseTransform(): TransformNode {
     // Expect transform name (identifier)
-    const nameToken = this.consume(
-      "IDENTIFIER",
-      "Expected transform name after '|'"
-    );
+    const nameToken = this.consume("IDENTIFIER", "Expected transform name after '|'");
 
     // Check for arguments
     const args: ArgumentNode[] = [];
@@ -138,9 +133,7 @@ export class Parser {
         return AST.literal(token.value);
 
       default:
-        throw new Error(
-          `Unexpected token '${token.value}' at position ${token.position}`
-        );
+        throw new Error(`Unexpected token '${token.value}' at position ${token.position}`);
     }
   }
 
