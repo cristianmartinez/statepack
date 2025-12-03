@@ -94,10 +94,7 @@ function compileStateNode(state: StateNode, compiled: CompiledMachine["compiled"
 /**
  * Compile transitions (can be single or array)
  */
-function compileTransitions(
-  transitions: Transitions,
-  compiled: CompiledMachine["compiled"]
-): void {
+function compileTransitions(transitions: Transitions, compiled: CompiledMachine["compiled"]): void {
   if (Array.isArray(transitions)) {
     for (const transition of transitions) {
       compileTransition(transition, compiled);

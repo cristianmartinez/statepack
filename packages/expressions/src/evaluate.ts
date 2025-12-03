@@ -118,11 +118,7 @@ export function evaluateCompiledTemplate(
 /**
  * Evaluate an AST node directly (internal helper)
  */
-function evaluateAST(
-  ast: ExpressionNode,
-  scope: Scope,
-  options: EvaluatorOptions = {}
-): unknown {
+function evaluateAST(ast: ExpressionNode, scope: Scope, options: EvaluatorOptions = {}): unknown {
   const transforms = options.transforms
     ? { ...builtinTransforms, ...options.transforms }
     : builtinTransforms;

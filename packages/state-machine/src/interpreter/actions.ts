@@ -108,7 +108,11 @@ function executeAction(
   const actionType = actionObj.type as string;
 
   // Check condition guard (but not for conditional actions which use condition for branching)
-  if (actionType !== "conditional" && actionObj.condition && typeof actionObj.condition === "string") {
+  if (
+    actionType !== "conditional" &&
+    actionObj.condition &&
+    typeof actionObj.condition === "string"
+  ) {
     const conditionCtx = {
       context: result.context,
       event: ctx.event,
