@@ -145,6 +145,75 @@ export class Parser extends BaseParser<TokenType, ExpressionNode, ExpressionAST>
     }
   }
 
+  /**
+   * Parse a value that can be a simple literal/path or an expression with pipes
+   * Used for object property values and array elements where pipes are allowed
+   */
+  private parseValueExpression(): ArgumentNode {
+    const startToken = this.peek();
+
+    // Handle refs
+    if (startToken.type === "REF") {
+      this.advance();
+      return AST.ref(startToken.value);
+    }
+
+    // Handle nested objects
+    if (startToken.type === "LBRACE") {
+      return this.parseObject();
+    }
+
+    // Handle nested arrays
+    if (startToken.type === "LBRACKET") {
+      return this.parseArray();
+    }
+
+    // Parse the base value
+    let base: ArgumentNode;
+
+    switch (startToken.type) {
+      case "STRING":
+        this.advance();
+        base = AST.literal(startToken.value);
+        break;
+
+      case "NUMBER":
+        this.advance();
+        base = AST.literal(parseFloat(startToken.value));
+        break;
+
+      case "BOOLEAN":
+        this.advance();
+        base = AST.literal(startToken.value === "true");
+        break;
+
+      case "NULL":
+        this.advance();
+        base = AST.literal(null);
+        break;
+
+      case "IDENTIFIER":
+      case "PATH":
+        this.advance();
+        base = AST.literal(startToken.value);
+        break;
+
+      default:
+        throw new Error(`Unexpected token '${startToken.value}' at position ${startToken.position}`);
+    }
+
+    // Check if this is followed by a pipe (transform chain)
+    if (this.check("PIPE")) {
+      // Convert the base to a path node and parse transforms
+      const pathValue = typeof base.value === "string" ? base.value : String(base.value);
+      const path = AST.path(pathValue);
+      const transforms = this.parseTransforms();
+      return AST.pipe(path, transforms);
+    }
+
+    return base;
+  }
+
   private parseObject(): ArgumentNode {
     this.consume("LBRACE", "Expected '{'");
 
@@ -175,8 +244,8 @@ export class Parser extends BaseParser<TokenType, ExpressionNode, ExpressionAST>
       // Expect colon
       this.consume("COLON", `Expected ':' after property key '${key}'`);
 
-      // Parse value
-      properties[key] = this.parseArgument();
+      // Parse value (can be an expression with pipes)
+      properties[key] = this.parseValueExpression();
 
       // Handle comma or end
       if (this.check("COMMA")) {
