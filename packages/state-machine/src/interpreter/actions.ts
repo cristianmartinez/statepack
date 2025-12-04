@@ -296,7 +296,7 @@ async function handleEffect(
 }
 
 /**
- * Resolve a single value (handles template expressions) - async
+ * Resolve a single value (evaluates JSONata expressions) - async
  */
 async function resolveValue(
   value: unknown,
@@ -304,33 +304,12 @@ async function resolveValue(
   compiled?: CompiledCache
 ): Promise<unknown> {
   if (typeof value === "string") {
-    // Check for full template expression "{{ ... }}"
-    if (value.startsWith("{{") && value.endsWith("}}")) {
-      const expr = value.slice(2, -2).trim();
-
-      // Use compiled expression from cache
-      const cached = compiled?.expressions.get(expr);
-      if (cached) {
-        return await evaluateCompiled(cached.compiled, scope);
-      }
-
-      // Fallback: return raw expression (shouldn't happen if properly compiled)
-      console.warn(`Expression not in compiled cache: ${expr}`);
-      return value;
+    // All strings are JSONata expressions - look up in compiled cache
+    const cached = compiled?.expressions.get(value);
+    if (cached) {
+      return await evaluateCompiled(cached.compiled, scope);
     }
-
-    // Check for inline template parts "Hello {{ name }}"
-    if (value.includes("{{")) {
-      const cached = compiled?.templates.get(value);
-      if (cached) {
-        return await evaluateCompiledTemplate(cached, scope);
-      }
-
-      // Fallback: return raw template (shouldn't happen if properly compiled)
-      console.warn(`Template not in compiled cache: ${value}`);
-      return value;
-    }
-
+    // Not in cache (not a valid expression) - return as-is
     return value;
   }
 
@@ -343,32 +322,6 @@ async function resolveValue(
   }
 
   return value;
-}
-
-/**
- * Evaluate a compiled template (async)
- */
-async function evaluateCompiledTemplate(
-  cached: import("../compiler/types").CompiledTemplateCache,
-  scope: { context: Record<string, unknown>; event: Event }
-): Promise<string> {
-  let result = "";
-  let exprIndex = 0;
-
-  for (const part of cached.parts) {
-    if (part.type === "static") {
-      result += part.value;
-    } else {
-      const compiled = cached.compiledParts[exprIndex];
-      if (compiled) {
-        const value = await evaluateCompiled(compiled, scope);
-        result += String(value ?? "");
-      }
-      exprIndex++;
-    }
-  }
-
-  return result;
 }
 
 /**

@@ -3,23 +3,6 @@ import type { Condition } from "@ouni/conditions";
 import type { Machine } from "../schema/types";
 
 /**
- * Template part (static text or expression)
- */
-export interface TemplatePart {
-  type: "static" | "expression";
-  value: string;
-}
-
-/**
- * Compiled template with parts and compiled expressions
- */
-export interface CompiledTemplateCache {
-  source: string;
-  parts: TemplatePart[];
-  compiledParts: CompiledJSONataExpression[];
-}
-
-/**
  * Compiled machine with pre-compiled JSONata expressions
  */
 export interface CompiledMachine {
@@ -33,9 +16,6 @@ export interface CompiledMachine {
 
     /** Map of expression strings → compiled JSONata expression */
     expressions: Map<string, { source: string; compiled: CompiledJSONataExpression }>;
-
-    /** Map of template strings → compiled template parts */
-    templates: Map<string, CompiledTemplateCache>;
   };
 
   /** Compilation metadata */
@@ -49,7 +29,6 @@ export interface CompiledMachine {
 export interface CompiledCache {
   guards: Map<string, { source: string; ast: Condition }>;
   expressions: Map<string, { source: string; compiled: CompiledJSONataExpression }>;
-  templates: Map<string, CompiledTemplateCache>;
 }
 
 /**

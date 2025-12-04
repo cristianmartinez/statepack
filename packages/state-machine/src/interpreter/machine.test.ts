@@ -64,13 +64,13 @@ describe("Interpreter", () => {
         active: {
           on: {
             INCREMENT: {
-              actions: [{ type: "assign", values: { count: "{{context.count + 1}}" } }],
+              actions: [{ type: "assign", values: { count: "context.count + 1" } }],
             },
             DECREMENT: {
-              actions: [{ type: "assign", values: { count: "{{context.count - 1}}" } }],
+              actions: [{ type: "assign", values: { count: "context.count - 1" } }],
             },
             SET: {
-              actions: [{ type: "assign", values: { count: "{{event.value}}" } }],
+              actions: [{ type: "assign", values: { count: "event.value" } }],
             },
           },
         },
@@ -323,7 +323,7 @@ describe("Interpreter", () => {
         initial: "idle",
         context: { value: 0 },
         actions: {
-          increment: { type: "assign", values: { value: "{{context.value + 1}}" } },
+          increment: { type: "assign", values: { value: "context.value + 1" } },
         },
         states: {
           idle: {
@@ -347,8 +347,8 @@ describe("Interpreter", () => {
         initial: "idle",
         context: { a: 0, b: 0 },
         actions: {
-          incrementA: { type: "assign", values: { a: "{{context.a + 1}}" } },
-          incrementB: { type: "assign", values: { b: "{{context.b + 1}}" } },
+          incrementA: { type: "assign", values: { a: "context.a + 1" } },
+          incrementB: { type: "assign", values: { b: "context.b + 1" } },
         },
         states: {
           idle: {
@@ -378,7 +378,7 @@ describe("Interpreter", () => {
           active: {
             on: {
               INCREMENT: {
-                actions: [{ type: "assign", values: { count: "{{context.count + 1}}" } }],
+                actions: [{ type: "assign", values: { count: "context.count + 1" } }],
               },
             },
           },

@@ -1,11 +1,7 @@
 // Evaluator (JSONata-based)
 export {
   compileExpression,
-  createEvaluator,
-  evaluate,
   evaluateCompiled,
-  evaluateTemplate,
-  registerTransforms,
   type CompiledJSONataExpression,
 } from "./evaluate";
 

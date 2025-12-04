@@ -1,8 +1,8 @@
 import { compileExpression as compileJSONataExpression } from "@ouni/expressions";
 import type { Action, Actions, Machine, StateNode, Transition, Transitions } from "../schema/types";
-import type { CompiledMachine, CompiledTemplateCache, TemplatePart } from "./types";
+import type { CompiledMachine } from "./types";
 
-export type { CompiledCache, CompiledMachine, CompiledTemplateCache, TemplatePart } from "./types";
+export type { CompiledCache, CompiledMachine } from "./types";
 export { isCompiledMachine } from "./types";
 
 /**
@@ -18,7 +18,6 @@ export function compileMachine(machine: Machine): CompiledMachine {
   const compiled: CompiledMachine["compiled"] = {
     guards: new Map(),
     expressions: new Map(),
-    templates: new Map(),
   };
 
   // Note: Guards (conditions) are no longer compiled.
@@ -186,42 +185,18 @@ function compileActionParams(
 }
 
 /**
- * Compile a value (can be string expression/template, array, or object)
+ * Compile a value (can be string expression, array, or object)
+ * All strings are treated as JSONata expressions
  */
 function compileValue(value: unknown, compiled: CompiledMachine["compiled"]): void {
   if (typeof value === "string") {
-    // Check if it's a template string with {{ }}
-    if (value.startsWith("{{") && value.endsWith("}}")) {
-      // Full template expression {{expr}} - treat as expression
-      const expr = value.slice(2, -2).trim();
-      if (!compiled.expressions.has(expr)) {
-        try {
-          const compiledExpr = compileJSONataExpression(expr);
-          compiled.expressions.set(expr, { source: expr, compiled: compiledExpr });
-        } catch (error) {
-          console.warn(`Failed to compile expression: ${expr}`, error);
-        }
-      }
-    } else if (value.includes("{{")) {
-      // Inline template with parts: "Hello {{name}}"
-      if (!compiled.templates.has(value)) {
-        try {
-          const templateCache = compileTemplate(value);
-          compiled.templates.set(value, templateCache);
-        } catch (error) {
-          console.warn(`Failed to compile template: ${value}`, error);
-        }
-      }
-    } else {
-      // Plain expression (no template markers) - e.g., "context.count", "event.value"
-      // These are direct JSONata expressions
-      if (!compiled.expressions.has(value)) {
-        try {
-          const compiledExpr = compileJSONataExpression(value);
-          compiled.expressions.set(value, { source: value, compiled: compiledExpr });
-        } catch (error) {
-          // Not an expression, just a plain string - skip compilation
-        }
+    // All strings are JSONata expressions
+    if (!compiled.expressions.has(value)) {
+      try {
+        const compiledExpr = compileJSONataExpression(value);
+        compiled.expressions.set(value, { source: value, compiled: compiledExpr });
+      } catch {
+        // Not a valid expression, skip compilation
       }
     }
   } else if (Array.isArray(value)) {
@@ -233,48 +208,4 @@ function compileValue(value: unknown, compiled: CompiledMachine["compiled"]): vo
       compileValue(v, compiled);
     }
   }
-}
-
-/**
- * Compile a template string into parts and compile each expression
- */
-function compileTemplate(template: string): CompiledTemplateCache {
-  const parts: TemplatePart[] = [];
-  const compiledParts: ReturnType<typeof compileJSONataExpression>[] = [];
-
-  // Parse {{expr}} patterns
-  let lastIndex = 0;
-  const pattern = /\{\{(.+?)\}\}/g;
-  let match;
-
-  while ((match = pattern.exec(template)) !== null) {
-    // Static text before match
-    if (match.index > lastIndex) {
-      parts.push({
-        type: "static",
-        value: template.slice(lastIndex, match.index),
-      });
-    }
-
-    // Expression
-    const expr = match[1]!.trim();
-    parts.push({ type: "expression", value: expr });
-    compiledParts.push(compileJSONataExpression(expr));
-
-    lastIndex = match.index + match[0].length;
-  }
-
-  // Remaining static text
-  if (lastIndex < template.length) {
-    parts.push({
-      type: "static",
-      value: template.slice(lastIndex),
-    });
-  }
-
-  return {
-    source: template,
-    parts,
-    compiledParts,
-  };
 }

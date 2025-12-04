@@ -71,7 +71,7 @@ describe("validateMachine", () => {
       actions: {
         increment: {
           type: "assign",
-          values: { value: "{{context.value | add:1}}" },
+          values: { value: "context.value + 1" },
         },
       },
       states: {
@@ -368,7 +368,7 @@ describe("validateMiniApp", () => {
       actions: {
         doIncrement: {
           type: "assign",
-          values: { count: "{{context.count | add:1}}" },
+          values: { count: "context.count + 1" },
         },
       },
     };
