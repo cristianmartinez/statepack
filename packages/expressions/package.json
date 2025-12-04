@@ -21,7 +21,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@ouni/compiler": "workspace:*"
+    "@ouni/compiler": "workspace:*",
+    "jsonata": "^2.1.0"
   },
   "devDependencies": {
     "typescript": "^5"
