@@ -1,18 +1,18 @@
-import { compile as compileExpression, compileTemplate } from "@ouni/expressions";
+import { compileExpression as compileJSONataExpression } from "@ouni/expressions";
 import type { Action, Actions, Machine, StateNode, Transition, Transitions } from "../schema/types";
-import type { CompiledMachine } from "./types";
+import type { CompiledMachine, CompiledTemplateCache, TemplatePart } from "./types";
 
-export type { CompiledCache, CompiledMachine } from "./types";
+export type { CompiledCache, CompiledMachine, CompiledTemplateCache, TemplatePart } from "./types";
 export { isCompiledMachine } from "./types";
 
 /**
- * Compile a state machine by pre-parsing all expressions and conditions
+ * Compile a state machine by pre-compiling all JSONata expressions
  *
  * This walks the entire machine tree and compiles:
- * - Guard conditions in transitions
- * - Condition strings in actions
- * - Expression strings in assign actions
- * - Template strings in action parameters
+ * - Guard conditions in transitions (JSON objects, no compilation needed)
+ * - Condition strings in actions (JSON objects, no compilation needed)
+ * - Expression strings in assign actions → JSONata
+ * - Template strings in action parameters → JSONata parts
  */
 export function compileMachine(machine: Machine): CompiledMachine {
   const compiled: CompiledMachine["compiled"] = {
@@ -112,27 +112,12 @@ function compileTransition(transition: Transition, compiled: CompiledMachine["co
     return; // Simple target state, nothing to compile
   }
 
-  // Compile guard
-  if (transition.guard) {
-    compileGuard(transition.guard, compiled);
-  }
+  // Guard compilation not needed - conditions are JSON objects
 
   // Compile actions
   if (transition.actions) {
     compileActions(transition.actions, compiled);
   }
-}
-
-/**
- * Compile a guard (can be string, inline, or compound)
- *
- * Note: Guards are no longer compiled. The @ouni/conditions package
- * uses JSON condition objects directly without string compilation.
- */
-function compileGuard(_guard: unknown, _compiled: CompiledMachine["compiled"]): void {
-  // Guards are evaluated at runtime using condition objects
-  // No compilation needed
-  return;
 }
 
 /**
@@ -155,10 +140,6 @@ function compileAction(action: Action, compiled: CompiledMachine["compiled"]): v
   }
 
   const actionObj = action as Record<string, unknown>;
-
-  // Note: Conditions are no longer compiled (they are JSON objects)
-  // Skip condition compilation
-
   const actionType = actionObj.type as string;
 
   switch (actionType) {
@@ -210,17 +191,37 @@ function compileActionParams(
 function compileValue(value: unknown, compiled: CompiledMachine["compiled"]): void {
   if (typeof value === "string") {
     // Check if it's a template string with {{ }}
-    if (value.includes("{{") && value.includes("}}")) {
-      if (!compiled.templates.has(value)) {
-        const compilation = compileTemplate(value);
-        compiled.templates.set(value, { source: value, compilation });
+    if (value.startsWith("{{") && value.endsWith("}}")) {
+      // Full template expression {{expr}} - treat as expression
+      const expr = value.slice(2, -2).trim();
+      if (!compiled.expressions.has(expr)) {
+        try {
+          const compiledExpr = compileJSONataExpression(expr);
+          compiled.expressions.set(expr, { source: expr, compiled: compiledExpr });
+        } catch (error) {
+          console.warn(`Failed to compile expression: ${expr}`, error);
+        }
       }
-    }
-    // Check if it's a pure expression (no {{ }})
-    else if (value.includes("|") || value.includes(".")) {
+    } else if (value.includes("{{")) {
+      // Inline template with parts: "Hello {{name}}"
+      if (!compiled.templates.has(value)) {
+        try {
+          const templateCache = compileTemplate(value);
+          compiled.templates.set(value, templateCache);
+        } catch (error) {
+          console.warn(`Failed to compile template: ${value}`, error);
+        }
+      }
+    } else {
+      // Plain expression (no template markers) - e.g., "context.count", "event.value"
+      // These are direct JSONata expressions
       if (!compiled.expressions.has(value)) {
-        const ast = compileExpression(value);
-        compiled.expressions.set(value, { source: value, ast: ast.ast });
+        try {
+          const compiledExpr = compileJSONataExpression(value);
+          compiled.expressions.set(value, { source: value, compiled: compiledExpr });
+        } catch (error) {
+          // Not an expression, just a plain string - skip compilation
+        }
       }
     }
   } else if (Array.isArray(value)) {
@@ -232,4 +233,48 @@ function compileValue(value: unknown, compiled: CompiledMachine["compiled"]): vo
       compileValue(v, compiled);
     }
   }
+}
+
+/**
+ * Compile a template string into parts and compile each expression
+ */
+function compileTemplate(template: string): CompiledTemplateCache {
+  const parts: TemplatePart[] = [];
+  const compiledParts: ReturnType<typeof compileJSONataExpression>[] = [];
+
+  // Parse {{expr}} patterns
+  let lastIndex = 0;
+  const pattern = /\{\{(.+?)\}\}/g;
+  let match;
+
+  while ((match = pattern.exec(template)) !== null) {
+    // Static text before match
+    if (match.index > lastIndex) {
+      parts.push({
+        type: "static",
+        value: template.slice(lastIndex, match.index),
+      });
+    }
+
+    // Expression
+    const expr = match[1]!.trim();
+    parts.push({ type: "expression", value: expr });
+    compiledParts.push(compileJSONataExpression(expr));
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Remaining static text
+  if (lastIndex < template.length) {
+    parts.push({
+      type: "static",
+      value: template.slice(lastIndex),
+    });
+  }
+
+  return {
+    source: template,
+    parts,
+    compiledParts,
+  };
 }

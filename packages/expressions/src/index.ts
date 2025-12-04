@@ -1,59 +1,15 @@
-// Types
-
-// Compiler (AST, Lexer, Parser)
-export type {
-  ArgumentNode,
-  CompiledTemplate,
-  ExpressionAST,
-  ExpressionNode,
-  LiteralNode,
-  PathNode,
-  PipeNode,
-  RefNode,
-  SimplePathNode,
-  TemplatePart,
-  Token,
-  TokenType,
-  TransformNode,
-  ValueNode,
-} from "./compiler/index";
+// Evaluator (JSONata-based)
 export {
-  AST,
-  compile,
-  compileTemplate,
-  compileToNode,
-  isLiteralNode,
-  isPathNode,
-  isPipeNode,
-  isRefNode,
-  isSimplePathNode,
-  isTransformNode,
-  Lexer,
-  Parser,
-  tokenize,
-} from "./compiler/index";
-// Evaluator
-export {
+  compileExpression,
   createEvaluator,
   evaluate,
-  evaluateCompiledTemplate,
+  evaluateCompiled,
   evaluateTemplate,
   registerTransforms,
+  type CompiledJSONataExpression,
 } from "./evaluate";
 
-// Template utilities
-export { extractBindings, hasBindings } from "./template";
-// Transforms
-export {
-  arrayTransforms,
-  booleanTransforms,
-  builtinTransforms,
-  formatTransforms,
-  numberTransforms,
-  objectTransforms,
-  predicateTransforms,
-  stringTransforms,
-} from "./transforms/index";
+// Types
 export type {
   EvaluatorOptions,
   Expression,
@@ -64,5 +20,6 @@ export type {
   TransformFn,
   TransformRegistry,
 } from "./types";
+
 // Utilities
 export { getPath, isPathReference, resolveFromScope, setPath } from "./utils";

@@ -1,9 +1,26 @@
-import type { CompiledTemplate, ExpressionNode } from "@ouni/expressions";
+import type { CompiledJSONataExpression } from "@ouni/expressions";
 import type { Condition } from "@ouni/conditions";
 import type { Machine } from "../schema/types";
 
 /**
- * Compiled machine with pre-parsed expression and condition ASTs
+ * Template part (static text or expression)
+ */
+export interface TemplatePart {
+  type: "static" | "expression";
+  value: string;
+}
+
+/**
+ * Compiled template with parts and compiled expressions
+ */
+export interface CompiledTemplateCache {
+  source: string;
+  parts: TemplatePart[];
+  compiledParts: CompiledJSONataExpression[];
+}
+
+/**
+ * Compiled machine with pre-compiled JSONata expressions
  */
 export interface CompiledMachine {
   /** Original machine definition (for debugging/serialization) */
@@ -14,11 +31,11 @@ export interface CompiledMachine {
     /** Map of guard condition strings → parsed Condition AST */
     guards: Map<string, { source: string; ast: Condition }>;
 
-    /** Map of expression strings → parsed ExpressionNode AST */
-    expressions: Map<string, { source: string; ast: ExpressionNode }>;
+    /** Map of expression strings → compiled JSONata expression */
+    expressions: Map<string, { source: string; compiled: CompiledJSONataExpression }>;
 
     /** Map of template strings → compiled template parts */
-    templates: Map<string, { source: string; compilation: CompiledTemplate }>;
+    templates: Map<string, CompiledTemplateCache>;
   };
 
   /** Compilation metadata */
@@ -31,8 +48,8 @@ export interface CompiledMachine {
  */
 export interface CompiledCache {
   guards: Map<string, { source: string; ast: Condition }>;
-  expressions: Map<string, { source: string; ast: ExpressionNode }>;
-  templates: Map<string, { source: string; compilation: CompiledTemplate }>;
+  expressions: Map<string, { source: string; compiled: CompiledJSONataExpression }>;
+  templates: Map<string, CompiledTemplateCache>;
 }
 
 /**

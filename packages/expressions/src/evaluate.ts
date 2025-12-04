@@ -1,149 +1,117 @@
-import {
-  type ArgumentNode,
-  compile,
-  type CompiledTemplate,
-  type ExpressionNode,
-  isLiteralNode,
-  isPipeNode,
-  isRefNode,
-  isSimplePathNode,
-} from "./compiler/index";
-import { extractBindings, hasBindings } from "./template";
-import { builtinTransforms } from "./transforms/index";
-import type {
-  EvaluatorOptions,
-  Expression,
-  PathExpression,
-  Scope,
-  TransformRegistry,
-} from "./types";
-import { resolveFromScope } from "./utils";
+import jsonata from "jsonata";
+import type { EvaluatorOptions, Expression, Scope } from "./types";
 
 /**
- * Evaluate an expression against a scope
+ * Compiled JSONata expression that can be evaluated synchronously
  */
-export function evaluate(
-  expression: Expression,
+export interface CompiledJSONataExpression {
+  expression: ReturnType<typeof jsonata>;
+  source: string;
+}
+
+/**
+ * Compile an expression to JSONata AST (do this once at load time)
+ */
+export function compileExpression(expression: string): CompiledJSONataExpression {
+  if (typeof expression !== "string") {
+    throw new Error("JSONata only supports string expressions");
+  }
+
+  try {
+    return {
+      expression: jsonata(expression),
+      source: expression,
+    };
+  } catch (err) {
+    throw new Error(
+      `Expression compilation failed: ${err instanceof Error ? err.message : String(err)}`
+    );
+  }
+}
+
+/**
+ * Evaluate a compiled expression synchronously using callback API
+ */
+export function evaluateCompiled(
+  compiled: CompiledJSONataExpression,
   scope: Scope,
   options: EvaluatorOptions = {}
 ): unknown {
-  // Compile string expression to AST, or convert PathExpression to AST
-  const ast: ExpressionNode =
-    typeof expression === "string" ? compile(expression).ast : pathExpressionToAST(expression);
+  let result: unknown;
+  let error: Error | undefined;
 
-  // Get transforms registry
-  const transforms = options.transforms
-    ? { ...builtinTransforms, ...options.transforms }
-    : builtinTransforms;
-
-  // Evaluate based on AST type
-  if (isSimplePathNode(ast)) {
-    return resolveFromScope(ast.path.value, scope);
-  }
-
-  if (isPipeNode(ast)) {
-    // Get base value from source path
-    let value = resolveFromScope(ast.source.value, scope);
-
-    // Apply transforms
-    for (const transform of ast.transforms) {
-      const transformFn = transforms[transform.name];
-      if (!transformFn) {
-        throw new Error(`Unknown transform: ${transform.name}`);
-      }
-
-      // Resolve arguments
-      const args = transform.args.map((arg) => resolveArg(arg, scope));
-
-      // Apply transform
-      value = transformFn(value, args, scope);
+  // Use callback-based API for synchronous execution
+  compiled.expression.evaluate(scope, {}, (err, res) => {
+    if (err) {
+      error = err as Error;
+    } else {
+      result = res;
     }
+  });
 
-    return value;
+  if (error) {
+    throw new Error(`Expression evaluation failed: ${error.message}`);
   }
 
-  throw new Error("Unknown AST node type");
+  return result;
 }
 
 /**
- * Evaluate a template string with bindings like "Hello, {{name}}!"
+ * Evaluate an expression (async) - DEPRECATED
+ * Use compileExpression + evaluateCompiled for better performance
+ *
+ * @deprecated Use compileExpression() once at load time, then evaluateCompiled() for evaluation
  */
-export function evaluateTemplate(
+export async function evaluate(
+  expression: Expression,
+  scope: Scope,
+  options: EvaluatorOptions = {}
+): Promise<unknown> {
+  if (typeof expression !== "string") {
+    throw new Error("JSONata only supports string expressions");
+  }
+
+  try {
+    const compiled = jsonata(expression);
+    return await compiled.evaluate(scope);
+  } catch (err) {
+    throw new Error(
+      `Expression evaluation failed: ${err instanceof Error ? err.message : String(err)}`
+    );
+  }
+}
+
+/**
+ * Evaluate a template string with bindings like "Hello, {{name}}!" (async) - DEPRECATED
+ *
+ * @deprecated Use compileTemplate() once at load time, then evaluateCompiledTemplate() for evaluation
+ */
+export async function evaluateTemplate(
   template: string,
   scope: Scope,
   options: EvaluatorOptions = {}
-): string {
-  if (!hasBindings(template)) {
+): Promise<string> {
+  // Check if template has bindings ({{ }})
+  if (!template.includes("{{")) {
     return template;
   }
 
-  const { parts, expressions } = extractBindings(template);
+  // Extract all {{expression}} patterns
+  const pattern = /\{\{(.+?)\}\}/g;
+  const matches = Array.from(template.matchAll(pattern));
 
-  let result = parts[0] ?? "";
+  // Evaluate all expressions in parallel
+  const values = await Promise.all(
+    matches.map((match) => evaluate(match[1]!.trim(), scope, options))
+  );
 
-  for (let i = 0; i < expressions.length; i++) {
-    const expr = expressions[i]!;
-    const value = evaluate(expr, scope, options);
-    result += String(value ?? "");
-    result += parts[i + 1] ?? "";
-  }
-
-  return result;
-}
-
-/**
- * Evaluate a pre-compiled template with AST nodes
- */
-export function evaluateCompiledTemplate(
-  compiled: CompiledTemplate,
-  scope: Scope,
-  options: EvaluatorOptions = {}
-): string {
-  let result = "";
-
-  for (const part of compiled.parts) {
-    if (part.type === "static") {
-      result += part.value as string;
-    } else {
-      // part.type === "expression", part.value is ExpressionNode
-      const ast = part.value as ExpressionNode;
-      const value = evaluateAST(ast, scope, options);
-      result += String(value ?? "");
-    }
-  }
+  // Replace placeholders with evaluated values
+  let result = template;
+  matches.forEach((match, i) => {
+    result = result.replace(match[0], String(values[i] ?? ""));
+  });
 
   return result;
-}
-
-/**
- * Evaluate an AST node directly (internal helper)
- */
-function evaluateAST(ast: ExpressionNode, scope: Scope, options: EvaluatorOptions = {}): unknown {
-  const transforms = options.transforms
-    ? { ...builtinTransforms, ...options.transforms }
-    : builtinTransforms;
-
-  if (isSimplePathNode(ast)) {
-    return resolveFromScope(ast.path.value, scope);
-  }
-
-  if (isPipeNode(ast)) {
-    let value = resolveFromScope(ast.source.value, scope);
-
-    for (const transform of ast.transforms) {
-      const transformFn = transforms[transform.name];
-      if (!transformFn) {
-        throw new Error(`Unknown transform: ${transform.name}`);
-      }
-
-      const args = transform.args.map((arg) => resolveArg(arg, scope));
-      value = transformFn(value, args, scope);
-    }
-
-    return value;
-  }
-
-  throw new Error("Unknown AST node type");
 }
 
 /**
@@ -158,85 +126,10 @@ export function createEvaluator(options: EvaluatorOptions = {}) {
 }
 
 /**
- * Convert a PathExpression object to AST
+ * Register custom transforms (no-op for JSONata, kept for API compatibility)
+ * @deprecated JSONata has built-in functions, custom transforms not supported
  */
-function pathExpressionToAST(expr: PathExpression): ExpressionNode {
-  const path = { type: "path" as const, value: expr.path };
-
-  if (!expr.transforms || expr.transforms.length === 0) {
-    return { type: "simplePath", path };
-  }
-
-  return {
-    type: "pipe",
-    source: path,
-    transforms: expr.transforms.map((t) => ({
-      type: "transform" as const,
-      name: t.name,
-      args: (t.args ?? []).map((arg): ArgumentNode => {
-        if (typeof arg === "object" && arg !== null && "path" in arg) {
-          return { type: "ref", path: arg.path };
-        }
-        return { type: "literal", value: arg as string | number | boolean | null };
-      }),
-    })),
-  };
-}
-
-/**
- * Resolve an argument to its actual value
- */
-function resolveArg(arg: ArgumentNode, scope: Scope): unknown {
-  if (isLiteralNode(arg)) {
-    return arg.value;
-  }
-
-  // Handle object literals
-  if (arg.type === "object") {
-    const result: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(arg.properties)) {
-      result[key] = resolveArg(value, scope);
-    }
-    return result;
-  }
-
-  // Handle array literals
-  if (arg.type === "array") {
-    return arg.elements.map((el) => resolveArg(el, scope));
-  }
-
-  if (isRefNode(arg)) {
-    const path = arg.path;
-    if (path.includes("|")) {
-      return evaluate(path, scope);
-    }
-    return resolveFromScope(path, scope);
-  }
-
-  // ExpressionNode (PipeNode or SimplePathNode)
-  if (isSimplePathNode(arg)) {
-    return resolveFromScope(arg.path.value, scope);
-  }
-
-  if (isPipeNode(arg)) {
-    let value = resolveFromScope(arg.source.value, scope);
-    for (const transform of arg.transforms) {
-      const transformFn = builtinTransforms[transform.name];
-      if (!transformFn) {
-        throw new Error(`Unknown transform: ${transform.name}`);
-      }
-      const args = transform.args.map((a) => resolveArg(a, scope));
-      value = transformFn(value, args, scope);
-    }
-    return value;
-  }
-
-  return undefined;
-}
-
-/**
- * Register custom transforms
- */
-export function registerTransforms(transforms: TransformRegistry): TransformRegistry {
-  return { ...builtinTransforms, ...transforms };
+export function registerTransforms(): Record<string, never> {
+  console.warn("registerTransforms is deprecated with JSONata - use JSONata built-in functions");
+  return {};
 }

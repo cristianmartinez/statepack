@@ -64,10 +64,10 @@ describe("Interpreter", () => {
         active: {
           on: {
             INCREMENT: {
-              actions: [{ type: "assign", values: { count: "{{context.count | add:1}}" } }],
+              actions: [{ type: "assign", values: { count: "{{context.count + 1}}" } }],
             },
             DECREMENT: {
-              actions: [{ type: "assign", values: { count: "{{context.count | add:-1}}" } }],
+              actions: [{ type: "assign", values: { count: "{{context.count - 1}}" } }],
             },
             SET: {
               actions: [{ type: "assign", values: { count: "{{event.value}}" } }],
@@ -84,25 +84,25 @@ describe("Interpreter", () => {
       expect(interpreter.getSnapshot().context.count).toBe(0);
     });
 
-    test("updates context with assign", () => {
+    test("updates context with assign", async () => {
       const interpreter = interpret(counterMachine);
-      interpreter.start();
+      await interpreter.start();
 
-      interpreter.send("INCREMENT");
+      await interpreter.send("INCREMENT");
       expect(interpreter.getSnapshot().context.count).toBe(1);
 
-      interpreter.send("INCREMENT");
+      await interpreter.send("INCREMENT");
       expect(interpreter.getSnapshot().context.count).toBe(2);
 
-      interpreter.send("DECREMENT");
+      await interpreter.send("DECREMENT");
       expect(interpreter.getSnapshot().context.count).toBe(1);
     });
 
-    test("accesses event payload", () => {
+    test("accesses event payload", async () => {
       const interpreter = interpret(counterMachine);
-      interpreter.start();
+      await interpreter.start();
 
-      interpreter.send({ type: "SET", value: 42 });
+      await interpreter.send({ type: "SET", value: 42 });
       expect(interpreter.getSnapshot().context.count).toBe(42);
     });
   });
@@ -146,24 +146,24 @@ describe("Interpreter", () => {
       },
     };
 
-    test("uses named guards", () => {
+    test("uses named guards", async () => {
       const interpreter = interpret(guardedMachine);
-      interpreter.start();
+      await interpreter.start();
 
-      interpreter.send("CHECK");
+      await interpreter.send("CHECK");
       expect(interpreter.getSnapshot().value).toBe("positive");
     });
 
-    test("falls through to next transition", () => {
+    test("falls through to next transition", async () => {
       const machine = { ...guardedMachine, context: { value: 0 } };
       const interpreter = interpret(machine);
-      interpreter.start();
+      await interpreter.start();
 
-      interpreter.send("CHECK");
+      await interpreter.send("CHECK");
       expect(interpreter.getSnapshot().value).toBe("zero");
     });
 
-    test("inline guards", () => {
+    test("inline guards", async () => {
       const machine: Machine = {
         id: "inline-guard",
         initial: "idle",
@@ -182,12 +182,12 @@ describe("Interpreter", () => {
       };
 
       const interpreter = interpret(machine);
-      interpreter.start();
-      interpreter.send("GO");
+      await interpreter.start();
+      await interpreter.send("GO");
       expect(interpreter.getSnapshot().value).toBe("active");
     });
 
-    test("AND guards", () => {
+    test("AND guards", async () => {
       const machine: Machine = {
         id: "and-guard",
         initial: "idle",
@@ -210,12 +210,12 @@ describe("Interpreter", () => {
       };
 
       const interpreter = interpret(machine);
-      interpreter.start();
-      interpreter.send("GO");
+      await interpreter.start();
+      await interpreter.send("GO");
       expect(interpreter.getSnapshot().value).toBe("active");
     });
 
-    test("OR guards", () => {
+    test("OR guards", async () => {
       const machine: Machine = {
         id: "or-guard",
         initial: "idle",
@@ -238,12 +238,12 @@ describe("Interpreter", () => {
       };
 
       const interpreter = interpret(machine);
-      interpreter.start();
-      interpreter.send("GO");
+      await interpreter.start();
+      await interpreter.send("GO");
       expect(interpreter.getSnapshot().value).toBe("active");
     });
 
-    test("NOT guards", () => {
+    test("NOT guards", async () => {
       const machine: Machine = {
         id: "not-guard",
         initial: "idle",
@@ -265,14 +265,14 @@ describe("Interpreter", () => {
       };
 
       const interpreter = interpret(machine);
-      interpreter.start();
-      interpreter.send("GO");
+      await interpreter.start();
+      await interpreter.send("GO");
       expect(interpreter.getSnapshot().value).toBe("active");
     });
   });
 
   describe("entry/exit actions", () => {
-    test("executes entry actions", () => {
+    test("executes entry actions", async () => {
       const machine: Machine = {
         id: "entry-test",
         initial: "idle",
@@ -288,13 +288,13 @@ describe("Interpreter", () => {
       };
 
       const interpreter = interpret(machine);
-      interpreter.start();
-      interpreter.send("GO");
+      await interpreter.start();
+      await interpreter.send("GO");
 
       expect(interpreter.getSnapshot().context.entered).toBe(true);
     });
 
-    test("executes exit actions", () => {
+    test("executes exit actions", async () => {
       const machine: Machine = {
         id: "exit-test",
         initial: "idle",
@@ -309,21 +309,21 @@ describe("Interpreter", () => {
       };
 
       const interpreter = interpret(machine);
-      interpreter.start();
-      interpreter.send("GO");
+      await interpreter.start();
+      await interpreter.send("GO");
 
       expect(interpreter.getSnapshot().context.exited).toBe(true);
     });
   });
 
   describe("named actions", () => {
-    test("resolves named actions", () => {
+    test("resolves named actions", async () => {
       const machine: Machine = {
         id: "named-actions",
         initial: "idle",
         context: { value: 0 },
         actions: {
-          increment: { type: "assign", values: { value: "{{context.value | add:1}}" } },
+          increment: { type: "assign", values: { value: "{{context.value + 1}}" } },
         },
         states: {
           idle: {
@@ -335,20 +335,20 @@ describe("Interpreter", () => {
       };
 
       const interpreter = interpret(machine);
-      interpreter.start();
-      interpreter.send("INCREMENT");
+      await interpreter.start();
+      await interpreter.send("INCREMENT");
 
       expect(interpreter.getSnapshot().context.value).toBe(1);
     });
 
-    test("handles array of named actions", () => {
+    test("handles array of named actions", async () => {
       const machine: Machine = {
         id: "multiple-named",
         initial: "idle",
         context: { a: 0, b: 0 },
         actions: {
-          incrementA: { type: "assign", values: { a: "{{context.a | add:1}}" } },
-          incrementB: { type: "assign", values: { b: "{{context.b | add:1}}" } },
+          incrementA: { type: "assign", values: { a: "{{context.a + 1}}" } },
+          incrementB: { type: "assign", values: { b: "{{context.b + 1}}" } },
         },
         states: {
           idle: {
@@ -360,8 +360,8 @@ describe("Interpreter", () => {
       };
 
       const interpreter = interpret(machine);
-      interpreter.start();
-      interpreter.send("INCREMENT");
+      await interpreter.start();
+      await interpreter.send("INCREMENT");
 
       expect(interpreter.getSnapshot().context.a).toBe(1);
       expect(interpreter.getSnapshot().context.b).toBe(1);
@@ -369,7 +369,7 @@ describe("Interpreter", () => {
   });
 
   describe("self transitions", () => {
-    test("self transition without target", () => {
+    test("self transition without target", async () => {
       const machine: Machine = {
         id: "self-transition",
         initial: "active",
@@ -378,7 +378,7 @@ describe("Interpreter", () => {
           active: {
             on: {
               INCREMENT: {
-                actions: [{ type: "assign", values: { count: "{{context.count | add:1}}" } }],
+                actions: [{ type: "assign", values: { count: "{{context.count + 1}}" } }],
               },
             },
           },
@@ -386,10 +386,10 @@ describe("Interpreter", () => {
       };
 
       const interpreter = interpret(machine);
-      interpreter.start();
+      await interpreter.start();
 
-      interpreter.send("INCREMENT");
-      interpreter.send("INCREMENT");
+      await interpreter.send("INCREMENT");
+      await interpreter.send("INCREMENT");
 
       expect(interpreter.getSnapshot().value).toBe("active");
       expect(interpreter.getSnapshot().context.count).toBe(2);
@@ -397,7 +397,7 @@ describe("Interpreter", () => {
   });
 
   describe("final states", () => {
-    test("marks machine as done", () => {
+    test("marks machine as done", async () => {
       const machine: Machine = {
         id: "final-test",
         initial: "running",
@@ -413,13 +413,13 @@ describe("Interpreter", () => {
       };
 
       const interpreter = interpret(machine);
-      interpreter.start();
-      interpreter.send("FINISH");
+      await interpreter.start();
+      await interpreter.send("FINISH");
 
       expect(interpreter.getSnapshot().done).toBe(true);
     });
 
-    test("calls onDone callback", () => {
+    test("calls onDone callback", async () => {
       const machine: Machine = {
         id: "ondone-test",
         initial: "running",
@@ -441,15 +441,15 @@ describe("Interpreter", () => {
         },
       });
 
-      interpreter.start();
-      interpreter.send("FINISH");
+      await interpreter.start();
+      await interpreter.send("FINISH");
 
       expect(doneState).not.toBeNull();
     });
   });
 
   describe("subscribers", () => {
-    test("notifies subscribers on transition", () => {
+    test("notifies subscribers on transition", async () => {
       const machine: Machine = {
         id: "subscriber-test",
         initial: "idle",
@@ -467,13 +467,13 @@ describe("Interpreter", () => {
         states.push(state.value as string);
       });
 
-      interpreter.start();
-      interpreter.send("GO");
+      await interpreter.start();
+      await interpreter.send("GO");
 
       expect(states).toEqual(["idle", "active"]);
     });
 
-    test("unsubscribes correctly", () => {
+    test("unsubscribes correctly", async () => {
       const machine: Machine = {
         id: "unsubscribe-test",
         initial: "idle",
@@ -491,16 +491,16 @@ describe("Interpreter", () => {
         states.push(state.value as string);
       });
 
-      interpreter.start();
+      await interpreter.start();
       unsubscribe();
-      interpreter.send("GO");
+      await interpreter.send("GO");
 
       expect(states).toEqual(["idle"]);
     });
   });
 
   describe("matches", () => {
-    test("matches simple state", () => {
+    test("matches simple state", async () => {
       const machine: Machine = {
         id: "matches-test",
         initial: "idle",
@@ -512,7 +512,7 @@ describe("Interpreter", () => {
       };
 
       const interpreter = interpret(machine);
-      interpreter.start();
+      await interpreter.start();
 
       expect(interpreter.matches("idle")).toBe(true);
       expect(interpreter.matches("active")).toBe(false);
@@ -544,8 +544,8 @@ describe("Interpreter", () => {
         },
       });
 
-      interpreter.start();
-      interpreter.send("TOAST");
+      await interpreter.start();
+      await interpreter.send("TOAST");
 
       // Wait for effect to be processed
       await new Promise((resolve) => setTimeout(resolve, 10));
@@ -557,7 +557,7 @@ describe("Interpreter", () => {
   });
 
   describe("stop/start", () => {
-    test("ignores events when stopped", () => {
+    test("ignores events when stopped", async () => {
       const machine: Machine = {
         id: "stop-test",
         initial: "idle",
@@ -569,9 +569,9 @@ describe("Interpreter", () => {
       };
 
       const interpreter = interpret(machine);
-      interpreter.start();
+      await interpreter.start();
       interpreter.stop();
-      interpreter.send("GO");
+      await interpreter.send("GO");
 
       expect(interpreter.getSnapshot().value).toBe("idle");
     });
@@ -579,7 +579,7 @@ describe("Interpreter", () => {
 });
 
 describe("state matching", () => {
-  test("matches nested state", () => {
+  test("matches nested state", async () => {
     const machine: Machine = {
       id: "nested-match",
       initial: "parent",
@@ -596,13 +596,13 @@ describe("state matching", () => {
     };
 
     const interpreter = interpret(machine);
-    interpreter.start();
+    await interpreter.start();
 
     expect(interpreter.matches("parent")).toBe(true);
     expect(interpreter.matches("parent.child1")).toBe(true);
     expect(interpreter.matches("parent.child2")).toBe(false);
 
-    interpreter.send("NEXT");
+    await interpreter.send("NEXT");
     expect(interpreter.matches("parent.child2")).toBe(true);
   });
 });

@@ -1,5 +1,5 @@
 import { evaluate as evalCondition, type Condition } from "@ouni/conditions";
-import { evaluate as evaluateExpression, evaluateCompiledTemplate } from "@ouni/expressions";
+import { evaluateCompiled } from "@ouni/expressions";
 import type { CompiledCache } from "../compiler/types";
 import type { Action, Actions } from "../schema/types";
 import type { Event } from "./state";
@@ -57,14 +57,14 @@ export interface ActionExecutor {
 }
 
 /**
- * Resolve and execute actions
+ * Resolve and execute actions (async)
  */
-export function executeActions(
+export async function executeActions(
   actions: Actions | undefined,
   ctx: ActionContext,
   namedActions: Record<string, Action | Action[]>,
   compiled?: CompiledCache
-): ActionResult {
+): Promise<ActionResult> {
   const result: ActionResult = {
     context: { ...ctx.context },
     raisedEvents: [],
@@ -77,19 +77,19 @@ export function executeActions(
   const actionList = Array.isArray(actions) ? actions : [actions];
 
   for (const action of actionList) {
-    executeAction(action, ctx, namedActions, result, compiled);
+    await executeAction(action, ctx, namedActions, result, compiled);
   }
 
   return result;
 }
 
-function executeAction(
+async function executeAction(
   action: Action,
   ctx: ActionContext,
   namedActions: Record<string, Action | Action[]>,
   result: ActionResult,
   compiled?: CompiledCache
-): void {
+): Promise<void> {
   // String reference to named action
   if (typeof action === "string") {
     const namedAction = namedActions[action];
@@ -99,7 +99,7 @@ function executeAction(
     }
     const actionList = Array.isArray(namedAction) ? namedAction : [namedAction];
     for (const a of actionList) {
-      executeAction(a, ctx, namedActions, result, compiled);
+      await executeAction(a, ctx, namedActions, result, compiled);
     }
     return;
   }
@@ -124,19 +124,19 @@ function executeAction(
 
   switch (actionType) {
     case "assign":
-      handleAssign(actionObj, ctx, result, compiled);
+      await handleAssign(actionObj, ctx, result, compiled);
       break;
 
     case "raise":
-      handleRaise(actionObj, ctx, result, compiled);
+      await handleRaise(actionObj, ctx, result, compiled);
       break;
 
     case "send":
-      handleSend(actionObj, ctx, result, compiled);
+      await handleSend(actionObj, ctx, result, compiled);
       break;
 
     case "conditional":
-      handleConditional(actionObj, ctx, namedActions, result, compiled);
+      await handleConditional(actionObj, ctx, namedActions, result, compiled);
       break;
 
     case "log":
@@ -157,7 +157,7 @@ function executeAction(
     case "spawn":
     case "sendTo":
     case "stop":
-      handleEffect(actionObj, ctx, result, compiled);
+      await handleEffect(actionObj, ctx, result, compiled);
       break;
 
     default:
@@ -165,17 +165,17 @@ function executeAction(
   }
 }
 
-function handleAssign(
+async function handleAssign(
   action: Record<string, unknown>,
   ctx: ActionContext,
   result: ActionResult,
   compiled?: CompiledCache
-): void {
+): Promise<void> {
   const values = action.values as Record<string, unknown>;
   if (!values) return;
 
   for (const [key, value] of Object.entries(values)) {
-    result.context[key] = resolveValue(
+    result.context[key] = await resolveValue(
       value,
       {
         context: result.context,
@@ -186,23 +186,23 @@ function handleAssign(
   }
 }
 
-function handleRaise(
+async function handleRaise(
   action: Record<string, unknown>,
   ctx: ActionContext,
   result: ActionResult,
   compiled?: CompiledCache
-): void {
-  const eventType = resolveValue(
+): Promise<void> {
+  const eventType = (await resolveValue(
     action.event,
     {
       context: result.context,
       event: ctx.event,
     },
     compiled
-  ) as string;
+  )) as string;
 
   const payload = action.payload
-    ? resolveValues(
+    ? await resolveValues(
         action.payload as Record<string, unknown>,
         {
           context: result.context,
@@ -215,23 +215,23 @@ function handleRaise(
   result.raisedEvents.push({ type: eventType, ...payload });
 }
 
-function handleSend(
+async function handleSend(
   action: Record<string, unknown>,
   ctx: ActionContext,
   result: ActionResult,
   compiled?: CompiledCache
-): void {
-  const eventType = resolveValue(
+): Promise<void> {
+  const eventType = (await resolveValue(
     action.event,
     {
       context: result.context,
       event: ctx.event,
     },
     compiled
-  ) as string;
+  )) as string;
 
   const payload = action.payload
-    ? resolveValues(
+    ? await resolveValues(
         action.payload as Record<string, unknown>,
         {
           context: result.context,
@@ -249,13 +249,13 @@ function handleSend(
   });
 }
 
-function handleConditional(
+async function handleConditional(
   action: Record<string, unknown>,
   ctx: ActionContext,
   namedActions: Record<string, Action | Action[]>,
   result: ActionResult,
   compiled?: CompiledCache
-): void {
+): Promise<void> {
   const condition = action.condition as Condition;
   const conditionCtx = {
     context: result.context,
@@ -268,19 +268,19 @@ function handleConditional(
 
   if (actions) {
     for (const a of actions) {
-      executeAction(a, { ...ctx, context: result.context }, namedActions, result, compiled);
+      await executeAction(a, { ...ctx, context: result.context }, namedActions, result, compiled);
     }
   }
 }
 
-function handleEffect(
+async function handleEffect(
   action: Record<string, unknown>,
   ctx: ActionContext,
   result: ActionResult,
   compiled?: CompiledCache
-): void {
+): Promise<void> {
   // Resolve all template values in the action params
-  const resolvedParams = resolveValues(
+  const resolvedParams = await resolveValues(
     action,
     {
       context: result.context,
@@ -296,78 +296,95 @@ function handleEffect(
 }
 
 /**
- * Resolve a single value (handles template expressions)
+ * Resolve a single value (handles template expressions) - async
  */
-function resolveValue(
+async function resolveValue(
   value: unknown,
   scope: { context: Record<string, unknown>; event: Event },
   compiled?: CompiledCache
-): unknown {
+): Promise<unknown> {
   if (typeof value === "string") {
     // Check for full template expression "{{ ... }}"
     if (value.startsWith("{{") && value.endsWith("}}")) {
-      // Check compiled template cache first (it has the whole string as key)
-      const cachedTemplate = compiled?.templates.get(value);
-      if (cachedTemplate) {
-        return evaluateCompiledTemplate(cachedTemplate.compilation, scope);
-      }
-
-      // Try expression cache with trimmed expression
       const expr = value.slice(2, -2).trim();
-      const cachedExpr = compiled?.expressions.get(expr);
-      if (cachedExpr) {
-        // For now, use the string-based evaluator as fallback
-        // TODO: Add AST-only evaluation support to expressions package
-        return evaluateExpression(expr, scope);
+
+      // Use compiled expression from cache
+      const cached = compiled?.expressions.get(expr);
+      if (cached) {
+        return await evaluateCompiled(cached.compiled, scope);
       }
 
-      // Fallback to runtime parse
-      return evaluateExpression(expr, scope);
+      // Fallback: return raw expression (shouldn't happen if properly compiled)
+      console.warn(`Expression not in compiled cache: ${expr}`);
+      return value;
     }
 
     // Check for inline template parts "Hello {{ name }}"
     if (value.includes("{{")) {
-      // Check compiled template cache
-      const cachedTemplate = compiled?.templates.get(value);
-      if (cachedTemplate) {
-        return evaluateCompiledTemplate(cachedTemplate.compilation, scope);
+      const cached = compiled?.templates.get(value);
+      if (cached) {
+        return await evaluateCompiledTemplate(cached, scope);
       }
 
-      // Fallback to runtime template evaluation
-      return value.replace(/\{\{([^}]+)\}\}/g, (_, expr) => {
-        const result = evaluateExpression(expr.trim(), scope);
-        return String(result ?? "");
-      });
+      // Fallback: return raw template (shouldn't happen if properly compiled)
+      console.warn(`Template not in compiled cache: ${value}`);
+      return value;
     }
 
     return value;
   }
 
   if (Array.isArray(value)) {
-    return value.map((v) => resolveValue(v, scope, compiled));
+    return await Promise.all(value.map((v) => resolveValue(v, scope, compiled)));
   }
 
   if (value !== null && typeof value === "object") {
-    return resolveValues(value as Record<string, unknown>, scope, compiled);
+    return await resolveValues(value as Record<string, unknown>, scope, compiled);
   }
 
   return value;
 }
 
 /**
- * Resolve all values in an object
+ * Evaluate a compiled template (async)
  */
-function resolveValues(
+async function evaluateCompiledTemplate(
+  cached: import("../compiler/types").CompiledTemplateCache,
+  scope: { context: Record<string, unknown>; event: Event }
+): Promise<string> {
+  let result = "";
+  let exprIndex = 0;
+
+  for (const part of cached.parts) {
+    if (part.type === "static") {
+      result += part.value;
+    } else {
+      const compiled = cached.compiledParts[exprIndex];
+      if (compiled) {
+        const value = await evaluateCompiled(compiled, scope);
+        result += String(value ?? "");
+      }
+      exprIndex++;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Resolve all values in an object - async
+ */
+async function resolveValues(
   obj: Record<string, unknown>,
   scope: { context: Record<string, unknown>; event: Event },
   compiled?: CompiledCache
-): Record<string, unknown> {
+): Promise<Record<string, unknown>> {
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(obj)) {
     if (key === "type" || key === "condition") {
       result[key] = value; // Don't resolve these
     } else {
-      result[key] = resolveValue(value, scope, compiled);
+      result[key] = await resolveValue(value, scope, compiled);
     }
   }
   return result;

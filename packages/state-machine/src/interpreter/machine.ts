@@ -1,4 +1,4 @@
-import type { CompiledCache, CompiledMachine } from "../compiler/types";
+import { compileMachine, type CompiledCache, type CompiledMachine } from "../compiler";
 import { isCompiledMachine } from "../compiler/types";
 import type { Action, GuardDefinition, Machine, StateNode, Transition } from "../schema/types";
 import { type ActionEffect, executeActions, normalizeActions } from "./actions";
@@ -47,8 +47,10 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
       this.machine = machine.source;
       this.compiled = machine.compiled;
     } else {
+      // Auto-compile if not already compiled
+      const compiled = compileMachine(machine);
       this.machine = machine;
-      this.compiled = undefined;
+      this.compiled = compiled.compiled;
     }
 
     this.options = options;
@@ -61,9 +63,9 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
   }
 
   /**
-   * Start the interpreter
+   * Start the interpreter (async)
    */
-  start(): this {
+  async start(): Promise<this> {
     if (this.running) return this;
     this.running = true;
 
@@ -72,11 +74,11 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
     // Execute entry actions for initial state
     const entryActions = this.getEntryActions(this.state.value);
     if (entryActions.length > 0) {
-      this.processActions(entryActions, { type: "xstate.init" });
+      await this.processActions(entryActions, { type: "xstate.init" });
     }
 
     // Check for always transitions
-    this.checkAlwaysTransitions();
+    await this.checkAlwaysTransitions();
 
     // Setup delayed transitions
     this.setupDelayedTransitions();
@@ -97,9 +99,9 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
   }
 
   /**
-   * Send an event to the machine
+   * Send an event to the machine (async)
    */
-  send(event: Event | string): State<TContext> {
+  async send(event: Event | string): Promise<State<TContext>> {
     if (!this.running) {
       console.warn("Cannot send event to stopped machine");
       return this.state;
@@ -109,7 +111,7 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
 
     this.log("Received event", normalizedEvent.type);
 
-    return this.transition(normalizedEvent);
+    return await this.transition(normalizedEvent);
   }
 
   /**
@@ -135,9 +137,9 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
   }
 
   /**
-   * Process a transition
+   * Process a transition (async)
    */
-  private transition(event: Event): State<TContext> {
+  private async transition(event: Event): Promise<State<TContext>> {
     const activeNodes = getActiveStateNodes(this.machine, this.state.value);
     const guardCtx = createGuardContext(this.state, event, (pattern) => this.matches(pattern));
 
@@ -178,17 +180,17 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
     }
 
     // Execute the transition
-    return this.executeTransition(matchedTransition, event, matchedNode);
+    return await this.executeTransition(matchedTransition, event, matchedNode);
   }
 
   /**
-   * Execute a transition
+   * Execute a transition (async)
    */
-  private executeTransition(
+  private async executeTransition(
     transition: Transition,
     event: Event,
     _sourceNode?: StateNode
-  ): State<TContext> {
+  ): Promise<State<TContext>> {
     const target = typeof transition === "string" ? transition : transition.target;
     const actions = typeof transition === "string" ? undefined : transition.actions;
     const internal = typeof transition === "string" ? false : (transition.internal ?? false);
@@ -199,13 +201,13 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
     if (target && !internal) {
       const exitActions = this.getExitActions(previousValue);
       if (exitActions.length > 0) {
-        this.processActions(exitActions, event);
+        await this.processActions(exitActions, event);
       }
     }
 
     // Execute transition actions
     if (actions) {
-      this.processActions(normalizeActions(actions), event);
+      await this.processActions(normalizeActions(actions), event);
     }
 
     // Update state value
@@ -223,7 +225,7 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
       if (!internal) {
         const entryActions = this.getEntryActions(this.state.value);
         if (entryActions.length > 0) {
-          this.processActions(entryActions, event);
+          await this.processActions(entryActions, event);
         }
       }
 
@@ -238,7 +240,7 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
     }
 
     // Check for always transitions
-    this.checkAlwaysTransitions();
+    await this.checkAlwaysTransitions();
 
     // Notify subscribers
     this.notifySubscribers();
@@ -252,16 +254,16 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
   }
 
   /**
-   * Process actions and update state
+   * Process actions and update state (async)
    */
-  private processActions(actions: Action[], event: Event): void {
+  private async processActions(actions: Action[], event: Event): Promise<void> {
     const ctx = {
       context: this.state.context,
       event,
       state: { value: this.state.value },
     };
 
-    const result = executeActions(actions, ctx, this.namedActions, this.compiled);
+    const result = await executeActions(actions, ctx, this.namedActions, this.compiled);
 
     // Update context
     this.state = {
@@ -271,7 +273,7 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
 
     // Process raised events immediately
     for (const raisedEvent of result.raisedEvents) {
-      this.transition(raisedEvent);
+      await this.transition(raisedEvent);
     }
 
     // Process sent events (with optional delay)
@@ -284,14 +286,14 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
       }
     }
 
-    // Execute side effects
+    // Execute side effects (async but don't block)
     for (const effect of result.effects) {
-      this.executeEffect(effect);
+      await this.executeEffect(effect);
     }
   }
 
   /**
-   * Execute a side effect
+   * Execute a side effect (async)
    */
   private async executeEffect(effect: ActionEffect): Promise<void> {
     this.log("Executing effect", effect.type);
@@ -339,9 +341,9 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
   }
 
   /**
-   * Check and execute always transitions
+   * Check and execute always transitions (async)
    */
-  private checkAlwaysTransitions(): void {
+  private async checkAlwaysTransitions(): Promise<void> {
     const nodes = getActiveStateNodes(this.machine, this.state.value);
     const guardCtx = createGuardContext(this.state, { type: "" }, (pattern) =>
       this.matches(pattern)
@@ -357,7 +359,7 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
             this.compiled
           );
           if (matched) {
-            this.executeTransition(matched, { type: "" }, node);
+            await this.executeTransition(matched, { type: "" }, node);
             return; // Only execute first match
           }
         }
@@ -377,7 +379,7 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
           const delayMs = parseInt(delay, 10);
           if (Number.isNaN(delayMs)) continue;
 
-          const timerId = setTimeout(() => {
+          const timerId = setTimeout(async () => {
             const guardCtx = createGuardContext(
               this.state,
               { type: `xstate.after.${delay}` },
@@ -392,7 +394,7 @@ export class Interpreter<TContext extends Record<string, unknown> = Record<strin
             );
 
             if (matched) {
-              this.executeTransition(matched, { type: `xstate.after.${delay}` }, node);
+              await this.executeTransition(matched, { type: `xstate.after.${delay}` }, node);
             }
           }, delayMs);
 
