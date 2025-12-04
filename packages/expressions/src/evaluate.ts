@@ -30,30 +30,22 @@ export function compileExpression(expression: string): CompiledJSONataExpression
 }
 
 /**
- * Evaluate a compiled expression synchronously using callback API
+ * Evaluate a compiled expression asynchronously
+ * JSONata's evaluate() returns a Promise natively - just await it!
  */
-export function evaluateCompiled(
+export async function evaluateCompiled(
   compiled: CompiledJSONataExpression,
   scope: Scope,
   options: EvaluatorOptions = {}
-): unknown {
-  let result: unknown;
-  let error: Error | undefined;
-
-  // Use callback-based API for synchronous execution
-  compiled.expression.evaluate(scope, {}, (err, res) => {
-    if (err) {
-      error = err as Error;
-    } else {
-      result = res;
-    }
-  });
-
-  if (error) {
-    throw new Error(`Expression evaluation failed: ${error.message}`);
+): Promise<unknown> {
+  try {
+    // JSONata evaluate() returns a Promise - no callback needed
+    return await compiled.expression.evaluate(scope, {});
+  } catch (err) {
+    throw new Error(
+      `Expression evaluation failed: ${err instanceof Error ? err.message : String(err)}`
+    );
   }
-
-  return result;
 }
 
 /**
