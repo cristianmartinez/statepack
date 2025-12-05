@@ -68,9 +68,12 @@ export {
 export {
   createSignalStore,
   type CreateSignalStoreOptions,
+  interpretWithSignals,
   type MachineEvent,
   type SelectorSignal,
   type SignalContext,
+  SignalInterpreter,
+  type SignalInterpreterOptions,
   type SignalSelectors,
   type SignalStore,
   type SignalStoreSnapshot,
