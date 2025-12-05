@@ -64,3 +64,14 @@ export {
   validateMachine,
   validateMiniApp,
 } from "./schema/index";
+// Signal store exports
+export {
+  createSignalStore,
+  type CreateSignalStoreOptions,
+  type MachineEvent,
+  type SelectorSignal,
+  type SignalContext,
+  type SignalSelectors,
+  type SignalStore,
+  type SignalStoreSnapshot,
+} from "./signals/index";
