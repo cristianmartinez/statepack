@@ -66,11 +66,17 @@ export {
 } from "./schema/index";
 // Signal store exports
 export {
+  type ComputedSelector,
+  createSelector,
+  createSelectors,
   createSignalStore,
+  type CreateSelectorsOptions,
   type CreateSignalStoreOptions,
+  disposeSelectors,
   interpretWithSignals,
   type MachineEvent,
   type SelectorSignal,
+  type SelectorsFromDefinitions,
   type SignalContext,
   SignalInterpreter,
   type SignalInterpreterOptions,

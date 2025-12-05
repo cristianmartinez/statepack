@@ -14,13 +14,14 @@
     "dist"
   ],
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target browser && bun run build:types",
+    "build": "bun build ./src/index.ts --outdir ./dist --target browser --external @preact/signals-core && bun run build:types",
     "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist",
     "dev": "bun build ./src/index.ts --outdir ./dist --target browser --watch",
     "test": "bun test",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@preact/signals-core": "^1.12.1",
     "jsonata": "^2.1.0"
   },
   "devDependencies": {

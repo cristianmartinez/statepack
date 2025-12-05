@@ -1,5 +1,9 @@
 import type { Signal, ReadonlySignal } from "@preact/signals-core";
+import type { ContextStore } from "@ouni/expressions";
 import type { StateValue } from "../interpreter/state";
+
+// Re-export SignalContext from expressions for convenience
+export type { SignalContext } from "@ouni/expressions";
 
 /**
  * Event object for state machine transitions
@@ -10,15 +14,14 @@ export interface MachineEvent {
 }
 
 /**
- * Signal store for state machine - provides fine-grained reactivity
- * where consumers only re-render when their specific dependencies change.
+ * Signal store for state machine - extends ContextStore with machine-specific fields.
+ * Provides fine-grained reactivity where consumers only re-render when their
+ * specific dependencies change.
  */
-export interface SignalStore<TContext extends Record<string, unknown>> {
+export interface SignalStore<TContext extends Record<string, unknown>>
+  extends ContextStore<TContext> {
   /** Current state value (string or nested object for hierarchical states) */
   readonly state: Signal<StateValue>;
-
-  /** Context fields as individual signals for fine-grained updates */
-  readonly context: SignalContext<TContext>;
 
   /** Whether machine has reached a final state */
   readonly done: Signal<boolean>;
@@ -28,21 +31,7 @@ export interface SignalStore<TContext extends Record<string, unknown>> {
 
   /** Get plain object snapshot (for debugging, serialization) */
   getSnapshot(): SignalStoreSnapshot<TContext>;
-
-  /** Batch multiple updates into single notification */
-  batch(fn: () => void): void;
-
-  /** Dispose all signals and cleanup */
-  dispose(): void;
 }
-
-/**
- * Maps each context field to its own signal for independent reactivity.
- * Updating `context.count` won't notify subscribers of `context.name`.
- */
-export type SignalContext<T> = {
-  readonly [K in keyof T]: Signal<T[K]>;
-};
 
 /**
  * Plain object snapshot of signal store state.
