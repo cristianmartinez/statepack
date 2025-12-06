@@ -90,6 +90,9 @@ export class SignalInterpreter {
   /** Event that caused the last transition */
   readonly lastEvent: Signal<Event | undefined>;
 
+  /** Version counter for context changes (increments on every mutation) */
+  readonly contextVersion: Signal<number>;
+
   /** Metadata from current state(s) */
   private _meta: Record<string, unknown>;
 
@@ -137,6 +140,7 @@ export class SignalInterpreter {
     this.state = signal(initialState.value);
     this.done = signal(false);
     this.lastEvent = signal<Event | undefined>(undefined);
+    this.contextVersion = signal(0);
 
     // Initialize meta and children from initial state
     this._meta = initialState.meta;
@@ -416,6 +420,8 @@ export class SignalInterpreter {
           updateSliceContext(this._store, sliceName, result.context);
         }
       }
+      // Increment context version to trigger React re-renders
+      this.contextVersion.value++;
     }
 
     // Process raised events immediately
