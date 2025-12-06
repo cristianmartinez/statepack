@@ -1,5 +1,5 @@
 import { ConditionSchema } from "@ouni/conditions";
-import { MutationsSchema, QueriesSchema } from "@ouni/data";
+import { StoreDefinitionSchema } from "@ouni/data";
 import { z } from "zod";
 
 /**
@@ -317,15 +317,17 @@ export type GuardDefinition = z.infer<typeof GuardDefinitionSchema>;
 
 /**
  * Machine Schema - the complete state machine definition
+ *
+ * Data is managed via a Store - a collection of named Slices.
+ * Each Slice has its own context, queries, and mutations.
  */
 export const MachineSchema = z.object({
   id: z.string(),
   initial: z.string(),
-  context: z.record(z.string(), z.unknown()).optional(),
-  queries: QueriesSchema.optional(), // Derived state from context
-  mutations: MutationsSchema.optional(), // Context modification operations
+  /** Store with named slices (each slice has context, queries, mutations) */
+  store: StoreDefinitionSchema.optional(),
   states: z.record(z.string(), StateNodeSchema),
-  on: z.record(z.string(), TransitionsSchema).optional(), // Global handlers
+  on: z.record(z.string(), TransitionsSchema).optional(),
   guards: z.record(z.string(), GuardDefinitionSchema).optional(),
   actions: z.record(z.string(), z.union([ActionSchema, z.array(ActionSchema)])).optional(),
 });

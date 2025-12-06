@@ -36,15 +36,14 @@ export interface Event {
 
 /**
  * Create the initial state for a machine
+ * Note: Context is managed by the Store, not by the state machine directly
  */
-export function createInitialState<TContext extends Record<string, unknown>>(
-  machine: Machine
-): State<TContext> {
+export function createInitialState(machine: Machine): State {
   const initialValue = resolveInitialValue(machine.states, machine.initial);
 
   return {
     value: initialValue,
-    context: (machine.context ?? {}) as TContext,
+    context: {}, // Context is managed by Store
     done: false,
     meta: collectMeta(machine.states, initialValue),
     children: new Map(),

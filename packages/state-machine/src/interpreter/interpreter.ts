@@ -1,4 +1,10 @@
-import type { CompiledData } from "@ouni/data";
+import {
+  type CompiledStore,
+  type StoreInstance,
+  createStoreInstance,
+  getSliceContext,
+  updateSliceContext,
+} from "@ouni/data";
 import { signal, batch as signalBatch, type Signal } from "@preact/signals-core";
 import { compileMachine, type CompiledCache, type CompiledMachine } from "../compiler";
 import { isCompiledMachine } from "../compiler/types";
@@ -32,13 +38,17 @@ export interface SignalInterpreterOptions {
   onDone?: (state: State) => void;
   /** Enable debug logging */
   debug?: boolean;
+  /** Parent store for scope hierarchy */
+  parentStore?: StoreInstance;
+  /** Named stores for $[name] access */
+  namedStores?: Map<string, StoreInstance>;
 }
 
 /**
  * State machine interpreter.
  *
- * Manages state machine execution with plain state values.
- * For reactive context with signals, use @ouni/data's ContextStore.
+ * Manages state machine execution with Store-based data management.
+ * The store contains named slices, each with context, queries, and mutations.
  *
  * @example
  * ```typescript
@@ -47,13 +57,13 @@ export interface SignalInterpreterOptions {
  *
  * // Get current state
  * console.log("State:", interpreter.state.value);
- * console.log("Context:", interpreter.context);
+ * console.log("Store:", interpreter.store);
  *
  * // Send event
  * await interpreter.send("INCREMENT");
  * ```
  */
-export class SignalInterpreter<TContext extends Record<string, unknown> = Record<string, unknown>> {
+export class SignalInterpreter {
   private machine: Machine;
   private options: SignalInterpreterOptions;
   private namedGuards: Record<string, GuardDefinition>;
@@ -61,7 +71,7 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
   private timers: Map<string, ReturnType<typeof setTimeout>>;
   private running: boolean;
   private compiled?: CompiledCache;
-  private data?: CompiledData;
+  private compiledStore?: CompiledStore;
 
   /** Current state value signal */
   readonly state: Signal<StateValue>;
@@ -72,21 +82,27 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
   /** Event that caused the last transition */
   readonly lastEvent: Signal<Event | undefined>;
 
-  /** Current context (plain object, updated after actions) */
-  private _context: TContext;
+  /** Metadata from current state(s) */
+  private _meta: Record<string, unknown>;
+
+  /** Active child machine actors */
+  private _children: Map<string, unknown>;
+
+  /** Store instance with live context values */
+  private _store?: StoreInstance;
 
   constructor(machine: Machine | CompiledMachine, options: SignalInterpreterOptions = {}) {
     // Extract source machine and compiled cache
     if (isCompiledMachine(machine)) {
       this.machine = machine.source;
       this.compiled = machine.compiled;
-      this.data = machine.data;
+      this.compiledStore = machine.store;
     } else {
       // Auto-compile if not already compiled
       const compiled = compileMachine(machine);
       this.machine = machine;
       this.compiled = compiled.compiled;
-      this.data = compiled.data;
+      this.compiledStore = compiled.store;
     }
 
     this.options = options;
@@ -95,19 +111,62 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
     this.timers = new Map();
     this.running = false;
 
+    // Create store instance if store is defined
+    if (this.compiledStore) {
+      this._store = createStoreInstance(this.compiledStore, {
+        parent: options.parentStore,
+      });
+    }
+
     // Create initial state from machine
-    const initialState = createInitialState<TContext>(this.machine);
+    const initialState = createInitialState(this.machine);
 
     // Initialize state signals
     this.state = signal(initialState.value);
     this.done = signal(false);
     this.lastEvent = signal<Event | undefined>(undefined);
-    this._context = initialState.context;
+
+    // Initialize meta and children from initial state
+    this._meta = initialState.meta;
+    this._children = initialState.children;
   }
 
-  /** Get current context */
-  get context(): TContext {
-    return this._context;
+  /** Get the store instance */
+  get store(): StoreInstance | undefined {
+    return this._store;
+  }
+
+  /**
+   * Get context from a slice (defaults to first slice if only one exists)
+   */
+  getSliceContext(sliceName?: string): Record<string, unknown> | undefined {
+    if (!this._store) return undefined;
+
+    if (sliceName) {
+      return getSliceContext(this._store, sliceName);
+    }
+
+    // If only one slice, return its context
+    if (this._store.contexts.size === 1) {
+      const [, ctx] = [...this._store.contexts.entries()][0]!;
+      return ctx;
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Get all contexts as a flat object (for backward compatibility)
+   * Merges all slice contexts into one object
+   */
+  get context(): Record<string, unknown> {
+    if (!this._store) return {};
+
+    const merged: Record<string, unknown> = {};
+    for (const [, ctx] of this._store.contexts) {
+      Object.assign(merged, ctx);
+    }
+    return merged;
   }
 
   /**
@@ -163,13 +222,15 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
   /**
    * Get the current state as a plain snapshot
    */
-  getSnapshot(): State<TContext> {
+  getSnapshot(): State {
     return {
       value: this.state.value,
-      context: this._context,
+      context: this.context,
       done: this.done.value,
       event: this.lastEvent.value,
-    } as State<TContext>;
+      meta: this._meta,
+      children: this._children,
+    };
   }
 
   /**
@@ -190,7 +251,7 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
     const guardCtx = createGuardContext(
       {
         value: currentState,
-        context: this._context,
+        context: this.context,
         done: this.done.value,
         event,
       } as State,
@@ -314,19 +375,32 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
    */
   private async processActions(actions: Action[], event: Event): Promise<void> {
     const ctx: ActionContext = {
-      context: this._context,
+      context: this.context,
       event,
       state: { value: this.state.value },
     };
 
     const result = await executeActions(actions, ctx, {
       namedActions: this.namedActions,
-      data: this.data,
+      store: this._store,
       compiled: this.compiled,
+      namedStores: this.options.namedStores,
     });
 
-    // Update context
-    this._context = { ...this._context, ...result.context };
+    // Update store contexts with results
+    if (this._store && Object.keys(result.context).length > 0) {
+      // For single-slice store, update that slice
+      if (this._store.contexts.size === 1) {
+        const [sliceName] = this._store.contexts.keys();
+        updateSliceContext(this._store, sliceName!, result.context);
+      } else {
+        // Multi-slice: results should specify which slice to update
+        // For now, merge into all slices (TODO: improve this)
+        for (const sliceName of this._store.contexts.keys()) {
+          updateSliceContext(this._store, sliceName, result.context);
+        }
+      }
+    }
 
     // Process raised events immediately
     for (const raisedEvent of result.raisedEvents) {
@@ -405,7 +479,7 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
     const guardCtx = createGuardContext(
       {
         value: this.state.value,
-        context: this._context,
+        context: this.context,
         done: this.done.value,
       } as State,
       { type: "" },
@@ -446,7 +520,7 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
             const guardCtx = createGuardContext(
               {
                 value: this.state.value,
-                context: this._context,
+                context: this.context,
                 done: this.done.value,
               } as State,
               { type: `xstate.after.${delay}` },
@@ -597,8 +671,9 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
 /**
  * Create an interpreter for a machine
  */
-export function interpretWithSignals<
-  TContext extends Record<string, unknown> = Record<string, unknown>,
->(machine: Machine | CompiledMachine, options?: SignalInterpreterOptions): SignalInterpreter<TContext> {
-  return new SignalInterpreter<TContext>(machine, options);
+export function interpretWithSignals(
+  machine: Machine | CompiledMachine,
+  options?: SignalInterpreterOptions
+): SignalInterpreter {
+  return new SignalInterpreter(machine, options);
 }

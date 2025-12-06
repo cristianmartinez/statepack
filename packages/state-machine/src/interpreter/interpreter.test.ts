@@ -8,7 +8,6 @@ describe("SignalInterpreter", () => {
     const simpleMachine: Machine = {
       id: "simple",
       initial: "idle",
-      context: {},
       states: {
         idle: {
           on: {
@@ -81,21 +80,31 @@ describe("SignalInterpreter", () => {
     const counterMachine: Machine = {
       id: "counter",
       initial: "active",
-      context: { count: 0, name: "counter" },
+      store: {
+        counter: {
+          context: { count: 0, name: "counter" },
+          mutations: {
+            increment: { count: "context.count + 1" },
+            decrement: { count: "context.count - 1" },
+            set: { count: "event.value" },
+            rename: { name: "event.name" },
+          },
+        },
+      },
       states: {
         active: {
           on: {
             INCREMENT: {
-              actions: [{ type: "assign", values: { count: "context.count + 1" } }],
+              actions: [{ type: "mutation", name: "increment" }],
             },
             DECREMENT: {
-              actions: [{ type: "assign", values: { count: "context.count - 1" } }],
+              actions: [{ type: "mutation", name: "decrement" }],
             },
             SET: {
-              actions: [{ type: "assign", values: { count: "event.value" } }],
+              actions: [{ type: "mutation", name: "set" }],
             },
             RENAME: {
-              actions: [{ type: "assign", values: { name: "event.name" } }],
+              actions: [{ type: "mutation", name: "rename" }],
             },
           },
         },
@@ -103,15 +112,15 @@ describe("SignalInterpreter", () => {
     };
 
     test("initializes context", async () => {
-      const interpreter = interpretWithSignals<{ count: number; name: string }>(counterMachine);
+      const interpreter = interpretWithSignals(counterMachine);
       await interpreter.start();
 
       expect(interpreter.context.count).toBe(0);
       expect(interpreter.context.name).toBe("counter");
     });
 
-    test("updates context with assign", async () => {
-      const interpreter = interpretWithSignals<{ count: number; name: string }>(counterMachine);
+    test("updates context with mutation", async () => {
+      const interpreter = interpretWithSignals(counterMachine);
       await interpreter.start();
 
       await interpreter.send("INCREMENT");
@@ -125,7 +134,7 @@ describe("SignalInterpreter", () => {
     });
 
     test("accesses event payload", async () => {
-      const interpreter = interpretWithSignals<{ count: number; name: string }>(counterMachine);
+      const interpreter = interpretWithSignals(counterMachine);
       await interpreter.start();
 
       await interpreter.send({ type: "SET", value: 42 });
@@ -137,7 +146,9 @@ describe("SignalInterpreter", () => {
     const machine: Machine = {
       id: "snapshot",
       initial: "idle",
-      context: { count: 5 },
+      store: {
+        main: { context: { count: 5 } },
+      },
       states: {
         idle: {
           on: { GO: "running" },
@@ -147,7 +158,7 @@ describe("SignalInterpreter", () => {
     };
 
     test("returns plain state object", async () => {
-      const interpreter = interpretWithSignals<{ count: number }>(machine);
+      const interpreter = interpretWithSignals(machine);
       await interpreter.start();
 
       const snapshot = interpreter.getSnapshot();
@@ -158,7 +169,7 @@ describe("SignalInterpreter", () => {
     });
 
     test("snapshot reflects current values", async () => {
-      const interpreter = interpretWithSignals<{ count: number }>(machine);
+      const interpreter = interpretWithSignals(machine);
       await interpreter.start();
 
       await interpreter.send("GO");
@@ -172,7 +183,6 @@ describe("SignalInterpreter", () => {
     const finalMachine: Machine = {
       id: "final",
       initial: "active",
-      context: {},
       states: {
         active: {
           on: { FINISH: "done" },
@@ -214,7 +224,6 @@ describe("SignalInterpreter", () => {
     const machine: Machine = {
       id: "events",
       initial: "idle",
-      context: {},
       states: {
         idle: {
           on: { GO: "running" },
@@ -243,7 +252,9 @@ describe("SignalInterpreter", () => {
     const guardedMachine: Machine = {
       id: "guarded",
       initial: "idle",
-      context: { value: 5 },
+      store: {
+        main: { context: { value: 5 } },
+      },
       guards: {
         isPositive: {
           condition: {
@@ -279,7 +290,7 @@ describe("SignalInterpreter", () => {
     };
 
     test("uses named guards", async () => {
-      const interpreter = interpretWithSignals<{ value: number }>(guardedMachine);
+      const interpreter = interpretWithSignals(guardedMachine);
       await interpreter.start();
 
       await interpreter.send("CHECK");
@@ -291,33 +302,42 @@ describe("SignalInterpreter", () => {
     const entryExitMachine: Machine = {
       id: "entry-exit",
       initial: "a",
-      context: { log: [] as string[] },
+      store: {
+        main: {
+          context: { log: [] as string[] },
+          mutations: {
+            pushEnterA: { log: "$append(context.log, 'enter-a')" },
+            pushExitA: { log: "$append(context.log, 'exit-a')" },
+            pushEnterB: { log: "$append(context.log, 'enter-b')" },
+          },
+        },
+      },
       states: {
         a: {
-          entry: [{ type: "assign", values: { log: "$append(context.log, 'enter-a')" } }],
-          exit: [{ type: "assign", values: { log: "$append(context.log, 'exit-a')" } }],
+          entry: [{ type: "mutation", name: "pushEnterA" }],
+          exit: [{ type: "mutation", name: "pushExitA" }],
           on: { GO: "b" },
         },
         b: {
-          entry: [{ type: "assign", values: { log: "$append(context.log, 'enter-b')" } }],
+          entry: [{ type: "mutation", name: "pushEnterB" }],
         },
       },
     };
 
     test("executes entry actions on start", async () => {
-      const interpreter = interpretWithSignals<{ log: string[] }>(entryExitMachine);
+      const interpreter = interpretWithSignals(entryExitMachine);
       await interpreter.start();
 
       expect(interpreter.context.log).toContain("enter-a");
     });
 
     test("executes exit and entry actions on transition", async () => {
-      const interpreter = interpretWithSignals<{ log: string[] }>(entryExitMachine);
+      const interpreter = interpretWithSignals(entryExitMachine);
       await interpreter.start();
 
       await interpreter.send("GO");
 
-      const log = interpreter.context.log;
+      const log = interpreter.context.log as string[];
       expect(log).toContain("exit-a");
       expect(log).toContain("enter-b");
     });
@@ -327,7 +347,6 @@ describe("SignalInterpreter", () => {
     const machine: Machine = {
       id: "stoppable",
       initial: "running",
-      context: {},
       states: {
         running: {
           on: { NEXT: "done" },

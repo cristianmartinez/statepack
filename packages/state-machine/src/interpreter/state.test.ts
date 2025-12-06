@@ -13,7 +13,6 @@ describe("createInitialState", () => {
     const machine: Machine = {
       id: "simple",
       initial: "idle",
-      context: { count: 0 },
       states: {
         idle: {},
         active: {},
@@ -23,7 +22,8 @@ describe("createInitialState", () => {
     const state = createInitialState(machine);
 
     expect(state.value).toBe("idle");
-    expect(state.context).toEqual({ count: 0 });
+    // Context is now managed by Store, not initial state
+    expect(state.context).toEqual({});
     expect(state.done).toBe(false);
     expect(state.meta).toEqual({});
     expect(state.children).toEqual(new Map());

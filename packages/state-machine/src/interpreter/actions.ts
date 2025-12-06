@@ -1,5 +1,9 @@
 import { evaluate as evalCondition, type Condition } from "@ouni/conditions";
-import type { CompiledData } from "@ouni/data";
+import {
+  type StoreInstance,
+  executeSliceMutation,
+  buildScope,
+} from "@ouni/data";
 import { evaluateCompiled } from "@ouni/expressions";
 import type { CompiledCache } from "../compiler/types";
 import type { Action, Actions } from "../schema/types";
@@ -62,8 +66,9 @@ export interface ActionExecutor {
  */
 export interface ExecuteActionsOptions {
   namedActions: Record<string, Action | Action[]>;
-  data?: CompiledData;
+  store?: StoreInstance;
   compiled?: CompiledCache;
+  namedStores?: Map<string, StoreInstance>;
 }
 
 /**
@@ -98,7 +103,7 @@ async function executeAction(
   options: ExecuteActionsOptions,
   result: ActionResult
 ): Promise<void> {
-  const { namedActions, data, compiled } = options;
+  const { namedActions, store, compiled, namedStores } = options;
 
   // String reference to named action
   if (typeof action === "string") {
@@ -150,7 +155,7 @@ async function executeAction(
       break;
 
     case "mutation":
-      await handleMutation(actionObj, ctx, result, data);
+      await handleMutation(actionObj, ctx, result, store, namedStores);
       break;
 
     case "log":
@@ -290,7 +295,8 @@ async function handleMutation(
   action: Record<string, unknown>,
   ctx: ActionContext,
   result: ActionResult,
-  data?: CompiledData
+  store?: StoreInstance,
+  namedStores?: Map<string, StoreInstance>
 ): Promise<void> {
   const mutationName = action.name as string;
   if (!mutationName) {
@@ -298,9 +304,25 @@ async function handleMutation(
     return;
   }
 
-  const mutation = data?.source.mutations?.[mutationName];
-  if (!mutation) {
-    console.warn(`Mutation "${mutationName}" not found`);
+  if (!store) {
+    console.warn("No store available for mutation");
+    return;
+  }
+
+  // Parse mutation name: "sliceName.mutationName" or just "mutationName"
+  const parts = mutationName.split(".");
+  let sliceName: string;
+  let actualMutationName: string;
+
+  if (parts.length === 2) {
+    sliceName = parts[0]!;
+    actualMutationName = parts[1]!;
+  } else if (store.contexts.size === 1) {
+    // Single slice store - use that slice
+    sliceName = [...store.contexts.keys()][0]!;
+    actualMutationName = mutationName;
+  } else {
+    console.warn(`Mutation "${mutationName}" needs slice prefix for multi-slice store`);
     return;
   }
 
@@ -309,19 +331,19 @@ async function handleMutation(
     ? { ...ctx.event, ...(action.payload as Record<string, unknown>) }
     : ctx.event;
 
-  const scope = {
-    context: result.context,
-    event: eventWithPayload,
-  };
+  try {
+    const mutationResult = await executeSliceMutation(
+      store,
+      sliceName,
+      actualMutationName,
+      eventWithPayload,
+      namedStores
+    );
 
-  // Execute each mutation assignment using compiled expressions from data package
-  for (const [contextKey, exprString] of Object.entries(mutation)) {
-    const expr = data.compiled.expressions.get(exprString);
-    if (expr) {
-      result.context[contextKey] = await evaluateCompiled(expr.compiled, scope);
-    } else {
-      console.warn(`Compiled expression not found for mutation ${mutationName}.${contextKey}`);
-    }
+    // Merge mutation results into result.context
+    Object.assign(result.context, mutationResult);
+  } catch (error) {
+    console.warn(`Mutation "${mutationName}" failed:`, error);
   }
 }
 
