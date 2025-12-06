@@ -113,12 +113,18 @@ export function getSignalContextSnapshot(
 }
 
 /**
- * Get merged context from all slices as plain values.
+ * Get merged context from all slices as plain values, including query results.
  */
 export function getSignalStoreSnapshot(store: SignalStoreInstance): Record<string, unknown> {
   const merged: Record<string, unknown> = {};
   for (const sliceName of store.contexts.keys()) {
     Object.assign(merged, getSignalContextSnapshot(store, sliceName));
+  }
+  // Include query values
+  for (const sliceQueries of store.queries.values()) {
+    for (const [queryName, binding] of sliceQueries) {
+      merged[queryName] = binding.value.value;
+    }
   }
   return merged;
 }
@@ -149,17 +155,27 @@ export function updateSignalContext(
 
 /**
  * Build a SignalScope for expression evaluation.
- * The scope includes the current slice's context as signals.
+ * The scope includes the current slice's context and queries as signals.
  */
 export function buildSignalScope(
   store: SignalStoreInstance,
   sliceName: string
 ): SignalScope<Record<string, unknown>> {
   const ctx = store.contexts.get(sliceName);
-  if (!ctx) {
-    return { context: {} };
+  const sliceQueries = store.queries.get(sliceName);
+
+  // Build queries object with signal values
+  const queries: Record<string, Signal<unknown>> = {};
+  if (sliceQueries) {
+    for (const [queryName, binding] of sliceQueries) {
+      queries[queryName] = binding.value;
+    }
   }
-  return { context: ctx };
+
+  return {
+    context: ctx ?? {},
+    queries,
+  };
 }
 
 /**
@@ -172,8 +188,18 @@ export function buildPlainScope(
   event?: Record<string, unknown>,
   namedStores?: Map<string, SignalStoreInstance>
 ): Record<string, unknown> {
+  // Build queries object with current values
+  const queries: Record<string, unknown> = {};
+  const sliceQueries = store.queries.get(sliceName);
+  if (sliceQueries) {
+    for (const [queryName, binding] of sliceQueries) {
+      queries[queryName] = binding.value.value;
+    }
+  }
+
   const scope: Record<string, unknown> = {
     context: getSignalContextSnapshot(store, sliceName),
+    queries,
     event: event ?? {},
   };
 

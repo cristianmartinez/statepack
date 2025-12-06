@@ -201,6 +201,20 @@ export class SignalInterpreter {
   }
 
   /**
+   * Get all query values as a flat object
+   */
+  get queries(): Record<string, unknown> {
+    if (!this._store) return {};
+    const queries: Record<string, unknown> = {};
+    for (const sliceQueries of this._store.queries.values()) {
+      for (const [queryName, binding] of sliceQueries) {
+        queries[queryName] = binding.value.value;
+      }
+    }
+    return queries;
+  }
+
+  /**
    * Start the interpreter (async)
    */
   async start(): Promise<this> {

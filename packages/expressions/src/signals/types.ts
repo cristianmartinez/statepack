@@ -26,7 +26,10 @@ export type SignalContext<T extends Record<string, unknown> = Record<string, unk
  */
 export interface SignalScope<TContext extends Record<string, unknown> = Record<string, unknown>> {
   context: SignalContext<TContext>;
+  /** Derived computed values (selectors/queries) */
   selectors?: Record<string, { value: SignalLike<unknown> }>;
+  /** Query results as signals */
+  queries?: Record<string, SignalLike<unknown>>;
 }
 
 /**
