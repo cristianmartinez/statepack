@@ -27,7 +27,7 @@ describe("SignalInterpreter", () => {
       const interpreter = interpretWithSignals(simpleMachine);
       await interpreter.start();
 
-      expect(interpreter.store.state.value).toBe("idle");
+      expect(interpreter.state.value).toBe("idle");
     });
 
     test("transitions on event", async () => {
@@ -35,7 +35,7 @@ describe("SignalInterpreter", () => {
       await interpreter.start();
 
       await interpreter.send("START");
-      expect(interpreter.store.state.value).toBe("running");
+      expect(interpreter.state.value).toBe("running");
     });
 
     test("multiple transitions", async () => {
@@ -44,7 +44,7 @@ describe("SignalInterpreter", () => {
 
       await interpreter.send("START");
       await interpreter.send("STOP");
-      expect(interpreter.store.state.value).toBe("idle");
+      expect(interpreter.state.value).toBe("idle");
     });
 
     test("ignores unknown events", async () => {
@@ -52,7 +52,7 @@ describe("SignalInterpreter", () => {
       await interpreter.start();
 
       await interpreter.send("UNKNOWN");
-      expect(interpreter.store.state.value).toBe("idle");
+      expect(interpreter.state.value).toBe("idle");
     });
 
     test("state signal notifies on transition", async () => {
@@ -61,7 +61,7 @@ describe("SignalInterpreter", () => {
 
       let stateUpdates = 0;
       const dispose = effect(() => {
-        interpreter.store.state.value;
+        interpreter.state.value;
         stateUpdates++;
       });
 
@@ -77,7 +77,7 @@ describe("SignalInterpreter", () => {
     });
   });
 
-  describe("context signals", () => {
+  describe("context", () => {
     const counterMachine: Machine = {
       id: "counter",
       initial: "active",
@@ -102,26 +102,26 @@ describe("SignalInterpreter", () => {
       },
     };
 
-    test("initializes context signals", async () => {
+    test("initializes context", async () => {
       const interpreter = interpretWithSignals<{ count: number; name: string }>(counterMachine);
       await interpreter.start();
 
-      expect(interpreter.store.context.count.value).toBe(0);
-      expect(interpreter.store.context.name.value).toBe("counter");
+      expect(interpreter.context.count).toBe(0);
+      expect(interpreter.context.name).toBe("counter");
     });
 
-    test("updates context signal with assign", async () => {
+    test("updates context with assign", async () => {
       const interpreter = interpretWithSignals<{ count: number; name: string }>(counterMachine);
       await interpreter.start();
 
       await interpreter.send("INCREMENT");
-      expect(interpreter.store.context.count.value).toBe(1);
+      expect(interpreter.context.count).toBe(1);
 
       await interpreter.send("INCREMENT");
-      expect(interpreter.store.context.count.value).toBe(2);
+      expect(interpreter.context.count).toBe(2);
 
       await interpreter.send("DECREMENT");
-      expect(interpreter.store.context.count.value).toBe(1);
+      expect(interpreter.context.count).toBe(1);
     });
 
     test("accesses event payload", async () => {
@@ -129,97 +129,7 @@ describe("SignalInterpreter", () => {
       await interpreter.start();
 
       await interpreter.send({ type: "SET", value: 42 });
-      expect(interpreter.store.context.count.value).toBe(42);
-    });
-
-    test("context signals are independent", async () => {
-      const interpreter = interpretWithSignals<{ count: number; name: string }>(counterMachine);
-      await interpreter.start();
-
-      let countUpdates = 0;
-      let nameUpdates = 0;
-
-      const disposeCount = effect(() => {
-        interpreter.store.context.count.value;
-        countUpdates++;
-      });
-      const disposeName = effect(() => {
-        interpreter.store.context.name.value;
-        nameUpdates++;
-      });
-
-      countUpdates = 0;
-      nameUpdates = 0;
-
-      // Update only count
-      await interpreter.send("INCREMENT");
-
-      expect(countUpdates).toBe(1);
-      expect(nameUpdates).toBe(0);
-
-      // Update only name
-      await interpreter.send({ type: "RENAME", name: "new-name" });
-
-      expect(countUpdates).toBe(1);
-      expect(nameUpdates).toBe(1);
-
-      disposeCount();
-      disposeName();
-    });
-  });
-
-  describe("batch updates", () => {
-    const multiUpdateMachine: Machine = {
-      id: "multi",
-      initial: "idle",
-      context: { a: 0, b: 0, c: 0 },
-      states: {
-        idle: {
-          on: {
-            UPDATE_ALL: {
-              actions: [
-                {
-                  type: "assign",
-                  values: {
-                    a: "context.a + 1",
-                    b: "context.b + 2",
-                    c: "context.c + 3",
-                  },
-                },
-              ],
-            },
-          },
-        },
-      },
-    };
-
-    test("batches multiple context updates into single notification", async () => {
-      const interpreter = interpretWithSignals<{ a: number; b: number; c: number }>(
-        multiUpdateMachine
-      );
-      await interpreter.start();
-
-      let updateCount = 0;
-
-      const dispose = effect(() => {
-        // Access all three signals
-        interpreter.store.context.a.value;
-        interpreter.store.context.b.value;
-        interpreter.store.context.c.value;
-        updateCount++;
-      });
-
-      updateCount = 0;
-
-      await interpreter.send("UPDATE_ALL");
-
-      // Should only trigger one update due to batching
-      expect(updateCount).toBe(1);
-      expect(interpreter.store.context.a.value).toBe(1);
-      expect(interpreter.store.context.b.value).toBe(2);
-      expect(interpreter.store.context.c.value).toBe(3);
-
-      dispose();
+      expect(interpreter.context.count).toBe(42);
     });
   });
 
@@ -247,7 +157,7 @@ describe("SignalInterpreter", () => {
       expect(snapshot.done).toBe(false);
     });
 
-    test("snapshot reflects current signal values", async () => {
+    test("snapshot reflects current values", async () => {
       const interpreter = interpretWithSignals<{ count: number }>(machine);
       await interpreter.start();
 
@@ -277,11 +187,11 @@ describe("SignalInterpreter", () => {
       const interpreter = interpretWithSignals(finalMachine);
       await interpreter.start();
 
-      expect(interpreter.store.done.value).toBe(false);
+      expect(interpreter.done.value).toBe(false);
 
       await interpreter.send("FINISH");
 
-      expect(interpreter.store.done.value).toBe(true);
+      expect(interpreter.done.value).toBe(true);
     });
 
     test("onDone callback fires", async () => {
@@ -319,13 +229,13 @@ describe("SignalInterpreter", () => {
       const interpreter = interpretWithSignals(machine);
       await interpreter.start();
 
-      expect(interpreter.store.lastEvent.value).toBeUndefined();
+      expect(interpreter.lastEvent.value).toBeUndefined();
 
       await interpreter.send("GO");
-      expect(interpreter.store.lastEvent.value).toEqual({ type: "GO" });
+      expect(interpreter.lastEvent.value).toEqual({ type: "GO" });
 
       await interpreter.send({ type: "STOP", reason: "done" });
-      expect(interpreter.store.lastEvent.value).toEqual({ type: "STOP", reason: "done" });
+      expect(interpreter.lastEvent.value).toEqual({ type: "STOP", reason: "done" });
     });
   });
 
@@ -373,7 +283,7 @@ describe("SignalInterpreter", () => {
       await interpreter.start();
 
       await interpreter.send("CHECK");
-      expect(interpreter.store.state.value).toBe("positive");
+      expect(interpreter.state.value).toBe("positive");
     });
   });
 
@@ -398,7 +308,7 @@ describe("SignalInterpreter", () => {
       const interpreter = interpretWithSignals<{ log: string[] }>(entryExitMachine);
       await interpreter.start();
 
-      expect(interpreter.store.context.log.value).toContain("enter-a");
+      expect(interpreter.context.log).toContain("enter-a");
     });
 
     test("executes exit and entry actions on transition", async () => {
@@ -407,7 +317,7 @@ describe("SignalInterpreter", () => {
 
       await interpreter.send("GO");
 
-      const log = interpreter.store.context.log.value;
+      const log = interpreter.context.log;
       expect(log).toContain("exit-a");
       expect(log).toContain("enter-b");
     });
@@ -433,7 +343,7 @@ describe("SignalInterpreter", () => {
       interpreter.stop();
 
       await interpreter.send("NEXT");
-      expect(interpreter.store.state.value).toBe("running");
+      expect(interpreter.state.value).toBe("running");
     });
   });
 

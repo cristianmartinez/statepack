@@ -1,14 +1,15 @@
 import type { CompiledData } from "@ouni/data";
-import { batch as signalBatch } from "@preact/signals-core";
+import { signal, batch as signalBatch, type Signal } from "@preact/signals-core";
 import { compileMachine, type CompiledCache, type CompiledMachine } from "../compiler";
 import { isCompiledMachine } from "../compiler/types";
+import type { Action, GuardDefinition, Machine, StateNode, Transition } from "../schema/types";
 import {
   type ActionContext,
   type ActionEffect,
   executeActions,
   normalizeActions,
-} from "../interpreter/actions";
-import { createGuardContext, findMatchingTransition } from "../interpreter/guards";
+} from "./actions";
+import { createGuardContext, findMatchingTransition } from "./guards";
 import {
   createInitialState,
   type Event,
@@ -17,13 +18,10 @@ import {
   type State,
   type StateValue,
   toStateString,
-} from "../interpreter/state";
-import type { Action, GuardDefinition, Machine, StateNode, Transition } from "../schema/types";
-import { createSignalStore } from "./store";
-import type { MachineEvent, SignalStore } from "./types";
+} from "./state";
 
 /**
- * Options for the signal-aware interpreter
+ * Options for the interpreter
  */
 export interface SignalInterpreterOptions {
   /** Execute side effects */
@@ -37,22 +35,19 @@ export interface SignalInterpreterOptions {
 }
 
 /**
- * Signal-aware state machine interpreter.
+ * State machine interpreter.
  *
- * Uses @preact/signals-core for fine-grained reactivity:
- * - Each context field is an independent signal
- * - State updates are batched during action sequences
- * - Subscribers only re-render when their specific signals change
+ * Manages state machine execution with plain state values.
+ * For reactive context with signals, use @ouni/data's ContextStore.
  *
  * @example
  * ```typescript
  * const interpreter = new SignalInterpreter(machine);
  * await interpreter.start();
  *
- * // Subscribe to specific context field
- * effect(() => {
- *   console.log("Count:", interpreter.store.context.count.value);
- * });
+ * // Get current state
+ * console.log("State:", interpreter.state.value);
+ * console.log("Context:", interpreter.context);
  *
  * // Send event
  * await interpreter.send("INCREMENT");
@@ -68,8 +63,17 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
   private compiled?: CompiledCache;
   private data?: CompiledData;
 
-  /** The reactive signal store for fine-grained subscriptions */
-  readonly store: SignalStore<TContext>;
+  /** Current state value signal */
+  readonly state: Signal<StateValue>;
+
+  /** Whether machine has reached a final state */
+  readonly done: Signal<boolean>;
+
+  /** Event that caused the last transition */
+  readonly lastEvent: Signal<Event | undefined>;
+
+  /** Current context (plain object, updated after actions) */
+  private _context: TContext;
 
   constructor(machine: Machine | CompiledMachine, options: SignalInterpreterOptions = {}) {
     // Extract source machine and compiled cache
@@ -94,11 +98,16 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
     // Create initial state from machine
     const initialState = createInitialState<TContext>(this.machine);
 
-    // Initialize signal store with initial state and context
-    this.store = createSignalStore<TContext>({
-      initial: initialState.value,
-      context: initialState.context,
-    });
+    // Initialize state signals
+    this.state = signal(initialState.value);
+    this.done = signal(false);
+    this.lastEvent = signal<Event | undefined>(undefined);
+    this._context = initialState.context;
+  }
+
+  /** Get current context */
+  get context(): TContext {
+    return this._context;
   }
 
   /**
@@ -111,7 +120,7 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
     this.log("Starting machine", this.machine.id);
 
     // Execute entry actions for initial state
-    const entryActions = this.getEntryActions(this.store.state.value);
+    const entryActions = this.getEntryActions(this.state.value);
     if (entryActions.length > 0) {
       await this.processActions(entryActions, { type: "xstate.init" });
     }
@@ -152,16 +161,14 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
   }
 
   /**
-   * Get the current state as a plain snapshot (for compatibility)
+   * Get the current state as a plain snapshot
    */
   getSnapshot(): State<TContext> {
-    const snapshot = this.store.getSnapshot();
     return {
-      value: snapshot.value,
-      context: snapshot.context,
-      done: snapshot.done,
-      event: snapshot.event,
-      // Note: history is not tracked in signal store
+      value: this.state.value,
+      context: this._context,
+      done: this.done.value,
+      event: this.lastEvent.value,
     } as State<TContext>;
   }
 
@@ -169,22 +176,22 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
    * Check if current state matches a pattern
    */
   matches(pattern: string): boolean {
-    return matchesState(this.store.state.value, pattern);
+    return matchesState(this.state.value, pattern);
   }
 
   /**
    * Process a transition (async)
    */
   private async transition(event: Event): Promise<void> {
-    const currentState = this.store.state.value;
+    const currentState = this.state.value;
     const activeNodes = getActiveStateNodes(this.machine, currentState);
 
-    // Create guard context using current signal values
+    // Create guard context
     const guardCtx = createGuardContext(
       {
         value: currentState,
-        context: this.getPlainContext(),
-        done: this.store.done.value,
+        context: this._context,
+        done: this.done.value,
         event,
       } as State,
       event,
@@ -243,7 +250,7 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
     const actions = typeof transition === "string" ? undefined : transition.actions;
     const internal = typeof transition === "string" ? false : (transition.internal ?? false);
 
-    const previousValue = this.store.state.value;
+    const previousValue = this.state.value;
 
     // Execute exit actions if changing state
     if (target && !internal) {
@@ -264,10 +271,10 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
       const isDone = this.isFinalState(target);
 
       // Batch state updates
-      this.store.batch(() => {
-        this.store.state.value = newStateValue;
-        this.store.done.value = isDone;
-        this.store.lastEvent.value = event as MachineEvent;
+      signalBatch(() => {
+        this.state.value = newStateValue;
+        this.done.value = isDone;
+        this.lastEvent.value = event;
       });
 
       // Execute entry actions for new state
@@ -285,7 +292,7 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
       this.log("Transitioned to", toStateString(newStateValue));
     } else {
       // Self-transition without target - just update event
-      this.store.lastEvent.value = event as MachineEvent;
+      this.lastEvent.value = event;
     }
 
     // Check for always transitions
@@ -297,22 +304,19 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
     }
 
     // Check if done
-    if (this.store.done.value && this.options.onDone) {
+    if (this.done.value && this.options.onDone) {
       this.options.onDone(this.getSnapshot());
     }
   }
 
   /**
-   * Process actions and update signals (async)
-   *
-   * Context updates are batched so subscribers only see one update
-   * even when multiple context fields change.
+   * Process actions and update context (async)
    */
   private async processActions(actions: Action[], event: Event): Promise<void> {
     const ctx: ActionContext = {
-      context: this.getPlainContext(),
+      context: this._context,
       event,
-      state: { value: this.store.state.value },
+      state: { value: this.state.value },
     };
 
     const result = await executeActions(actions, ctx, {
@@ -321,15 +325,8 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
       compiled: this.compiled,
     });
 
-    // Batch all context signal updates together
-    this.store.batch(() => {
-      for (const [key, value] of Object.entries(result.context)) {
-        const signal = (this.store.context as Record<string, { value: unknown }>)[key];
-        if (signal) {
-          signal.value = value;
-        }
-      }
-    });
+    // Update context
+    this._context = { ...this._context, ...result.context };
 
     // Process raised events immediately
     for (const raisedEvent of result.raisedEvents) {
@@ -365,17 +362,6 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
         console.error("Effect execution failed:", effect.type, error);
       }
     }
-  }
-
-  /**
-   * Get plain context object from signals
-   */
-  private getPlainContext(): TContext {
-    const context = {} as TContext;
-    for (const [key, signal] of Object.entries(this.store.context)) {
-      (context as Record<string, unknown>)[key] = (signal as { value: unknown }).value;
-    }
-    return context;
   }
 
   /**
@@ -415,12 +401,12 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
    * Check and execute always transitions (async)
    */
   private async checkAlwaysTransitions(): Promise<void> {
-    const nodes = getActiveStateNodes(this.machine, this.store.state.value);
+    const nodes = getActiveStateNodes(this.machine, this.state.value);
     const guardCtx = createGuardContext(
       {
-        value: this.store.state.value,
-        context: this.getPlainContext(),
-        done: this.store.done.value,
+        value: this.state.value,
+        context: this._context,
+        done: this.done.value,
       } as State,
       { type: "" },
       (pattern) => this.matches(pattern)
@@ -448,7 +434,7 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
    * Setup delayed transitions
    */
   private setupDelayedTransitions(): void {
-    const nodes = getActiveStateNodes(this.machine, this.store.state.value);
+    const nodes = getActiveStateNodes(this.machine, this.state.value);
 
     for (const node of nodes) {
       if (node.after) {
@@ -459,9 +445,9 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
           const timerId = setTimeout(async () => {
             const guardCtx = createGuardContext(
               {
-                value: this.store.state.value,
-                context: this.getPlainContext(),
-                done: this.store.done.value,
+                value: this.state.value,
+                context: this._context,
+                done: this.done.value,
               } as State,
               { type: `xstate.after.${delay}` },
               (pattern) => this.matches(pattern)
@@ -609,7 +595,7 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
 }
 
 /**
- * Create a signal-aware interpreter for a machine
+ * Create an interpreter for a machine
  */
 export function interpretWithSignals<
   TContext extends Record<string, unknown> = Record<string, unknown>,

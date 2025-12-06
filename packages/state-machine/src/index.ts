@@ -11,6 +11,7 @@ export {
   type CompiledMachine,
   isCompiledMachine,
 } from "./compiler/index";
+
 // Interpreter exports
 export {
   type ActionContext,
@@ -27,12 +28,16 @@ export {
   type GuardContext,
   getActiveStateNodes,
   getLeafStates,
+  interpretWithSignals,
   matchesState,
   normalizeActions,
+  SignalInterpreter,
+  type SignalInterpreterOptions,
   type State,
   type StateValue,
   toStateString,
 } from "./interpreter/index";
+
 // Schema exports
 export {
   type Action,
@@ -62,23 +67,3 @@ export {
   validateMachine,
   validateMiniApp,
 } from "./schema/index";
-// Signal store exports
-export {
-  type ComputedSelector,
-  createSelector,
-  createSelectors,
-  createSignalStore,
-  type CreateSelectorsOptions,
-  type CreateSignalStoreOptions,
-  disposeSelectors,
-  interpretWithSignals,
-  type MachineEvent,
-  type SelectorSignal,
-  type SelectorsFromDefinitions,
-  type SignalContext,
-  SignalInterpreter,
-  type SignalInterpreterOptions,
-  type SignalSelectors,
-  type SignalStore,
-  type SignalStoreSnapshot,
-} from "./signals/index";

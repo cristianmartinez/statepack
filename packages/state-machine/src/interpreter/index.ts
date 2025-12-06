@@ -14,6 +14,13 @@ export {
   findMatchingTransition,
   type GuardContext,
 } from "./guards";
+
+export {
+  SignalInterpreter,
+  interpretWithSignals,
+  type SignalInterpreterOptions,
+} from "./interpreter";
+
 export {
   createInitialState,
   type Event,
