@@ -1,3 +1,4 @@
+import { compileData } from "@ouni/data";
 import { compileExpression as compileJSONataExpression } from "@ouni/expressions";
 import type { Action, Actions, Machine, StateNode, Transition, Transitions } from "../schema/types";
 import type { CompiledMachine } from "./types";
@@ -13,6 +14,8 @@ export { isCompiledMachine } from "./types";
  * - Condition strings in actions (JSON objects, no compilation needed)
  * - Expression strings in assign actions → JSONata
  * - Template strings in action parameters → JSONata parts
+ * - Query expressions (derived state from context) via @ouni/data
+ * - Mutation expressions (context modifications) via @ouni/data
  */
 export function compileMachine(machine: Machine): CompiledMachine {
   const compiled: CompiledMachine["compiled"] = {
@@ -23,6 +26,15 @@ export function compileMachine(machine: Machine): CompiledMachine {
   // Note: Guards (conditions) are no longer compiled.
   // The @ouni/conditions package uses JSON condition objects directly.
   // Guards will be evaluated at runtime using the condition objects.
+
+  // Compile queries and mutations using the data package compiler
+  let data: ReturnType<typeof compileData> | undefined;
+  if (machine.queries || machine.mutations) {
+    data = compileData({
+      queries: machine.queries,
+      mutations: machine.mutations,
+    });
+  }
 
   // Compile named actions
   if (machine.actions) {
@@ -46,6 +58,7 @@ export function compileMachine(machine: Machine): CompiledMachine {
   return {
     source: machine,
     compiled,
+    data,
     version: "1.0.0",
     compiledAt: Date.now(),
   };

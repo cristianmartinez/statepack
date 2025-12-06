@@ -1,4 +1,5 @@
 import { evaluate as evalCondition, type Condition } from "@ouni/conditions";
+import type { CompiledData } from "@ouni/data";
 import { evaluateCompiled } from "@ouni/expressions";
 import type { CompiledCache } from "../compiler/types";
 import type { Action, Actions } from "../schema/types";
@@ -57,13 +58,21 @@ export interface ActionExecutor {
 }
 
 /**
+ * Options for executing actions
+ */
+export interface ExecuteActionsOptions {
+  namedActions: Record<string, Action | Action[]>;
+  data?: CompiledData;
+  compiled?: CompiledCache;
+}
+
+/**
  * Resolve and execute actions (async)
  */
 export async function executeActions(
   actions: Actions | undefined,
   ctx: ActionContext,
-  namedActions: Record<string, Action | Action[]>,
-  compiled?: CompiledCache
+  options: ExecuteActionsOptions
 ): Promise<ActionResult> {
   const result: ActionResult = {
     context: { ...ctx.context },
@@ -77,7 +86,7 @@ export async function executeActions(
   const actionList = Array.isArray(actions) ? actions : [actions];
 
   for (const action of actionList) {
-    await executeAction(action, ctx, namedActions, result, compiled);
+    await executeAction(action, ctx, options, result);
   }
 
   return result;
@@ -86,10 +95,11 @@ export async function executeActions(
 async function executeAction(
   action: Action,
   ctx: ActionContext,
-  namedActions: Record<string, Action | Action[]>,
-  result: ActionResult,
-  compiled?: CompiledCache
+  options: ExecuteActionsOptions,
+  result: ActionResult
 ): Promise<void> {
+  const { namedActions, data, compiled } = options;
+
   // String reference to named action
   if (typeof action === "string") {
     const namedAction = namedActions[action];
@@ -99,7 +109,7 @@ async function executeAction(
     }
     const actionList = Array.isArray(namedAction) ? namedAction : [namedAction];
     for (const a of actionList) {
-      await executeAction(a, ctx, namedActions, result, compiled);
+      await executeAction(a, ctx, options, result);
     }
     return;
   }
@@ -136,7 +146,11 @@ async function executeAction(
       break;
 
     case "conditional":
-      await handleConditional(actionObj, ctx, namedActions, result, compiled);
+      await handleConditional(actionObj, ctx, options, result);
+      break;
+
+    case "mutation":
+      await handleMutation(actionObj, ctx, result, data);
       break;
 
     case "log":
@@ -252,9 +266,8 @@ async function handleSend(
 async function handleConditional(
   action: Record<string, unknown>,
   ctx: ActionContext,
-  namedActions: Record<string, Action | Action[]>,
-  result: ActionResult,
-  compiled?: CompiledCache
+  options: ExecuteActionsOptions,
+  result: ActionResult
 ): Promise<void> {
   const condition = action.condition as Condition;
   const conditionCtx = {
@@ -262,13 +275,52 @@ async function handleConditional(
     event: ctx.event,
   };
 
-  const conditionMet = evaluateCondition(condition, conditionCtx, compiled);
+  const conditionMet = evaluateCondition(condition, conditionCtx, options.compiled);
 
   const actions = conditionMet ? (action.then as Action[]) : (action.else as Action[] | undefined);
 
   if (actions) {
     for (const a of actions) {
-      await executeAction(a, { ...ctx, context: result.context }, namedActions, result, compiled);
+      await executeAction(a, { ...ctx, context: result.context }, options, result);
+    }
+  }
+}
+
+async function handleMutation(
+  action: Record<string, unknown>,
+  ctx: ActionContext,
+  result: ActionResult,
+  data?: CompiledData
+): Promise<void> {
+  const mutationName = action.name as string;
+  if (!mutationName) {
+    console.warn("Mutation action missing 'name' field");
+    return;
+  }
+
+  const mutation = data?.source.mutations?.[mutationName];
+  if (!mutation) {
+    console.warn(`Mutation "${mutationName}" not found`);
+    return;
+  }
+
+  // Merge action payload with event
+  const eventWithPayload = action.payload
+    ? { ...ctx.event, ...(action.payload as Record<string, unknown>) }
+    : ctx.event;
+
+  const scope = {
+    context: result.context,
+    event: eventWithPayload,
+  };
+
+  // Execute each mutation assignment using compiled expressions from data package
+  for (const [contextKey, exprString] of Object.entries(mutation)) {
+    const expr = data.compiled.expressions.get(exprString);
+    if (expr) {
+      result.context[contextKey] = await evaluateCompiled(expr.compiled, scope);
+    } else {
+      console.warn(`Compiled expression not found for mutation ${mutationName}.${contextKey}`);
     }
   }
 }

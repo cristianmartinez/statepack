@@ -1,5 +1,6 @@
-import type { CompiledJSONataExpression } from "@ouni/expressions";
 import type { Condition } from "@ouni/conditions";
+import type { CompiledData } from "@ouni/data";
+import type { CompiledJSONataExpression } from "@ouni/expressions";
 import type { Machine } from "../schema/types";
 
 /**
@@ -17,6 +18,9 @@ export interface CompiledMachine {
     /** Map of expression strings → compiled JSONata expression */
     expressions: Map<string, { source: string; compiled: CompiledJSONataExpression }>;
   };
+
+  /** Compiled data layer (queries, mutations) from @ouni/data */
+  data?: CompiledData;
 
   /** Compilation metadata */
   version: string;

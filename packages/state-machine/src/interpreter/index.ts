@@ -3,6 +3,7 @@ export {
   type ActionEffect,
   type ActionExecutor,
   type ActionResult,
+  type ExecuteActionsOptions,
   executeActions,
   normalizeActions,
 } from "./actions";
@@ -13,7 +14,6 @@ export {
   findMatchingTransition,
   type GuardContext,
 } from "./guards";
-export { Interpreter, type InterpreterOptions, interpret } from "./machine";
 export {
   createInitialState,
   type Event,

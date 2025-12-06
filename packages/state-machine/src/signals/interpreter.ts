@@ -1,3 +1,4 @@
+import type { CompiledData } from "@ouni/data";
 import { batch as signalBatch } from "@preact/signals-core";
 import { compileMachine, type CompiledCache, type CompiledMachine } from "../compiler";
 import { isCompiledMachine } from "../compiler/types";
@@ -65,6 +66,7 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
   private timers: Map<string, ReturnType<typeof setTimeout>>;
   private running: boolean;
   private compiled?: CompiledCache;
+  private data?: CompiledData;
 
   /** The reactive signal store for fine-grained subscriptions */
   readonly store: SignalStore<TContext>;
@@ -74,11 +76,13 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
     if (isCompiledMachine(machine)) {
       this.machine = machine.source;
       this.compiled = machine.compiled;
+      this.data = machine.data;
     } else {
       // Auto-compile if not already compiled
       const compiled = compileMachine(machine);
       this.machine = machine;
       this.compiled = compiled.compiled;
+      this.data = compiled.data;
     }
 
     this.options = options;
@@ -311,7 +315,11 @@ export class SignalInterpreter<TContext extends Record<string, unknown> = Record
       state: { value: this.store.state.value },
     };
 
-    const result = await executeActions(actions, ctx, this.namedActions, this.compiled);
+    const result = await executeActions(actions, ctx, {
+      namedActions: this.namedActions,
+      data: this.data,
+      compiled: this.compiled,
+    });
 
     // Batch all context signal updates together
     this.store.batch(() => {

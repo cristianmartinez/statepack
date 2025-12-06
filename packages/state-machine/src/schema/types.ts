@@ -1,4 +1,5 @@
 import { ConditionSchema } from "@ouni/conditions";
+import { MutationsSchema, QueriesSchema } from "@ouni/data";
 import { z } from "zod";
 
 /**
@@ -202,6 +203,12 @@ export const ActionSchema = z.union([
     actor: z.string(),
     condition: z.string().optional(),
   }),
+  z.object({
+    type: z.literal("mutation"),
+    name: z.string(), // Reference to mutation name in data definition
+    payload: z.record(z.string(), z.unknown()).optional(), // Additional event payload
+    condition: z.string().optional(),
+  }),
 ]);
 
 export type Action = z.infer<typeof ActionSchema>;
@@ -315,6 +322,8 @@ export const MachineSchema = z.object({
   id: z.string(),
   initial: z.string(),
   context: z.record(z.string(), z.unknown()).optional(),
+  queries: QueriesSchema.optional(), // Derived state from context
+  mutations: MutationsSchema.optional(), // Context modification operations
   states: z.record(z.string(), StateNodeSchema),
   on: z.record(z.string(), TransitionsSchema).optional(), // Global handlers
   guards: z.record(z.string(), GuardDefinitionSchema).optional(),
