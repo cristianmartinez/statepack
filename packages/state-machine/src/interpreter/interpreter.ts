@@ -1,9 +1,11 @@
 import {
   type CompiledStore,
-  type StoreInstance,
-  createStoreInstance,
-  getSliceContext,
-  updateSliceContext,
+  type SignalStoreInstance,
+  type SignalContext,
+  createSignalStoreInstance,
+  getSignalContextSnapshot,
+  getSignalStoreSnapshot,
+  updateSignalContext,
 } from "@ouni/data";
 import { signal, batch as signalBatch, type Signal } from "@preact/signals-core";
 import { compileMachine, type CompiledCache, type CompiledMachine } from "../compiler";
@@ -42,9 +44,9 @@ export interface SignalInterpreterOptions {
   /** Enable debug logging */
   debug?: boolean;
   /** Parent store for scope hierarchy */
-  parentStore?: StoreInstance;
+  parentStore?: SignalStoreInstance;
   /** Named stores for $[name] access */
-  namedStores?: Map<string, StoreInstance>;
+  namedStores?: Map<string, SignalStoreInstance>;
 }
 
 /**
@@ -94,8 +96,8 @@ export class SignalInterpreter {
   /** Active child machine actors */
   private _children: Map<string, unknown>;
 
-  /** Store instance with live context values */
-  private _store?: StoreInstance;
+  /** Store instance with signal-based context values */
+  private _store?: SignalStoreInstance;
 
   /** Active invoked services (intervals, timeouts, etc.) */
   private services: Map<string, { cleanup: () => void }>;
@@ -121,10 +123,10 @@ export class SignalInterpreter {
     this.services = new Map();
     this.running = false;
 
-    // Create store instance if store is defined
+    // Create signal store instance if store is defined
     if (this.compiledStore) {
-      this._store = createStoreInstance(this.compiledStore, {
-        parent: options.parentStore,
+      this._store = createSignalStoreInstance(this.compiledStore, {
+        parent: options.parentStore as SignalStoreInstance | undefined,
       });
     }
 
@@ -143,8 +145,13 @@ export class SignalInterpreter {
   }
 
   /** Get the store instance */
-  get store(): StoreInstance | undefined {
+  get store(): SignalStoreInstance | undefined {
     return this._store;
+  }
+
+  /** Get signal context for fine-grained subscriptions */
+  get signalContext(): Map<string, SignalContext<Record<string, unknown>>> | undefined {
+    return this._store?.contexts;
   }
 
   /**
@@ -154,13 +161,13 @@ export class SignalInterpreter {
     if (!this._store) return undefined;
 
     if (sliceName) {
-      return getSliceContext(this._store, sliceName);
+      return getSignalContextSnapshot(this._store, sliceName);
     }
 
     // If only one slice, return its context
     if (this._store.contexts.size === 1) {
-      const [, ctx] = [...this._store.contexts.entries()][0]!;
-      return ctx;
+      const [onlySlice] = this._store.contexts.keys();
+      return getSignalContextSnapshot(this._store, onlySlice!);
     }
 
     return undefined;
@@ -172,12 +179,7 @@ export class SignalInterpreter {
    */
   get context(): Record<string, unknown> {
     if (!this._store) return {};
-
-    const merged: Record<string, unknown> = {};
-    for (const [, ctx] of this._store.contexts) {
-      Object.assign(merged, ctx);
-    }
-    return merged;
+    return getSignalStoreSnapshot(this._store);
   }
 
   /**
@@ -402,20 +404,21 @@ export class SignalInterpreter {
       namedStores: this.options.namedStores,
     });
 
-    // Update store contexts with results
+    // Update store contexts with results using signal updates
     if (this._store && Object.keys(result.context).length > 0) {
       // For single-slice store, update that slice
       if (this._store.contexts.size === 1) {
         const [sliceName] = this._store.contexts.keys();
-        updateSliceContext(this._store, sliceName!, result.context);
+        updateSignalContext(this._store, sliceName!, result.context);
       } else {
         // Multi-slice: results should specify which slice to update
         // For now, merge into all slices (TODO: improve this)
         for (const sliceName of this._store.contexts.keys()) {
-          updateSliceContext(this._store, sliceName, result.context);
+          updateSignalContext(this._store, sliceName, result.context);
         }
       }
-      // Increment context version to trigger React re-renders
+      // Note: contextVersion is kept for backward compatibility with React hooks
+      // that haven't migrated to signal-based subscriptions yet
       this.contextVersion.value++;
     }
 

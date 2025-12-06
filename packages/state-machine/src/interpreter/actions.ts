@@ -1,5 +1,5 @@
 import { evaluate as evalCondition, type Condition } from "@ouni/conditions";
-import { type StoreInstance, executeSliceMutation, buildScope } from "@ouni/data";
+import { type SignalStoreInstance, executeSignalMutation } from "@ouni/data";
 import { evaluateCompiled } from "@ouni/expressions";
 import type { CompiledCache } from "../compiler/types";
 import type { Action, Actions } from "../schema/types";
@@ -62,9 +62,9 @@ export interface ActionExecutor {
  */
 export interface ExecuteActionsOptions {
   namedActions: Record<string, Action | Action[]>;
-  store?: StoreInstance;
+  store?: SignalStoreInstance;
   compiled?: CompiledCache;
-  namedStores?: Map<string, StoreInstance>;
+  namedStores?: Map<string, SignalStoreInstance>;
 }
 
 /**
@@ -291,8 +291,8 @@ async function handleMutation(
   action: Record<string, unknown>,
   ctx: ActionContext,
   result: ActionResult,
-  store?: StoreInstance,
-  namedStores?: Map<string, StoreInstance>
+  store?: SignalStoreInstance,
+  namedStores?: Map<string, SignalStoreInstance>
 ): Promise<void> {
   const mutationName = action.name as string;
   if (!mutationName) {
@@ -328,7 +328,7 @@ async function handleMutation(
     : ctx.event;
 
   try {
-    const mutationResult = await executeSliceMutation(
+    const mutationResult = await executeSignalMutation(
       store,
       sliceName,
       actualMutationName,
