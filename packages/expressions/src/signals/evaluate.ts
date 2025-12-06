@@ -7,7 +7,12 @@ import type { SignalScope, SignalLike } from "./types";
  */
 export function buildScopeFromSignals<TContext extends Record<string, unknown>>(
   signalScope: SignalScope<TContext>
-): { context: TContext; selectors: Record<string, unknown>; queries: Record<string, unknown> } {
+): {
+  context: TContext;
+  selectors: Record<string, unknown>;
+  queries: Record<string, unknown>;
+  state?: unknown;
+} {
   const context = {} as TContext;
 
   // Read all context signals - this tracks dependencies in effects
@@ -31,7 +36,10 @@ export function buildScopeFromSignals<TContext extends Record<string, unknown>>(
     }
   }
 
-  return { context, selectors, queries };
+  // Read state signal if present (for state machine integrations)
+  const state = signalScope.state?.value;
+
+  return { context, selectors, queries, state };
 }
 
 /**
@@ -82,5 +90,10 @@ export function trackSignals<TContext extends Record<string, unknown>>(
     for (const [, query] of Object.entries(signalScope.queries)) {
       query.value;
     }
+  }
+
+  // Read state signal if present
+  if (signalScope.state) {
+    signalScope.state.value;
   }
 }

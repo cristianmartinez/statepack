@@ -155,6 +155,7 @@ export class SignalInterpreter {
   /**
    * Get signal scope for use with computedAsync/useComputedBinding.
    * Returns a SignalScope compatible with @ouni/expressions.
+   * Includes `state` signal for conditionals that reference machine state.
    *
    * @param sliceName - Optional slice name. Defaults to first slice if only one exists.
    */
@@ -169,7 +170,13 @@ export class SignalInterpreter {
 
     if (!targetSlice) return null;
 
-    return buildSignalScope(this._store, targetSlice);
+    const baseScope = buildSignalScope(this._store, targetSlice);
+
+    // Add state signal for conditionals that reference machine state
+    return {
+      ...baseScope,
+      state: this.state,
+    };
   }
 
   /**

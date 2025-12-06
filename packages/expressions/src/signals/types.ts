@@ -30,6 +30,8 @@ export interface SignalScope<TContext extends Record<string, unknown> = Record<s
   selectors?: Record<string, { value: SignalLike<unknown> }>;
   /** Query results as signals */
   queries?: Record<string, SignalLike<unknown>>;
+  /** Machine state signal (for state machine integrations) */
+  state?: SignalLike<unknown>;
 }
 
 /**
