@@ -4,9 +4,6 @@ import {
 } from "@ouni/expressions";
 import type { StoreDefinition, SliceDefinition } from "../schema";
 
-// Re-export runtime
-export * from "./runtime";
-
 // Re-export signal runtime
 export * from "./signal-runtime";
 

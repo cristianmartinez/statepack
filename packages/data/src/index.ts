@@ -70,15 +70,6 @@ export {
   type CompiledStore,
   type CompiledSlice,
   type CompiledExpression,
-  // Runtime (plain objects)
-  createStoreInstance,
-  getSliceContext,
-  updateSliceContext,
-  resolveScope,
-  buildScope,
-  evaluateSliceQuery,
-  executeSliceMutation,
-  type StoreInstance,
   // Signal Runtime (reactive)
   createSignalStoreInstance,
   getSignalContextSnapshot,

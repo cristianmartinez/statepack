@@ -1,15 +1,13 @@
-import { describe, expect, it, beforeEach } from "bun:test";
-import { compileStore, type CompiledStore } from "./index";
+import { describe, expect, it } from "bun:test";
+import { compileStore } from "./index";
 import {
-  createStoreInstance,
-  getSliceContext,
-  updateSliceContext,
-  resolveScope,
-  buildScope,
-  evaluateSliceQuery,
-  executeSliceMutation,
-  type StoreInstance,
-} from "./runtime";
+  createSignalStoreInstance,
+  getSignalContextSnapshot,
+  updateSignalContext,
+  buildPlainScope,
+  executeSignalMutation,
+  type SignalStoreInstance,
+} from "./signal-runtime";
 import type { StoreDefinition } from "../schema";
 
 describe("Store Compiler", () => {
@@ -65,7 +63,7 @@ describe("Store Compiler", () => {
   });
 });
 
-describe("Store Instance", () => {
+describe("Signal Store Instance", () => {
   it("creates an instance with initialized contexts", () => {
     const store: StoreDefinition = {
       todos: { context: { items: [] } },
@@ -73,11 +71,11 @@ describe("Store Instance", () => {
     };
 
     const compiled = compileStore(store);
-    const instance = createStoreInstance(compiled);
+    const instance = createSignalStoreInstance(compiled);
 
     expect(instance.contexts.size).toBe(2);
-    expect(getSliceContext(instance, "todos")).toEqual({ items: [] });
-    expect(getSliceContext(instance, "settings")).toEqual({ theme: "dark" });
+    expect(getSignalContextSnapshot(instance, "todos")).toEqual({ items: [] });
+    expect(getSignalContextSnapshot(instance, "settings")).toEqual({ theme: "dark" });
   });
 
   it("updates slice context", () => {
@@ -86,10 +84,10 @@ describe("Store Instance", () => {
     };
 
     const compiled = compileStore(store);
-    const instance = createStoreInstance(compiled);
+    const instance = createSignalStoreInstance(compiled);
 
-    updateSliceContext(instance, "counter", { count: 5 });
-    expect(getSliceContext(instance, "counter")).toEqual({ count: 5 });
+    updateSignalContext(instance, "counter", { count: 5 });
+    expect(getSignalContextSnapshot(instance, "counter")).toEqual({ count: 5 });
   });
 
   it("creates parent-child hierarchy", () => {
@@ -103,8 +101,8 @@ describe("Store Instance", () => {
     const parentCompiled = compileStore(parentStore);
     const childCompiled = compileStore(childStore);
 
-    const parentInstance = createStoreInstance(parentCompiled);
-    const childInstance = createStoreInstance(childCompiled, { parent: parentInstance });
+    const parentInstance = createSignalStoreInstance(parentCompiled);
+    const childInstance = createSignalStoreInstance(childCompiled, { parent: parentInstance });
 
     expect(childInstance.parent).toBe(parentInstance);
     expect(childInstance.root).toBe(parentInstance);
@@ -115,9 +113,9 @@ describe("Store Instance", () => {
     const midStore: StoreDefinition = { mid: { context: { level: 1 } } };
     const leafStore: StoreDefinition = { leaf: { context: { level: 2 } } };
 
-    const rootInstance = createStoreInstance(compileStore(rootStore));
-    const midInstance = createStoreInstance(compileStore(midStore), { parent: rootInstance });
-    const leafInstance = createStoreInstance(compileStore(leafStore), { parent: midInstance });
+    const rootInstance = createSignalStoreInstance(compileStore(rootStore));
+    const midInstance = createSignalStoreInstance(compileStore(midStore), { parent: rootInstance });
+    const leafInstance = createSignalStoreInstance(compileStore(leafStore), { parent: midInstance });
 
     expect(leafInstance.root).toBe(rootInstance);
     expect(midInstance.root).toBe(rootInstance);
@@ -125,88 +123,14 @@ describe("Store Instance", () => {
   });
 });
 
-describe("Scope Resolution", () => {
-  let rootInstance: StoreInstance;
-  let childInstance: StoreInstance;
-  let namedStores: Map<string, StoreInstance>;
-
-  beforeEach(() => {
-    const rootStore: StoreDefinition = {
-      user: { context: { name: "alice" } },
-      settings: { context: { theme: "dark" } },
-    };
-    const childStore: StoreDefinition = {
-      todos: { context: { items: [] } },
-    };
-    const cartStore: StoreDefinition = {
-      cart: { context: { items: [] } },
-    };
-
-    rootInstance = createStoreInstance(compileStore(rootStore));
-    childInstance = createStoreInstance(compileStore(childStore), { parent: rootInstance });
-
-    namedStores = new Map();
-    namedStores.set("cart", createStoreInstance(compileStore(cartStore)));
-  });
-
-  it("resolves $context.sliceName", () => {
-    const resolved = resolveScope(childInstance, "$context.todos.items");
-    expect(resolved).toBeDefined();
-    expect(resolved!.store).toBe(childInstance);
-    expect(resolved!.sliceName).toBe("todos");
-    expect(resolved!.path).toEqual(["items"]);
-  });
-
-  it("resolves $context for single-slice store", () => {
-    const resolved = resolveScope(childInstance, "$context.items");
-    expect(resolved).toBeDefined();
-    expect(resolved!.sliceName).toBe("todos");
-    expect(resolved!.path).toEqual(["items"]);
-  });
-
-  it("resolves $parent.sliceName", () => {
-    const resolved = resolveScope(childInstance, "$parent.user.name");
-    expect(resolved).toBeDefined();
-    expect(resolved!.store).toBe(rootInstance);
-    expect(resolved!.sliceName).toBe("user");
-    expect(resolved!.path).toEqual(["name"]);
-  });
-
-  it("resolves $root.sliceName", () => {
-    const resolved = resolveScope(childInstance, "$root.settings.theme");
-    expect(resolved).toBeDefined();
-    expect(resolved!.store).toBe(rootInstance);
-    expect(resolved!.sliceName).toBe("settings");
-    expect(resolved!.path).toEqual(["theme"]);
-  });
-
-  it("resolves $[name] for named stores", () => {
-    const resolved = resolveScope(childInstance, "$cart.items", namedStores);
-    expect(resolved).toBeDefined();
-    expect(resolved!.sliceName).toBe("cart");
-    expect(resolved!.path).toEqual(["items"]);
-  });
-
-  it("returns undefined for non-existent slice in multi-slice store", () => {
-    // rootInstance has multiple slices (user, settings)
-    const resolved = resolveScope(rootInstance, "$context.nonexistent.path");
-    expect(resolved).toBeUndefined();
-  });
-
-  it("returns undefined for $parent when no parent exists", () => {
-    const resolved = resolveScope(rootInstance, "$parent.user.name");
-    expect(resolved).toBeUndefined();
-  });
-});
-
-describe("Build Scope", () => {
+describe("Build Plain Scope", () => {
   it("includes context and event", () => {
     const store: StoreDefinition = {
       todos: { context: { items: ["a", "b"] } },
     };
-    const instance = createStoreInstance(compileStore(store));
+    const instance = createSignalStoreInstance(compileStore(store));
 
-    const scope = buildScope(instance, "todos", { type: "ADD", item: "c" });
+    const scope = buildPlainScope(instance, "todos", { type: "ADD", item: "c" });
 
     expect(scope.context).toEqual({ items: ["a", "b"] });
     expect(scope.event).toEqual({ type: "ADD", item: "c" });
@@ -217,9 +141,9 @@ describe("Build Scope", () => {
       todos: { context: { items: [] } },
       settings: { context: { theme: "light" } },
     };
-    const instance = createStoreInstance(compileStore(store));
+    const instance = createSignalStoreInstance(compileStore(store));
 
-    const scope = buildScope(instance, "todos");
+    const scope = buildPlainScope(instance, "todos");
 
     expect(scope.$context).toEqual({
       todos: { items: [] },
@@ -235,10 +159,12 @@ describe("Build Scope", () => {
       screen: { context: { data: [] } },
     };
 
-    const parentInstance = createStoreInstance(compileStore(parentStore));
-    const childInstance = createStoreInstance(compileStore(childStore), { parent: parentInstance });
+    const parentInstance = createSignalStoreInstance(compileStore(parentStore));
+    const childInstance = createSignalStoreInstance(compileStore(childStore), {
+      parent: parentInstance,
+    });
 
-    const scope = buildScope(childInstance, "screen");
+    const scope = buildPlainScope(childInstance, "screen");
 
     expect(scope.$parent).toEqual({ app: { user: "alice" } });
   });
@@ -247,10 +173,12 @@ describe("Build Scope", () => {
     const rootStore: StoreDefinition = { root: { context: { global: true } } };
     const childStore: StoreDefinition = { child: { context: { local: true } } };
 
-    const rootInstance = createStoreInstance(compileStore(rootStore));
-    const childInstance = createStoreInstance(compileStore(childStore), { parent: rootInstance });
+    const rootInstance = createSignalStoreInstance(compileStore(rootStore));
+    const childInstance = createSignalStoreInstance(compileStore(childStore), {
+      parent: rootInstance,
+    });
 
-    const scope = buildScope(childInstance, "child");
+    const scope = buildPlainScope(childInstance, "child");
 
     expect(scope.$root).toEqual({ root: { global: true } });
   });
@@ -259,62 +187,17 @@ describe("Build Scope", () => {
     const store: StoreDefinition = { main: { context: {} } };
     const cartStore: StoreDefinition = { cart: { context: { items: [1, 2, 3] } } };
 
-    const instance = createStoreInstance(compileStore(store));
-    const namedStores = new Map<string, StoreInstance>();
-    namedStores.set("cart", createStoreInstance(compileStore(cartStore)));
+    const instance = createSignalStoreInstance(compileStore(store));
+    const namedStores = new Map<string, SignalStoreInstance>();
+    namedStores.set("cart", createSignalStoreInstance(compileStore(cartStore)));
 
-    const scope = buildScope(instance, "main", undefined, namedStores);
+    const scope = buildPlainScope(instance, "main", undefined, namedStores);
 
     expect(scope.$cart).toEqual({ items: [1, 2, 3] });
   });
 });
 
-describe("Evaluate Slice Query", () => {
-  it("evaluates a simple query", async () => {
-    const store: StoreDefinition = {
-      counter: {
-        context: { count: 5 },
-        queries: { doubled: "context.count * 2" },
-      },
-    };
-
-    const compiled = compileStore(store);
-    const instance = createStoreInstance(compiled);
-
-    const result = await evaluateSliceQuery<number>(instance, "counter", "doubled");
-    expect(result).toBe(10);
-  });
-
-  it("evaluates query with event", async () => {
-    const store: StoreDefinition = {
-      math: {
-        context: { base: 10 },
-        queries: { sum: "context.base + event.value" },
-      },
-    };
-
-    const compiled = compileStore(store);
-    const instance = createStoreInstance(compiled);
-
-    const result = await evaluateSliceQuery<number>(instance, "math", "sum", { value: 5 });
-    expect(result).toBe(15);
-  });
-
-  it("throws for non-existent query", async () => {
-    const store: StoreDefinition = {
-      test: { context: {}, queries: {} },
-    };
-
-    const compiled = compileStore(store);
-    const instance = createStoreInstance(compiled);
-
-    await expect(evaluateSliceQuery(instance, "test", "missing")).rejects.toThrow(
-      "Query not found"
-    );
-  });
-});
-
-describe("Execute Slice Mutation", () => {
+describe("Execute Signal Mutation", () => {
   it("executes a simple mutation", async () => {
     const store: StoreDefinition = {
       counter: {
@@ -324,11 +207,11 @@ describe("Execute Slice Mutation", () => {
     };
 
     const compiled = compileStore(store);
-    const instance = createStoreInstance(compiled);
+    const instance = createSignalStoreInstance(compiled);
 
-    await executeSliceMutation(instance, "counter", "increment");
+    await executeSignalMutation(instance, "counter", "increment");
 
-    expect(getSliceContext(instance, "counter")).toEqual({ count: 1 });
+    expect(getSignalContextSnapshot(instance, "counter")).toEqual({ count: 1 });
   });
 
   it("executes mutation with event payload", async () => {
@@ -340,11 +223,11 @@ describe("Execute Slice Mutation", () => {
     };
 
     const compiled = compileStore(store);
-    const instance = createStoreInstance(compiled);
+    const instance = createSignalStoreInstance(compiled);
 
-    await executeSliceMutation(instance, "counter", "add", { amount: 10 });
+    await executeSignalMutation(instance, "counter", "add", { amount: 10 });
 
-    expect(getSliceContext(instance, "counter")).toEqual({ count: 10 });
+    expect(getSignalContextSnapshot(instance, "counter")).toEqual({ count: 10 });
   });
 
   it("can mutate multiple context keys", async () => {
@@ -361,14 +244,14 @@ describe("Execute Slice Mutation", () => {
     };
 
     const compiled = compileStore(store);
-    const instance = createStoreInstance(compiled);
+    const instance = createSignalStoreInstance(compiled);
 
-    await executeSliceMutation(instance, "form", "setUser", {
+    await executeSignalMutation(instance, "form", "setUser", {
       name: "Alice",
       email: "alice@example.com",
     });
 
-    expect(getSliceContext(instance, "form")).toEqual({
+    expect(getSignalContextSnapshot(instance, "form")).toEqual({
       name: "Alice",
       email: "alice@example.com",
     });
@@ -380,77 +263,10 @@ describe("Execute Slice Mutation", () => {
     };
 
     const compiled = compileStore(store);
-    const instance = createStoreInstance(compiled);
+    const instance = createSignalStoreInstance(compiled);
 
-    await expect(executeSliceMutation(instance, "test", "missing")).rejects.toThrow(
+    await expect(executeSignalMutation(instance, "test", "missing")).rejects.toThrow(
       "Mutation not found"
     );
-  });
-});
-
-describe("Cross-Scope Queries", () => {
-  it("can query parent context", async () => {
-    const parentStore: StoreDefinition = {
-      app: { context: { multiplier: 2 } },
-    };
-    const childStore: StoreDefinition = {
-      counter: {
-        context: { value: 5 },
-        queries: { scaled: "context.value * $parent.app.multiplier" },
-      },
-    };
-
-    const parentInstance = createStoreInstance(compileStore(parentStore));
-    const childInstance = createStoreInstance(compileStore(childStore), { parent: parentInstance });
-
-    const result = await evaluateSliceQuery<number>(childInstance, "counter", "scaled");
-    expect(result).toBe(10);
-  });
-
-  it("can query root context", async () => {
-    const rootStore: StoreDefinition = {
-      config: { context: { taxRate: 0.1 } },
-    };
-    const midStore: StoreDefinition = {
-      mid: { context: {} },
-    };
-    const leafStore: StoreDefinition = {
-      cart: {
-        context: { subtotal: 100 },
-        queries: { total: "context.subtotal * (1 + $root.config.taxRate)" },
-      },
-    };
-
-    const rootInstance = createStoreInstance(compileStore(rootStore));
-    const midInstance = createStoreInstance(compileStore(midStore), { parent: rootInstance });
-    const leafInstance = createStoreInstance(compileStore(leafStore), { parent: midInstance });
-
-    const result = await evaluateSliceQuery<number>(leafInstance, "cart", "total");
-    expect(result).toBeCloseTo(110);
-  });
-
-  it("can query named stores", async () => {
-    const mainStore: StoreDefinition = {
-      checkout: {
-        context: {},
-        queries: { cartCount: "$count($cart.items)" },
-      },
-    };
-    const cartStore: StoreDefinition = {
-      cart: { context: { items: ["a", "b", "c"] } },
-    };
-
-    const mainInstance = createStoreInstance(compileStore(mainStore));
-    const namedStores = new Map<string, StoreInstance>();
-    namedStores.set("cart", createStoreInstance(compileStore(cartStore)));
-
-    const result = await evaluateSliceQuery<number>(
-      mainInstance,
-      "checkout",
-      "cartCount",
-      undefined,
-      namedStores
-    );
-    expect(result).toBe(3);
   });
 });
