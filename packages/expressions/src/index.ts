@@ -44,6 +44,11 @@ export {
   createBinding,
   createBindingFromCompiled,
   disposeBindings,
+  // Computed async
+  computedAsync,
+  computedAsyncSignals,
+  type ComputedAsync,
+  type ComputedAsyncOptions,
   // Store
   createContextStore,
   createSelector,

@@ -17,6 +17,14 @@ export { buildScopeFromSignals, evaluateWithSignals, trackSignals } from "./eval
 // Reactive bindings
 export { createBinding, createBindingFromCompiled, disposeBindings } from "./binding";
 
+// Computed async
+export {
+  computedAsync,
+  computedAsyncSignals,
+  type ComputedAsync,
+  type ComputedAsyncOptions,
+} from "./computed-async";
+
 // Store (context store + selectors)
 export {
   createContextStore,
