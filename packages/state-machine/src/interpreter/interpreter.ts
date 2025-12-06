@@ -6,7 +6,9 @@ import {
   getSignalContextSnapshot,
   getSignalStoreSnapshot,
   updateSignalContext,
+  buildSignalScope,
 } from "@ouni/data";
+import type { SignalScope } from "@ouni/expressions";
 import { signal, batch as signalBatch, type Signal } from "@preact/signals-core";
 import { compileMachine, type CompiledCache, type CompiledMachine } from "../compiler";
 import { isCompiledMachine } from "../compiler/types";
@@ -152,6 +154,26 @@ export class SignalInterpreter {
   /** Get signal context for fine-grained subscriptions */
   get signalContext(): Map<string, SignalContext<Record<string, unknown>>> | undefined {
     return this._store?.contexts;
+  }
+
+  /**
+   * Get signal scope for use with computedAsync/useComputedBinding.
+   * Returns a SignalScope compatible with @ouni/expressions.
+   *
+   * @param sliceName - Optional slice name. Defaults to first slice if only one exists.
+   */
+  getSignalScope(sliceName?: string): SignalScope | null {
+    if (!this._store) return null;
+
+    // Determine which slice to use
+    let targetSlice = sliceName;
+    if (!targetSlice && this._store.contexts.size === 1) {
+      [targetSlice] = this._store.contexts.keys();
+    }
+
+    if (!targetSlice) return null;
+
+    return buildSignalScope(this._store, targetSlice);
   }
 
   /**
