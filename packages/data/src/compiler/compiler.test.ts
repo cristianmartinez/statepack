@@ -42,9 +42,11 @@ describe("compileData", () => {
 
     const compiled = compileData(data);
 
-    expect(compiled.compiled.expressions.has(
-      "$append(context.todos, { id: $uuid(), text: event.text, completed: false })"
-    )).toBe(true);
+    expect(
+      compiled.compiled.expressions.has(
+        "$append(context.todos, { id: $uuid(), text: event.text, completed: false })"
+      )
+    ).toBe(true);
     expect(compiled.compiled.expressions.has("''")).toBe(true);
     expect(compiled.compiled.expressions.has("context.todos[id != event.id]")).toBe(true);
   });
@@ -134,8 +136,10 @@ describe("compileData", () => {
 
     const compiled = compileData(data);
 
-    expect(compiled.compiled.expressions.has(
-      "$append(context.items, { name: event.name, meta: { created: $now() } })"
-    )).toBe(true);
+    expect(
+      compiled.compiled.expressions.has(
+        "$append(context.items, { name: event.name, meta: { created: $now() } })"
+      )
+    ).toBe(true);
   });
 });

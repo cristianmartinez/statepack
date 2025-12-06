@@ -1,9 +1,5 @@
 import { signal, batch as signalBatch } from "@preact/signals-core";
-import type {
-  ContextStore,
-  SignalContext,
-  CreateContextStoreOptions,
-} from "../types";
+import type { ContextStore, SignalContext, CreateContextStoreOptions } from "../types";
 
 /**
  * Creates a context store with signals for fine-grained reactivity.

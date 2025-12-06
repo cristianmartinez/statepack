@@ -268,7 +268,9 @@ export async function executeSliceMutation(
   for (const [contextKey, exprString] of Object.entries(mutation)) {
     const expr = slice.expressions.get(exprString);
     if (!expr) {
-      throw new Error(`Compiled expression not found for mutation ${sliceName}.${mutationName}.${contextKey}`);
+      throw new Error(
+        `Compiled expression not found for mutation ${sliceName}.${mutationName}.${contextKey}`
+      );
     }
 
     // Handle scoped mutations (e.g., "$parent.todos.items")

@@ -1,9 +1,5 @@
 import { evaluate as evalCondition, type Condition } from "@ouni/conditions";
-import {
-  type StoreInstance,
-  executeSliceMutation,
-  buildScope,
-} from "@ouni/data";
+import { type StoreInstance, executeSliceMutation, buildScope } from "@ouni/data";
 import { evaluateCompiled } from "@ouni/expressions";
 import type { CompiledCache } from "../compiler/types";
 import type { Action, Actions } from "../schema/types";

@@ -23,11 +23,7 @@ export interface RuntimeScope<
 export async function evaluateQuery<
   TResult = unknown,
   TContext extends Record<string, unknown> = Record<string, unknown>,
->(
-  compiled: CompiledData,
-  queryName: string,
-  scope: RuntimeScope<TContext>
-): Promise<TResult> {
+>(compiled: CompiledData, queryName: string, scope: RuntimeScope<TContext>): Promise<TResult> {
   const queryExpr = compiled.source.queries?.[queryName];
   if (!queryExpr) {
     throw new Error(`Query not found: ${queryName}`);

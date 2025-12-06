@@ -8,9 +8,7 @@ import type { SignalScope } from "./types";
 const waitFor = (ms = 10) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Helper to create a signal scope
-function createSignalScope<T extends Record<string, unknown>>(
-  context: T
-): SignalScope<T> {
+function createSignalScope<T extends Record<string, unknown>>(context: T): SignalScope<T> {
   const signalContext = {} as SignalScope<T>["context"];
   for (const [key, value] of Object.entries(context)) {
     (signalContext as Record<string, { value: unknown }>)[key] = signal(value);

@@ -123,7 +123,10 @@ describe("Computed Selectors", () => {
         },
       });
 
-      const selector = createSelector("context.user.name & ' is ' & $string(context.user.age)", store);
+      const selector = createSelector(
+        "context.user.name & ' is ' & $string(context.user.age)",
+        store
+      );
 
       await waitForSelector();
 

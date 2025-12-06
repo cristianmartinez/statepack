@@ -308,7 +308,9 @@ describe("Evaluate Slice Query", () => {
     const compiled = compileStore(store);
     const instance = createStoreInstance(compiled);
 
-    await expect(evaluateSliceQuery(instance, "test", "missing")).rejects.toThrow("Query not found");
+    await expect(evaluateSliceQuery(instance, "test", "missing")).rejects.toThrow(
+      "Query not found"
+    );
   });
 });
 
@@ -380,7 +382,9 @@ describe("Execute Slice Mutation", () => {
     const compiled = compileStore(store);
     const instance = createStoreInstance(compiled);
 
-    await expect(executeSliceMutation(instance, "test", "missing")).rejects.toThrow("Mutation not found");
+    await expect(executeSliceMutation(instance, "test", "missing")).rejects.toThrow(
+      "Mutation not found"
+    );
   });
 });
 

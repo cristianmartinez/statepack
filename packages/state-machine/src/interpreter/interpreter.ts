@@ -17,12 +17,7 @@ import type {
   StateNode,
   Transition,
 } from "../schema/types";
-import {
-  type ActionContext,
-  type ActionEffect,
-  executeActions,
-  normalizeActions,
-} from "./actions";
+import { type ActionContext, type ActionEffect, executeActions, normalizeActions } from "./actions";
 import { createGuardContext, findMatchingTransition } from "./guards";
 import {
   createInitialState,

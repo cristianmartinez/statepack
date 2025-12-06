@@ -1,10 +1,5 @@
 import { createBinding } from "../binding";
-import type {
-  ReactiveBinding,
-  SignalScope,
-  SignalLike,
-  SignalContext,
-} from "../types";
+import type { ReactiveBinding, SignalScope, SignalLike, SignalContext } from "../types";
 
 /**
  * A computed selector - a reactive binding to a JSONata expression.
@@ -69,9 +64,7 @@ export type SelectorsFromDefinitions<T extends Record<string, string>> = {
 export function createSelectors<
   TContext extends Record<string, unknown>,
   TDefinitions extends Record<string, string>,
->(
-  options: CreateSelectorsOptions<TContext, TDefinitions>
-): SelectorsFromDefinitions<TDefinitions> {
+>(options: CreateSelectorsOptions<TContext, TDefinitions>): SelectorsFromDefinitions<TDefinitions> {
   const { definitions, store, existingSelectors = {} } = options;
   const selectors: Record<string, ComputedSelector> = { ...existingSelectors };
 

@@ -109,11 +109,10 @@ describe("executeActions", () => {
         state: { value: "idle" },
       };
 
-      const result = await executeActions(
-        [{ type: "raise", event: "'NEXT'" }],
-        ctx,
-        { namedActions: {}, compiled }
-      );
+      const result = await executeActions([{ type: "raise", event: "'NEXT'" }], ctx, {
+        namedActions: {},
+        compiled,
+      });
 
       expect(result.raisedEvents).toEqual([{ type: "NEXT" }]);
     });
@@ -145,11 +144,10 @@ describe("executeActions", () => {
         state: { value: "idle" },
       };
 
-      const result = await executeActions(
-        [{ type: "send", event: "'DELAYED'" }],
-        ctx,
-        { namedActions: {}, compiled }
-      );
+      const result = await executeActions([{ type: "send", event: "'DELAYED'" }], ctx, {
+        namedActions: {},
+        compiled,
+      });
 
       expect(result.sentEvents).toEqual([{ event: { type: "DELAYED" } }]);
     });
@@ -286,11 +284,10 @@ describe("executeActions", () => {
         state: { value: "idle" },
       };
 
-      const result = await executeActions(
-        [{ type: "log", message: "context.message" }],
-        ctx,
-        { namedActions: {}, compiled }
-      );
+      const result = await executeActions([{ type: "log", message: "context.message" }], ctx, {
+        namedActions: {},
+        compiled,
+      });
 
       expect(result.effects).toHaveLength(1);
       expect(result.effects[0].type).toBe("log");
@@ -305,11 +302,10 @@ describe("executeActions", () => {
         state: { value: "idle" },
       };
 
-      const result = await executeActions(
-        [{ type: "navigate", to: "'/home'" }],
-        ctx,
-        { namedActions: {}, compiled }
-      );
+      const result = await executeActions([{ type: "navigate", to: "'/home'" }], ctx, {
+        namedActions: {},
+        compiled,
+      });
 
       expect(result.effects).toHaveLength(1);
       expect(result.effects[0].type).toBe("navigate");
@@ -346,16 +342,12 @@ describe("executeActions", () => {
         state: { value: "idle" },
       };
 
-      const result = await executeActions(
-        ["increment"],
-        ctx,
-        {
-          namedActions: {
-            increment: { type: "assign", values: { count: "context.count + 1" } },
-          },
-          compiled,
-        }
-      );
+      const result = await executeActions(["increment"], ctx, {
+        namedActions: {
+          increment: { type: "assign", values: { count: "context.count + 1" } },
+        },
+        compiled,
+      });
 
       expect(result.context.count).toBe(1);
     });
@@ -368,19 +360,15 @@ describe("executeActions", () => {
         state: { value: "idle" },
       };
 
-      const result = await executeActions(
-        ["incrementAndNotify"],
-        ctx,
-        {
-          namedActions: {
-            incrementAndNotify: [
-              { type: "assign", values: { count: "context.count + 1" } },
-              { type: "raise", event: "'UPDATED'" },
-            ],
-          },
-          compiled,
-        }
-      );
+      const result = await executeActions(["incrementAndNotify"], ctx, {
+        namedActions: {
+          incrementAndNotify: [
+            { type: "assign", values: { count: "context.count + 1" } },
+            { type: "raise", event: "'UPDATED'" },
+          ],
+        },
+        compiled,
+      });
 
       expect(result.context.count).toBe(1);
       expect(result.raisedEvents).toEqual([{ type: "UPDATED" }]);
@@ -393,11 +381,10 @@ describe("executeActions", () => {
         state: { value: "idle" },
       };
 
-      const result = await executeActions(
-        ["unknownAction"],
-        ctx,
-        { namedActions: {}, compiled: createCompiledCache([]) }
-      );
+      const result = await executeActions(["unknownAction"], ctx, {
+        namedActions: {},
+        compiled: createCompiledCache([]),
+      });
 
       // Should not throw, just warn
       expect(result.context).toEqual({});

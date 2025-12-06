@@ -53,9 +53,9 @@ describe("evaluateQuery", () => {
 
     const compiled = compileData(data);
 
-    await expect(
-      evaluateQuery(compiled, "nonexistent", { context: {} })
-    ).rejects.toThrow("Query not found: nonexistent");
+    await expect(evaluateQuery(compiled, "nonexistent", { context: {} })).rejects.toThrow(
+      "Query not found: nonexistent"
+    );
   });
 });
 
@@ -142,8 +142,8 @@ describe("executeMutation", () => {
 
     const compiled = compileData(data);
 
-    await expect(
-      executeMutation(compiled, "nonexistent", { context: {} })
-    ).rejects.toThrow("Mutation not found: nonexistent");
+    await expect(executeMutation(compiled, "nonexistent", { context: {} })).rejects.toThrow(
+      "Mutation not found: nonexistent"
+    );
   });
 });
