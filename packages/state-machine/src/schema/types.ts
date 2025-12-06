@@ -243,20 +243,37 @@ export const TransitionsSchema = z.union([TransitionSchema, z.array(TransitionSc
 export type Transitions = z.infer<typeof TransitionsSchema>;
 
 /**
- * Invoke Schema - for invoking services (like fetch)
+ * Invoke Source Schema - different types of services that can be invoked
+ */
+export const InvokeSourceSchema = z.union([
+  z.string(), // Reference to named service
+  z.object({
+    type: z.literal("fetch"),
+    url: z.string(),
+    method: z.string().optional(),
+    headers: z.record(z.string(), z.string()).optional(),
+    body: z.unknown().optional(),
+  }),
+  z.object({
+    type: z.literal("interval"),
+    ms: z.number(), // Interval in milliseconds
+    event: z.string(), // Event to send on each tick
+  }),
+  z.object({
+    type: z.literal("timeout"),
+    ms: z.number(), // Delay in milliseconds
+    event: z.string(), // Event to send after delay
+  }),
+]);
+
+export type InvokeSource = z.infer<typeof InvokeSourceSchema>;
+
+/**
+ * Invoke Schema - for invoking services (like fetch, intervals, timeouts)
  */
 export const InvokeSchema = z.object({
   id: z.string().optional(),
-  src: z.union([
-    z.string(),
-    z.object({
-      type: z.literal("fetch"),
-      url: z.string(),
-      method: z.string().optional(),
-      headers: z.record(z.string(), z.string()).optional(),
-      body: z.unknown().optional(),
-    }),
-  ]),
+  src: InvokeSourceSchema,
   onDone: TransitionSchema.optional(),
   onError: TransitionSchema.optional(),
 });

@@ -8,7 +8,15 @@ import {
 import { signal, batch as signalBatch, type Signal } from "@preact/signals-core";
 import { compileMachine, type CompiledCache, type CompiledMachine } from "../compiler";
 import { isCompiledMachine } from "../compiler/types";
-import type { Action, GuardDefinition, Machine, StateNode, Transition } from "../schema/types";
+import type {
+  Action,
+  GuardDefinition,
+  Invoke,
+  InvokeSource,
+  Machine,
+  StateNode,
+  Transition,
+} from "../schema/types";
 import {
   type ActionContext,
   type ActionEffect,
@@ -91,6 +99,9 @@ export class SignalInterpreter {
   /** Store instance with live context values */
   private _store?: StoreInstance;
 
+  /** Active invoked services (intervals, timeouts, etc.) */
+  private services: Map<string, { cleanup: () => void }>;
+
   constructor(machine: Machine | CompiledMachine, options: SignalInterpreterOptions = {}) {
     // Extract source machine and compiled cache
     if (isCompiledMachine(machine)) {
@@ -109,6 +120,7 @@ export class SignalInterpreter {
     this.namedGuards = this.machine.guards ?? {};
     this.namedActions = this.machine.actions ?? {};
     this.timers = new Map();
+    this.services = new Map();
     this.running = false;
 
     // Create store instance if store is defined
@@ -187,8 +199,9 @@ export class SignalInterpreter {
     // Check for always transitions
     await this.checkAlwaysTransitions();
 
-    // Setup delayed transitions
+    // Setup delayed transitions and invoked services
     this.setupDelayedTransitions();
+    this.setupInvokedServices();
 
     return this;
   }
@@ -199,6 +212,7 @@ export class SignalInterpreter {
   stop(): this {
     this.running = false;
     this.clearAllTimers();
+    this.stopAllServices();
     this.log("Stopped machine", this.machine.id);
     return this;
   }
@@ -346,9 +360,11 @@ export class SignalInterpreter {
         }
       }
 
-      // Clear old timers and setup new ones
+      // Clear old timers/services and setup new ones
       this.clearAllTimers();
+      this.stopAllServices();
       this.setupDelayedTransitions();
+      this.setupInvokedServices();
 
       this.log("Transitioned to", toStateString(newStateValue));
     } else {
@@ -553,6 +569,89 @@ export class SignalInterpreter {
       clearTimeout(timerId);
     }
     this.timers.clear();
+  }
+
+  /**
+   * Setup invoked services for the current state
+   */
+  private setupInvokedServices(): void {
+    const nodes = getActiveStateNodes(this.machine, this.state.value);
+
+    for (const node of nodes) {
+      if (node.invoke) {
+        const invokes: Invoke[] = Array.isArray(node.invoke) ? node.invoke : [node.invoke];
+
+        for (const invoke of invokes) {
+          this.startService(invoke);
+        }
+      }
+    }
+  }
+
+  /**
+   * Start an invoked service
+   */
+  private startService(invoke: Invoke): void {
+    const src = invoke.src;
+    const serviceId = invoke.id || `service.${Math.random().toString(36).slice(2)}`;
+
+    // Skip string references (not implemented yet)
+    if (typeof src === "string") {
+      this.log("Named service references not implemented:", src);
+      return;
+    }
+
+    const srcObj = src as InvokeSource;
+    if (typeof srcObj !== "object" || !("type" in srcObj)) return;
+
+    switch (srcObj.type) {
+      case "interval": {
+        const intervalSrc = srcObj as { type: "interval"; ms: number; event: string };
+        const intervalId = setInterval(() => {
+          if (this.running) {
+            this.send({ type: intervalSrc.event });
+          }
+        }, intervalSrc.ms);
+
+        this.services.set(serviceId, {
+          cleanup: () => clearInterval(intervalId),
+        });
+        this.log("Started interval service", serviceId, `${intervalSrc.ms}ms`);
+        break;
+      }
+
+      case "timeout": {
+        const timeoutSrc = srcObj as { type: "timeout"; ms: number; event: string };
+        const timeoutId = setTimeout(() => {
+          if (this.running) {
+            this.send({ type: timeoutSrc.event });
+          }
+        }, timeoutSrc.ms);
+
+        this.services.set(serviceId, {
+          cleanup: () => clearTimeout(timeoutId),
+        });
+        this.log("Started timeout service", serviceId, `${timeoutSrc.ms}ms`);
+        break;
+      }
+
+      case "fetch": {
+        // Fetch services are handled elsewhere (or could be added here)
+        this.log("Fetch service not implemented in invoke:", serviceId);
+        break;
+      }
+    }
+  }
+
+  /**
+   * Stop all active services
+   */
+  private stopAllServices(): void {
+    for (const [id, service] of this.services) {
+      service.cleanup();
+      this.log("Stopped service", id);
+    }
+    this.services.clear();
   }
 
   /**

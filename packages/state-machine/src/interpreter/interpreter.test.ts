@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { effect } from "@preact/signals-core";
 import type { Machine } from "../schema/types";
-import { SignalInterpreter, interpretWithSignals } from "./interpreter";
+import { interpretWithSignals } from "./interpreter";
 
 describe("SignalInterpreter", () => {
   describe("basic transitions", () => {
@@ -370,7 +370,6 @@ describe("SignalInterpreter", () => {
     const nestedMachine: Machine = {
       id: "nested",
       initial: "parent",
-      context: {},
       states: {
         parent: {
           initial: "child1",
@@ -395,6 +394,243 @@ describe("SignalInterpreter", () => {
       await interpreter.send("NEXT");
 
       expect(interpreter.matches("parent.child2")).toBe(true);
+    });
+  });
+
+  describe("invoke services", () => {
+    // Helper to wait for real time (Bun doesn't support fake timers for setInterval/setTimeout)
+    const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    describe("interval service", () => {
+      const timerMachine: Machine = {
+        id: "timer",
+        initial: "stopped",
+        store: {
+          timer: {
+            context: { ticks: 0 },
+            mutations: {
+              tick: { ticks: "context.ticks + 1" },
+            },
+          },
+        },
+        states: {
+          stopped: {
+            on: {
+              START: "running",
+            },
+          },
+          running: {
+            invoke: {
+              id: "ticker",
+              src: { type: "interval", ms: 10, event: "TICK" }, // Fast interval for quick tests
+            },
+            on: {
+              TICK: { actions: { type: "mutation", name: "tick" } },
+              STOP: "stopped",
+            },
+          },
+        },
+      };
+
+      test("starts interval when entering state with invoke", async () => {
+        const interpreter = interpretWithSignals(timerMachine);
+        await interpreter.start();
+
+        expect(interpreter.context.ticks).toBe(0);
+
+        await interpreter.send("START");
+
+        // Wait for a few ticks (10ms interval)
+        await wait(35);
+
+        // Should have received at least 2 ticks
+        expect(interpreter.context.ticks).toBeGreaterThanOrEqual(2);
+
+        interpreter.stop();
+      });
+
+      test("stops interval when exiting state", async () => {
+        const interpreter = interpretWithSignals(timerMachine);
+        await interpreter.start();
+
+        await interpreter.send("START");
+
+        // Wait for some ticks
+        await wait(25);
+        const ticksAfterStart = interpreter.context.ticks as number;
+        expect(ticksAfterStart).toBeGreaterThan(0);
+
+        // Stop the timer (transitions back to "stopped")
+        await interpreter.send("STOP");
+
+        // Wait a bit more
+        await wait(25);
+
+        // Ticks should not have increased
+        expect(interpreter.context.ticks).toBe(ticksAfterStart);
+
+        interpreter.stop();
+      });
+
+      test("stops interval when interpreter stops", async () => {
+        const interpreter = interpretWithSignals(timerMachine);
+        await interpreter.start();
+
+        await interpreter.send("START");
+
+        // Wait for some ticks
+        await wait(25);
+        const ticksBefore = interpreter.context.ticks as number;
+
+        interpreter.stop();
+
+        // Wait a bit more
+        await wait(25);
+
+        // Ticks should not have increased after stop
+        expect(interpreter.context.ticks).toBe(ticksBefore);
+      });
+    });
+
+    describe("timeout service", () => {
+      const delayedMachine: Machine = {
+        id: "delayed",
+        initial: "waiting",
+        store: {
+          main: {
+            context: { triggered: false },
+            mutations: {
+              setTriggered: { triggered: "true" },
+            },
+          },
+        },
+        states: {
+          waiting: {
+            invoke: {
+              id: "delayed-event",
+              src: { type: "timeout", ms: 15, event: "TIMEOUT" }, // Short timeout for quick tests
+            },
+            on: {
+              TIMEOUT: {
+                target: "done",
+                actions: { type: "mutation", name: "setTriggered" },
+              },
+              CANCEL: "cancelled",
+            },
+          },
+          done: {},
+          cancelled: {},
+        },
+      };
+
+      test("sends event after timeout", async () => {
+        const interpreter = interpretWithSignals(delayedMachine);
+        await interpreter.start();
+
+        expect(interpreter.state.value).toBe("waiting");
+        expect(interpreter.context.triggered).toBe(false);
+
+        // Wait for timeout
+        await wait(30);
+
+        expect(interpreter.state.value).toBe("done");
+        expect(interpreter.context.triggered).toBe(true);
+
+        interpreter.stop();
+      });
+
+      test("cancels timeout when exiting state early", async () => {
+        const interpreter = interpretWithSignals(delayedMachine);
+        await interpreter.start();
+
+        expect(interpreter.state.value).toBe("waiting");
+
+        // Cancel before timeout fires
+        await interpreter.send("CANCEL");
+
+        expect(interpreter.state.value).toBe("cancelled");
+
+        // Wait past when timeout would have fired
+        await wait(30);
+
+        // Should still be cancelled, not done
+        expect(interpreter.state.value).toBe("cancelled");
+        expect(interpreter.context.triggered).toBe(false);
+
+        interpreter.stop();
+      });
+    });
+
+    describe("multiple invoke services", () => {
+      const multiServiceMachine: Machine = {
+        id: "multi",
+        initial: "idle",
+        store: {
+          main: {
+            context: { fast: 0, slow: 0 },
+            mutations: {
+              tickFast: { fast: "context.fast + 1" },
+              tickSlow: { slow: "context.slow + 1" },
+            },
+          },
+        },
+        states: {
+          idle: {
+            on: { START: "running" },
+          },
+          running: {
+            invoke: [
+              { id: "fast", src: { type: "interval", ms: 5, event: "FAST" } },
+              { id: "slow", src: { type: "interval", ms: 20, event: "SLOW" } },
+            ],
+            on: {
+              FAST: { actions: { type: "mutation", name: "tickFast" } },
+              SLOW: { actions: { type: "mutation", name: "tickSlow" } },
+              STOP: "idle",
+            },
+          },
+        },
+      };
+
+      test("runs multiple services concurrently", async () => {
+        const interpreter = interpretWithSignals(multiServiceMachine);
+        await interpreter.start();
+
+        await interpreter.send("START");
+
+        // Wait for services to tick
+        await wait(45);
+
+        // Fast should tick more than slow
+        const fast = interpreter.context.fast as number;
+        const slow = interpreter.context.slow as number;
+
+        expect(fast).toBeGreaterThan(slow);
+        expect(fast).toBeGreaterThanOrEqual(5); // ~9 ticks at 5ms over 45ms
+        expect(slow).toBeGreaterThanOrEqual(1); // ~2 ticks at 20ms over 45ms
+
+        interpreter.stop();
+      });
+
+      test("stops all services on state exit", async () => {
+        const interpreter = interpretWithSignals(multiServiceMachine);
+        await interpreter.start();
+
+        await interpreter.send("START");
+        await wait(25);
+
+        const fastBefore = interpreter.context.fast as number;
+        const slowBefore = interpreter.context.slow as number;
+
+        await interpreter.send("STOP");
+        await wait(25);
+
+        // Neither should have increased
+        expect(interpreter.context.fast).toBe(fastBefore);
+        expect(interpreter.context.slow).toBe(slowBefore);
+
+        interpreter.stop();
+      });
     });
   });
 });
