@@ -32,3 +32,16 @@ export {
   ContextSchema,
   type Context,
 } from "./context";
+
+// Store schema (collection of slices)
+export {
+  SliceDefinitionSchema,
+  type SliceDefinition,
+  StoreDefinitionSchema,
+  type StoreDefinition,
+  // Legacy aliases
+  SliceSchema,
+  type Slice,
+  StoreSchema,
+  type Store,
+} from "./store";

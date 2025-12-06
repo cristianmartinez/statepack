@@ -35,13 +35,22 @@ export {
   type Source,
   SourcesSchema,
   type Sources,
+  // Store types (multi-slice composition)
+  SliceDefinitionSchema,
+  type SliceDefinition,
+  StoreDefinitionSchema,
+  type StoreDefinition,
+  SliceSchema,
+  type Slice,
+  StoreSchema,
+  type Store,
 } from "./schema";
 
 // Compiler exports
 export {
   compileData,
   type CompiledData,
-  type CompiledExpression,
+  type CompiledExpression as CompiledDataExpression,
   type DataDefinition,
   isCompiledData,
 } from "./compiler";
@@ -53,3 +62,21 @@ export {
   getExpression,
   type RuntimeScope,
 } from "./runtime";
+
+// Store exports (multi-slice data composition)
+export {
+  // Compiler
+  compileStore,
+  type CompiledStore,
+  type CompiledSlice,
+  type CompiledExpression,
+  // Runtime
+  createStoreInstance,
+  getSliceContext,
+  updateSliceContext,
+  resolveScope,
+  buildScope,
+  evaluateSliceQuery,
+  executeSliceMutation,
+  type StoreInstance,
+} from "./store";
