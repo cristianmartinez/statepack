@@ -3,6 +3,7 @@ export {
   compileExpression,
   evaluateCompiled,
   type CompiledJSONataExpression,
+  type DependencyPath,
 } from "./evaluate";
 
 // Types
