@@ -1,33 +1,12 @@
-import jsonata from "jsonata";
+import type { CompiledJSONataExpression } from "./compile";
 import type { EvaluatorOptions, Scope } from "./types";
 
-/**
- * Compiled JSONata expression that can be evaluated synchronously
- */
-export interface CompiledJSONataExpression {
-  expression: ReturnType<typeof jsonata>;
-  source: string;
-}
-
-/**
- * Compile an expression to JSONata AST (do this once at load time)
- */
-export function compileExpression(expression: string): CompiledJSONataExpression {
-  if (typeof expression !== "string") {
-    throw new Error("JSONata only supports string expressions");
-  }
-
-  try {
-    return {
-      expression: jsonata(expression),
-      source: expression,
-    };
-  } catch (err) {
-    throw new Error(
-      `Expression compilation failed: ${err instanceof Error ? err.message : String(err)}`
-    );
-  }
-}
+// Re-export compilation types and functions for backwards compatibility
+export {
+  compileExpression,
+  type CompiledJSONataExpression,
+  type DependencyPath,
+} from "./compile";
 
 /**
  * Evaluate a compiled expression asynchronously

@@ -1,17 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { compileExpression, evaluateCompiled } from "./evaluate";
-
-describe("compileExpression", () => {
-  test("compiles a simple path expression", () => {
-    const compiled = compileExpression("name");
-    expect(compiled.source).toBe("name");
-    expect(compiled.expression).toBeDefined();
-  });
-
-  test("throws on invalid expression", () => {
-    expect(() => compileExpression("{{invalid")).toThrow();
-  });
-});
+import { compileExpression } from "./compile";
+import { evaluateCompiled } from "./evaluate";
 
 describe("evaluateCompiled", () => {
   test("evaluates a simple path", async () => {
