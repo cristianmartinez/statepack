@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach, afterEach } from "bun:test";
 import { signal, effect } from "@preact/signals-core";
-import { computedAsync, computedAsyncSignals } from "./computed-async";
+import { computedAsync, computedAsyncSignals } from "./index";
 
 describe("computedAsync", () => {
   it("evaluates async function and updates value", async () => {

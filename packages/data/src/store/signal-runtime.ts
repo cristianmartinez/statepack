@@ -1,14 +1,76 @@
-import { signal, batch, type Signal } from "@preact/signals-core";
-import {
-  createBindingFromCompiled,
-  type ReactiveBinding,
-  type SignalContext,
-  type SignalScope,
-} from "@ouni/expressions";
-import { evaluateCompiled } from "@ouni/expressions";
-import type { CompiledStore, CompiledSlice } from "./index";
+import { signal, batch, effect, type Signal, type ReadonlySignal } from "@preact/signals-core";
+import { type CompiledJSONataExpression, evaluateCompiled } from "@ouni/expressions";
+import type { SignalContext, SignalScope } from "../signals";
 
-export { type SignalContext };
+/**
+ * Result of a reactive binding
+ */
+export interface ReactiveBinding<T = unknown> {
+  readonly value: ReadonlySignal<T | undefined>;
+  readonly loading: ReadonlySignal<boolean>;
+  readonly error: ReadonlySignal<Error | undefined>;
+  dispose(): void;
+}
+
+/**
+ * Create a reactive binding from a compiled expression and signal scope.
+ */
+function createBindingFromCompiled<TContext extends Record<string, unknown>>(
+  compiled: CompiledJSONataExpression,
+  signalScope: SignalScope<TContext>
+): ReactiveBinding {
+  const value = signal<unknown>(undefined);
+  const loading = signal(true);
+  const error = signal<Error | undefined>(undefined);
+
+  const disposeEffect = effect(() => {
+    // Track all context signals
+    for (const sig of Object.values(signalScope.context)) {
+      void (sig as Signal<unknown>).value;
+    }
+    // Track query signals
+    if (signalScope.queries) {
+      for (const sig of Object.values(signalScope.queries)) {
+        void (sig as Signal<unknown>).value;
+      }
+    }
+
+    loading.value = true;
+    error.value = undefined;
+
+    // Build plain scope for evaluation
+    const scope: Record<string, unknown> = { context: {} };
+    for (const [key, sig] of Object.entries(signalScope.context)) {
+      (scope.context as Record<string, unknown>)[key] = (sig as Signal<unknown>).value;
+    }
+    if (signalScope.queries) {
+      scope.queries = {};
+      for (const [key, sig] of Object.entries(signalScope.queries)) {
+        (scope.queries as Record<string, unknown>)[key] = (sig as Signal<unknown>).value;
+      }
+    }
+
+    evaluateCompiled(compiled, scope)
+      .then((result) => {
+        value.value = result;
+      })
+      .catch((err) => {
+        error.value = err instanceof Error ? err : new Error(String(err));
+      })
+      .finally(() => {
+        loading.value = false;
+      });
+  });
+
+  return {
+    value: value as ReadonlySignal<unknown>,
+    loading: loading as ReadonlySignal<boolean>,
+    error: error as ReadonlySignal<Error | undefined>,
+    dispose: disposeEffect,
+  };
+}
+
+import type { CompiledStore, CompiledSlice } from "./index";
 
 /**
  * Signal-based store instance for fine-grained reactivity.

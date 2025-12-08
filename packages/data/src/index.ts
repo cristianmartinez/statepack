@@ -82,5 +82,22 @@ export {
   getSignalQueryBinding,
   disposeSignalStore,
   type SignalStoreInstance,
-  type SignalContext,
 } from "./store";
+
+// Computed async (reactive async computations)
+export {
+  computedAsync,
+  computedAsyncSignals,
+  type ComputedAsync,
+  type ComputedAsyncOptions,
+} from "./computed-async";
+
+// Signal types (reactive primitives)
+export type {
+  SignalLike,
+  WritableSignal,
+  SignalContext,
+  SignalScope,
+  ReactiveBinding,
+  CreateBindingOptions,
+} from "./signals";

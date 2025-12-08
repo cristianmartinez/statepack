@@ -35,38 +35,6 @@ export interface SignalScope<TContext extends Record<string, unknown> = Record<s
 }
 
 /**
- * Plain object snapshot of context values
- */
-export interface ContextSnapshot<TContext> {
-  context: TContext;
-}
-
-/**
- * Options for creating a context store
- */
-export interface CreateContextStoreOptions<TContext extends Record<string, unknown>> {
-  context: TContext;
-}
-
-/**
- * A store that wraps context in signals for fine-grained reactivity.
- * Each top-level context field is an independent signal.
- */
-export interface ContextStore<TContext extends Record<string, unknown>> {
-  /** Context fields as individual signals */
-  readonly context: SignalContext<TContext>;
-
-  /** Get plain object snapshot of current context values */
-  getSnapshot(): ContextSnapshot<TContext>;
-
-  /** Batch multiple updates into single notification */
-  batch(fn: () => void): void;
-
-  /** Dispose and cleanup */
-  dispose(): void;
-}
-
-/**
  * Result of a reactive binding
  */
 export interface ReactiveBinding<T = unknown> {

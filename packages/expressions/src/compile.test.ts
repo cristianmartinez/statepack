@@ -113,4 +113,17 @@ describe("compileExpression", () => {
       ["context", "second"],
     ]);
   });
+
+  test("caches compiled expressions", () => {
+    const expr = "context.cached.value";
+    const first = compileExpression(expr);
+    const second = compileExpression(expr);
+    expect(first).toBe(second);
+  });
+
+  test("caches different expressions separately", () => {
+    const first = compileExpression("context.a");
+    const second = compileExpression("context.b");
+    expect(first).not.toBe(second);
+  });
 });

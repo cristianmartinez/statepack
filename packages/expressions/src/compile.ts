@@ -1,6 +1,11 @@
 import jsonata from "jsonata";
 
 /**
+ * Global cache for compiled expressions
+ */
+const compiledExpressionCache = new Map<string, CompiledJSONataExpression>();
+
+/**
  * A dependency path extracted from an expression (e.g., ["context", "foo", "bar"])
  */
 export type DependencyPath = string[];
@@ -65,15 +70,23 @@ export function compileExpression(expression: string): CompiledJSONataExpression
     throw new Error("JSONata only supports string expressions");
   }
 
+  const cached = compiledExpressionCache.get(expression);
+  if (cached) {
+    return cached;
+  }
+
   try {
     const compiled = jsonata(expression);
     const dependencies = extractDependencies(compiled.ast());
 
-    return {
+    const result: CompiledJSONataExpression = {
       expression: compiled,
       source: expression,
       dependencies,
     };
+
+    compiledExpressionCache.set(expression, result);
+    return result;
   } catch (err) {
     throw new Error(
       `Expression compilation failed: ${err instanceof Error ? err.message : String(err)}`
