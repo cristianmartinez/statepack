@@ -23,3 +23,9 @@ bun run typecheck
 
 Machine definitions can be serialized as JSON. Compiled expressions, live signals,
 and interpreter instances are runtime objects.
+
+## Protocol proposal
+
+[RFC 0001: Statepack Protocol v1](docs/rfcs/0001-statepack-protocol.md) is the
+draft proposal for the serializable language, headless runtime contract, and
+instance persistence. Its proposed syntax is not yet supported by the runtime.
