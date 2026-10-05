@@ -125,36 +125,6 @@ main {
   color: #626c79;
   margin: 0;
 }
-.shader-strip {
-  width: 260px;
-  height: 98px;
-  position: relative;
-  overflow: hidden;
-  background: #d9dde5;
-  flex-shrink: 0;
-}
-.shader-strip canvas {
-  height: 100%;
-  width: 100%;
-  display: block;
-}
-.shader-strip > span {
-  position: absolute;
-  left: 22px;
-  top: 27px;
-  font: 32px var(--mono);
-  color: #29313e;
-  letter-spacing: 8px;
-}
-.art-motion-toggle {
-  position: absolute;
-  right: 9px;
-  bottom: 8px;
-  width: 24px;
-  height: 24px;
-  background: #ffffff85;
-  font-size: 11px;
-}
 .workbench {
   border: 1px solid #cfd5dd;
   background: #fff;
@@ -811,10 +781,6 @@ footer > span:first-child {
   .site-header {
     padding: 0 20px;
   }
-  .shader-strip {
-    width: 150px;
-    height: 90px;
-  }
   .workbench-body {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
@@ -872,21 +838,6 @@ footer > span:first-child {
   .eyebrow {
     font-size: 8px;
     letter-spacing: 0.4px;
-  }
-  .shader-strip {
-    width: 48px;
-    height: 100px;
-  }
-  .shader-strip > span {
-    font-size: 20px;
-    left: 9px;
-    top: 20px;
-    writing-mode: vertical-rl;
-    letter-spacing: 3px;
-  }
-  .art-motion-toggle {
-    right: 12px;
-    bottom: 6px;
   }
   .workbench-toolbar {
     padding: 0 10px;
