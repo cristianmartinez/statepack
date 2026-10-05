@@ -283,7 +283,9 @@ export default function Playground() {
       <div className="workbench">
         <div className="workbench-toolbar">
           <div className="example-picker">
-            <label htmlFor="example">PLAYGROUND</label>
+            <label className="sr-only" htmlFor="example">
+              Example machine
+            </label>
             <select
               id="example"
               value={example}
@@ -300,10 +302,6 @@ export default function Playground() {
             </select>
           </div>
           <div className="workbench-controls">
-            <span className="runtime-status">
-              <i className="signal-dot" />{" "}
-              {ready ? "ENGINE READY" : "ENGINE PAUSED"}
-            </span>
             <button
               className="small-button"
               onClick={() => void loadMachine(machine, "Machine reset")}
@@ -358,9 +356,6 @@ export default function Playground() {
                 Definition reference ↗
               </a>
             </div>
-            <div className="sidebar-bottom">
-              <span className="mini-dot" /> Browser runtime
-            </div>
           </aside>
           <div className="definition-pane">
             <div className="pane-heading">
@@ -370,13 +365,18 @@ export default function Playground() {
                 </i>{" "}
                 machine.json
               </span>
-              <button
-                className="icon-button"
-                onClick={() => void copy()}
-                aria-label="Copy machine JSON"
-              >
-                Copy <span aria-hidden="true">⧉</span>
-              </button>
+              <div className="definition-actions">
+                <button className="icon-button" onClick={download}>
+                  Download
+                </button>
+                <button
+                  className="icon-button"
+                  onClick={() => void copy()}
+                  aria-label="Copy machine JSON"
+                >
+                  Copy <span aria-hidden="true">⧉</span>
+                </button>
+              </div>
             </div>
             <div className="editor-shell">
               <div className="line-numbers" aria-hidden="true">
@@ -442,10 +442,6 @@ export default function Playground() {
           <div className="runtime-pane">
             <div className="pane-heading">
               <span>State graph</span>
-              <span className="live-tag">
-                <i className="signal-dot" />
-                {ready ? "RUNNING" : "PAUSED"}
-              </span>
             </div>
             <div className="machine-diagram">
               <StateDiagram machine={machine} state={snapshot.state} />
@@ -531,14 +527,6 @@ export default function Playground() {
               </div>
             </div>
           </div>
-        </div>
-        <div className="workbench-footer">
-          <span>
-            <span className="mini-dot" /> Runs locally in your browser
-          </span>
-          <button className="icon-button" onClick={download}>
-            Download JSON <span aria-hidden="true">↓</span>
-          </button>
         </div>
       </div>
       <div className={`toast ${toast ? "visible" : ""}`} role="status">
