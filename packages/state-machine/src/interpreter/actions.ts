@@ -1,6 +1,6 @@
-import { evaluate as evalCondition, type Condition } from "@ouni/conditions";
-import { type SignalStoreInstance, executeSignalMutation } from "@ouni/data";
-import { evaluateCompiled } from "@ouni/expressions";
+import { evaluate as evalCondition, type Condition } from "@statepack/conditions";
+import { type SignalStoreInstance, executeSignalMutation } from "@statepack/data";
+import { evaluateCompiled } from "@statepack/expressions";
 import type { CompiledCache } from "../compiler/types";
 import type { Action, Actions } from "../schema/types";
 import type { Event } from "./state";

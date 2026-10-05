@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { compileExpression } from "@ouni/expressions";
+import { compileExpression } from "@statepack/expressions";
 import type { CompiledCache } from "../compiler/types";
 import { executeActions, normalizeActions, type ActionContext } from "./actions";
 

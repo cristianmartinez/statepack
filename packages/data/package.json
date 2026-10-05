@@ -1,5 +1,5 @@
 {
-  "name": "@ouni/data",
+  "name": "@statepack/data",
   "version": "0.0.1",
   "type": "module",
   "main": "./dist/index.js",
@@ -14,14 +14,14 @@
     "dist"
   ],
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target browser --external @preact/signals-core --external @ouni/expressions && bun run build:types",
+    "build": "bun build ./src/index.ts --outdir ./dist --target browser --external @preact/signals-core --external @statepack/expressions && bun run build:types",
     "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist",
     "dev": "bun build ./src/index.ts --outdir ./dist --target browser --watch",
     "test": "bun test",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@ouni/expressions": "workspace:*",
+    "@statepack/expressions": "workspace:*",
     "@preact/signals-core": "^1.12.1",
     "zod": "^3.25.23"
   },

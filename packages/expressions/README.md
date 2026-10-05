@@ -1,10 +1,10 @@
-# @ouni/expressions
+# @statepack/expressions
 
 Compiles JSONata expressions and evaluates them against a scope. Evaluation is
 asynchronous; compiled expressions can be reused with different inputs.
 
 ```typescript
-import { compileExpression, evaluateCompiled } from "@ouni/expressions";
+import { compileExpression, evaluateCompiled } from "@statepack/expressions";
 
 const compiled = compileExpression("context.count + 1");
 const result = await evaluateCompiled(compiled, { context: { count: 2 } });

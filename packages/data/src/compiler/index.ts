@@ -1,7 +1,7 @@
 import {
   compileExpression as compileJSONataExpression,
   type CompiledJSONataExpression,
-} from "@ouni/expressions";
+} from "@statepack/expressions";
 import type { Context, Mutations, Queries, Sources } from "../schema";
 
 /**

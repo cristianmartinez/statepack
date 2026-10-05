@@ -1,5 +1,5 @@
 import { signal, batch, effect, type Signal, type ReadonlySignal } from "@preact/signals-core";
-import { type CompiledJSONataExpression, evaluateCompiled } from "@ouni/expressions";
+import { type CompiledJSONataExpression, evaluateCompiled } from "@statepack/expressions";
 import type { SignalContext, SignalScope } from "../signals";
 
 /**

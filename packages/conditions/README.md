@@ -1,9 +1,9 @@
-# @ouni/conditions
+# @statepack/conditions
 
 Evaluates JSON conditions against a scope and provides Zod schemas for validation.
 
 ```typescript
-import { evaluate, type Condition } from "@ouni/conditions";
+import { evaluate, type Condition } from "@statepack/conditions";
 
 const condition: Condition = {
   type: "compare",

@@ -1,5 +1,5 @@
 /**
- * @ouni/state-machine
+ * @statepack/state-machine
  *
  * XState-inspired declarative state machine for mini-apps
  */

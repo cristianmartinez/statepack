@@ -1,7 +1,7 @@
 import {
   compileExpression as compileJSONataExpression,
   type CompiledJSONataExpression,
-} from "@ouni/expressions";
+} from "@statepack/expressions";
 import type { StoreDefinition, SliceDefinition } from "../schema";
 
 // Re-export signal runtime

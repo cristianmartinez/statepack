@@ -1,7 +1,7 @@
 {
-  "name": "@ouni/state-machine",
+  "name": "@statepack/state-machine",
   "version": "0.0.1",
-  "description": "XState-inspired declarative state machine for mini-apps",
+  "description": "JSON-defined state machines for Statepack",
   "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",
@@ -13,9 +13,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@ouni/conditions": "workspace:*",
-    "@ouni/data": "workspace:*",
-    "@ouni/expressions": "workspace:*",
+    "@statepack/conditions": "workspace:*",
+    "@statepack/data": "workspace:*",
+    "@statepack/expressions": "workspace:*",
     "@preact/signals-core": "^1.12.1",
     "zod": "3"
   },

@@ -1,5 +1,5 @@
-import { compileStore } from "@ouni/data";
-import { compileExpression as compileJSONataExpression } from "@ouni/expressions";
+import { compileStore } from "@statepack/data";
+import { compileExpression as compileJSONataExpression } from "@statepack/expressions";
 import type { Action, Actions, Machine, StateNode, Transition, Transitions } from "../schema/types";
 import type { CompiledMachine } from "./types";
 
@@ -14,7 +14,7 @@ export { isCompiledMachine } from "./types";
  * - Condition strings in actions (JSON objects, no compilation needed)
  * - Expression strings in assign actions → JSONata
  * - Template strings in action parameters → JSONata parts
- * - Store expressions (slices with context, queries, mutations) via @ouni/data
+ * - Store expressions (slices with context, queries, mutations) via @statepack/data
  */
 export function compileMachine(machine: Machine): CompiledMachine {
   const compiled: CompiledMachine["compiled"] = {

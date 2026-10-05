@@ -8,7 +8,7 @@ import {
   getSignalStoreSnapshot,
   updateSignalContext,
   buildSignalScope,
-} from "@ouni/data";
+} from "@statepack/data";
 import { signal, batch as signalBatch, type Signal } from "@preact/signals-core";
 import { compileMachine, type CompiledCache, type CompiledMachine } from "../compiler";
 import { isCompiledMachine } from "../compiler/types";
@@ -154,7 +154,7 @@ export class SignalInterpreter {
 
   /**
    * Get signal scope for use with computedAsync/useComputedBinding.
-   * Returns a SignalScope compatible with @ouni/expressions.
+   * Returns a SignalScope compatible with @statepack/expressions.
    * Includes `state` signal for conditionals that reference machine state.
    *
    * @param sliceName - Optional slice name. Defaults to first slice if only one exists.

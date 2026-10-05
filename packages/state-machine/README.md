@@ -1,15 +1,15 @@
-# @ouni/state-machine
+# @statepack/state-machine
 
 Defines, validates, compiles, and runs state machines. Data lives in named store
 slices; mutations use JSONata expressions.
 
 ## Example
 
-Use in a workspace package that depends on `@ouni/state-machine`. Build the
+Use in a workspace package that depends on `@statepack/state-machine`. Build the
 supporting packages with `bun run build` first.
 
 ```typescript
-import { compileMachine, interpretWithSignals, type Machine } from "@ouni/state-machine";
+import { compileMachine, interpretWithSignals, type Machine } from "@statepack/state-machine";
 
 const machine: Machine = {
   id: "counter",

@@ -1,4 +1,4 @@
-# Ouni State Machine
+# Statepack
 
 A TypeScript state machine runtime with JSON definitions, JSONata expressions,
 and signal-backed data stores.

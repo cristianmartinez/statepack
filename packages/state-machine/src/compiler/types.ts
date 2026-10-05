@@ -1,6 +1,6 @@
-import type { Condition } from "@ouni/conditions";
-import type { CompiledStore } from "@ouni/data";
-import type { CompiledJSONataExpression } from "@ouni/expressions";
+import type { Condition } from "@statepack/conditions";
+import type { CompiledStore } from "@statepack/data";
+import type { CompiledJSONataExpression } from "@statepack/expressions";
 import type { Machine } from "../schema/types";
 
 /**

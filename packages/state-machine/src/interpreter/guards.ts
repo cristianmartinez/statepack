@@ -3,7 +3,7 @@ import {
   type Condition,
   type Scope,
   type StateValue,
-} from "@ouni/conditions";
+} from "@statepack/conditions";
 import type { CompiledCache } from "../compiler/types";
 import type { GuardDefinition, Transition } from "../schema/types";
 import type { Event, State } from "./state";

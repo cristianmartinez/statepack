@@ -1,7 +1,7 @@
 {
-  "name": "@ouni/conditions",
+  "name": "@statepack/conditions",
   "version": "0.0.1",
-  "description": "Condition evaluation engine for declarative UI",
+  "description": "JSON condition evaluation for Statepack",
   "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",

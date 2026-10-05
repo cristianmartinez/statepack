@@ -1,5 +1,5 @@
 {
-  "name": "ouni-state-machine",
+  "name": "statepack",
   "private": true,
   "type": "module",
   "packageManager": "bun@1.3.6",
@@ -9,7 +9,7 @@
   "scripts": {
     "build": "bun run --cwd packages/expressions build && bun run --cwd packages/conditions build && bun run --cwd packages/data build && bun run --cwd packages/state-machine build",
     "test": "bun test packages",
-    "typecheck": "bun run --filter \"@ouni/*\" typecheck"
+    "typecheck": "bun run --filter \"@statepack/*\" typecheck"
   },
   "devDependencies": {
     "@types/bun": "latest",

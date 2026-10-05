@@ -1,4 +1,4 @@
-import { evaluateCompiled } from "@ouni/expressions";
+import { evaluateCompiled } from "@statepack/expressions";
 import type { CompiledData, CompiledExpression } from "../compiler";
 
 /**

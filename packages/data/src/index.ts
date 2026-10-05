@@ -1,5 +1,5 @@
 /**
- * @ouni/data
+ * @statepack/data
  *
  * Data layer schema and compiler for mini-apps.
  * Defines context, queries (derived state), and mutations (state changes).

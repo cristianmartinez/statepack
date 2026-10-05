@@ -3,14 +3,14 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "ouni-state-machine",
+      "name": "statepack",
       "devDependencies": {
         "@types/bun": "latest",
         "typescript": "^5",
       },
     },
     "packages/conditions": {
-      "name": "@ouni/conditions",
+      "name": "@statepack/conditions",
       "version": "0.0.1",
       "dependencies": {
         "zod": "^3",
@@ -20,10 +20,10 @@
       },
     },
     "packages/data": {
-      "name": "@ouni/data",
+      "name": "@statepack/data",
       "version": "0.0.1",
       "dependencies": {
-        "@ouni/expressions": "workspace:*",
+        "@statepack/expressions": "workspace:*",
         "@preact/signals-core": "^1.12.1",
         "zod": "^3.25.23",
       },
@@ -33,7 +33,7 @@
       },
     },
     "packages/expressions": {
-      "name": "@ouni/expressions",
+      "name": "@statepack/expressions",
       "version": "0.0.1",
       "dependencies": {
         "@preact/signals-core": "^1.12.1",
@@ -44,12 +44,12 @@
       },
     },
     "packages/state-machine": {
-      "name": "@ouni/state-machine",
+      "name": "@statepack/state-machine",
       "version": "0.0.1",
       "dependencies": {
-        "@ouni/conditions": "workspace:*",
-        "@ouni/data": "workspace:*",
-        "@ouni/expressions": "workspace:*",
+        "@statepack/conditions": "workspace:*",
+        "@statepack/data": "workspace:*",
+        "@statepack/expressions": "workspace:*",
         "@preact/signals-core": "^1.12.1",
         "zod": "3",
       },
@@ -60,13 +60,13 @@
     },
   },
   "packages": {
-    "@ouni/conditions": ["@ouni/conditions@workspace:packages/conditions"],
+    "@statepack/conditions": ["@statepack/conditions@workspace:packages/conditions"],
 
-    "@ouni/data": ["@ouni/data@workspace:packages/data"],
+    "@statepack/data": ["@statepack/data@workspace:packages/data"],
 
-    "@ouni/expressions": ["@ouni/expressions@workspace:packages/expressions"],
+    "@statepack/expressions": ["@statepack/expressions@workspace:packages/expressions"],
 
-    "@ouni/state-machine": ["@ouni/state-machine@workspace:packages/state-machine"],
+    "@statepack/state-machine": ["@statepack/state-machine@workspace:packages/state-machine"],
 
     "@preact/signals-core": ["@preact/signals-core@1.14.4", "", {}, "sha512-HNB6HYeYKhQbJ1aKl+YRjrS4+QWHLKX6qKoUsfS/m0vqzsVaEBiZiaKbG/e+NKk2ch5ALQr/ihWaMHxiCuuWHA=="],
 
