@@ -29,3 +29,9 @@ and interpreter instances are runtime objects.
 [RFC 0001: Statepack Protocol v1](docs/rfcs/0001-statepack-protocol.md) is the
 draft proposal for the serializable language, headless runtime contract, and
 instance persistence. Its proposed syntax is not yet supported by the runtime.
+
+## Website
+
+The [Astro website](website/README.md) includes a React playground that runs the
+workspace runtime. After building the packages, use `bun run website:dev` for local
+development or `bun run website:build` for the static production build.

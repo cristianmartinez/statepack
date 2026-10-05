@@ -1,0 +1,29 @@
+{
+  "name": "@statepack/website",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1",
+    "build": "astro build",
+    "preview": "astro preview --host 127.0.0.1",
+    "typecheck": "astro check",
+    "deploy": "wrangler deploy",
+    "format": "prettier --write src"
+  },
+  "dependencies": {
+    "@astrojs/react": "latest",
+    "@statepack/state-machine": "workspace:*",
+    "astro": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@astrojs/check": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "prettier": "^3.9.9",
+    "prettier-plugin-astro": "^1.1.0",
+    "typescript": "^5",
+    "wrangler": "latest"
+  }
+}
