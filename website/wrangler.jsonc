@@ -2,6 +2,7 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "statepack",
   "compatibility_date": "2026-10-05",
+  "routes": [{ "pattern": "statepack.cristianmartinez.co", "custom_domain": true }],
   "assets": {
     "directory": "./dist",
     "not_found_handling": "404-page",
