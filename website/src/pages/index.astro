@@ -1,4 +1,5 @@
 ---
+import HeroMachine from "../components/HeroMachine";
 import Playground from "../components/Playground";
 import "../styles.css";
 ---
@@ -8,54 +9,83 @@ import "../styles.css";
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="theme-color" content="#f6f7f8" />
+    <meta name="theme-color" content="#09050f" />
     <meta
       name="description"
       content="A serializable state machine runtime. Edit a JSON definition, send events, and inspect the result in the Statepack playground."
     />
     <title>Statepack — Serializable state machines</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;450;500;550;600;650;700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@1&display=swap"
+    />
+    <script is:inline>
+      document.documentElement.classList.add("js");
+    </script>
   </head>
   <body>
     <a class="skip-link" href="#playground">
       Skip to playground
     </a>
-    <header class="site-header">
-      <a class="wordmark" href="/" aria-label="Statepack home">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"
-            fill="currentColor"
-          />
-        </svg>
-        statepack
-      </a>
-      <span class="header-caption">a state machine, in JSON</span>
-      <nav aria-label="Main navigation">
-        <a
-          href="https://github.com/cristianmartinez/statepack/blob/main/packages/state-machine/README.md"
-          target="_blank"
-          rel="noopener"
-        >
-          Documentation ↗
+    <div class="hero">
+      <header class="site-header">
+        <a class="wordmark" href="/" aria-label="Statepack home">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"
+              fill="currentColor"
+            />
+          </svg>
+          statepack
         </a>
-        <a
-          href="https://github.com/cristianmartinez/statepack"
-          target="_blank"
-          rel="noopener"
-        >
-          GitHub ↗
-        </a>
-      </nav>
-    </header>
-    <main>
-      <section class="intro" aria-labelledby="page-title">
-        <div>
-          <p class="eyebrow">STATEPACK / INTERACTIVE REFERENCE</p>
-          <h1 id="page-title">State machines you can serialize.</h1>
-          <p>Edit the definition. Send an event. See exactly what changes.</p>
-        </div>
+        <span class="header-caption">a state machine, in JSON</span>
+        <nav aria-label="Main navigation">
+          <a
+            href="https://github.com/cristianmartinez/statepack/blob/main/packages/state-machine/README.md"
+            target="_blank"
+            rel="noopener"
+          >
+            Documentation ↗
+          </a>
+          <a
+            href="https://github.com/cristianmartinez/statepack"
+            target="_blank"
+            rel="noopener"
+          >
+            GitHub ↗
+          </a>
+        </nav>
+      </header>
+      <section class="hero-content" aria-labelledby="page-title">
+        <HeroMachine client:load>
+          <h1 id="page-title">
+            State machines <br />
+            you can <em>serialize.</em>
+          </h1>
+          <p class="hero-lede" data-reveal>
+            States, guards, and mutations as plain JSON you can store, diff, and
+            ship. The mark on this page is one of them, running live.
+          </p>
+          <div class="hero-actions" data-reveal>
+            <a class="hero-primary" href="#playground">
+              Open the playground <span aria-hidden="true">↓</span>
+            </a>
+            <a
+              class="hero-secondary"
+              href="https://github.com/cristianmartinez/statepack"
+              target="_blank"
+              rel="noopener"
+            >
+              View on GitHub <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </HeroMachine>
       </section>
+    </div>
+    <main>
       <section id="playground" aria-label="State machine playground">
         <Playground client:load />
       </section>

@@ -62,7 +62,7 @@ export default function StateDiagram({
           <path
             d="M0 0 7 3.5 0 7"
             fill="none"
-            stroke="#96a389"
+            className="diagram-arrow"
             strokeWidth="1"
           />
         </marker>
@@ -142,7 +142,7 @@ export default function StateDiagram({
             </text>
             {isActive && (
               <>
-                <circle cx={p.x} cy={p.y + 48} r="2" fill="#bd5735" />
+                <circle cx={p.x} cy={p.y + 48} r="2" className="diagram-dot" />
                 <text
                   x={p.x}
                   y={p.y + 64}
