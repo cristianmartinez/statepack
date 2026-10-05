@@ -1,3 +1,4 @@
+import type { ExpressionFunctionRegistry } from "./registry";
 /**
  * Expression Engine Types
  */
@@ -40,6 +41,7 @@ export type TransformRegistry = Record<string, TransformFn>;
 
 // Options for the evaluator
 export interface EvaluatorOptions {
+  functions?: ExpressionFunctionRegistry;
   transforms?: TransformRegistry;
   locale?: string;
 }

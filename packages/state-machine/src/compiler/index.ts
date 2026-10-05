@@ -1,5 +1,5 @@
 import { compileStore } from "@statepack/data";
-import { compileExpression as compileJSONataExpression } from "@statepack/expressions";
+import { compileWithEngine as compileEngineExpression } from "@statepack/expressions";
 import type { Action, Actions, Machine, StateNode, Transition, Transitions } from "../schema/types";
 import type { CompiledMachine } from "./types";
 
@@ -18,12 +18,13 @@ export { isCompiledMachine } from "./types";
  */
 export function compileMachine(machine: Machine): CompiledMachine {
   const compiled: CompiledMachine["compiled"] = {
+    engine: machine.expressionEngine ?? "jsonata",
     guards: new Map(),
     expressions: new Map(),
   };
 
   // Compile store (slices with context, queries, mutations)
-  const store = machine.store ? compileStore(machine.store) : undefined;
+  const store = machine.store ? compileStore(machine.store, { engine: machine.expressionEngine }) : undefined;
 
   // Compile named actions
   if (machine.actions) {
@@ -144,6 +145,10 @@ function compileAction(action: Action, compiled: CompiledMachine["compiled"]): v
   const actionType = actionObj.type as string;
 
   switch (actionType) {
+    case "mutation":
+      // The executor consumes mutation names and payloads as literals.
+      break;
+
     case "assign":
       // Compile assign values (expressions)
       if (actionObj.values && typeof actionObj.values === "object") {
@@ -195,7 +200,7 @@ function compileValue(value: unknown, compiled: CompiledMachine["compiled"]): vo
     // All strings are JSONata expressions
     if (!compiled.expressions.has(value)) {
       try {
-        const compiledExpr = compileJSONataExpression(value);
+        const compiledExpr = compileEngineExpression(value, { engine: compiled.engine });
         compiled.expressions.set(value, { source: value, compiled: compiledExpr });
       } catch {
         // Not a valid expression, skip compilation

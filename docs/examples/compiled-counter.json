@@ -1,0 +1,101 @@
+{
+  "format": "statepack.compiled",
+  "version": 1,
+  "definition": {
+    "id": "counter",
+    "expressionEngine": "yexp",
+    "initial": "active",
+    "store": {
+      "counter": {
+        "context": {
+          "count": 0
+        },
+        "queries": {
+          "doubled": "expr:0"
+        },
+        "mutations": {
+          "increment": {
+            "count": "expr:1"
+          }
+        }
+      }
+    },
+    "states": {
+      "active": {
+        "on": {
+          "INCREMENT": {
+            "actions": [
+              {
+                "type": "mutation",
+                "name": "increment"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "expressions": [],
+  "slices": [
+    {
+      "name": "counter",
+      "expressions": [
+        [
+          "expr:0",
+          {
+            "engine": "yexp",
+            "artifactVersion": 1,
+            "program": {
+              "version": 1,
+              "slots": [
+                "$.context.count"
+              ],
+              "constants": [],
+              "code": [
+                [
+                  62,
+                  0,
+                  2
+                ],
+                [
+                  200
+                ]
+              ]
+            }
+          }
+        ],
+        [
+          "expr:1",
+          {
+            "engine": "yexp",
+            "artifactVersion": 1,
+            "program": {
+              "version": 1,
+              "slots": [
+                "$.context.count",
+                "$.event.amount"
+              ],
+              "constants": [],
+              "code": [
+                [
+                  1,
+                  0
+                ],
+                [
+                  1,
+                  1
+                ],
+                [
+                  10
+                ],
+                [
+                  200
+                ]
+              ]
+            }
+          }
+        ]
+      ]
+    }
+  ]
+}

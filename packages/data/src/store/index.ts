@@ -1,6 +1,7 @@
 import {
-  compileExpression as compileJSONataExpression,
-  type CompiledJSONataExpression,
+  compileWithEngine as compileEngineExpression,
+  type CompileExpressionOptions,
+  type CompiledExpression as EngineCompiledExpression,
 } from "@statepack/expressions";
 import type { StoreDefinition, SliceDefinition } from "../schema";
 
@@ -12,7 +13,7 @@ export * from "./signal-runtime";
  */
 export interface CompiledExpression {
   source: string;
-  compiled: CompiledJSONataExpression;
+  compiled: EngineCompiledExpression;
 }
 
 /**
@@ -40,11 +41,11 @@ export interface CompiledStore {
 /**
  * Compile a store definition into a runtime-ready form
  */
-export function compileStore(store: StoreDefinition): CompiledStore {
+export function compileStore(store: StoreDefinition, options: CompileExpressionOptions = {}): CompiledStore {
   const slices = new Map<string, CompiledSlice>();
 
   for (const [name, slice] of Object.entries(store)) {
-    slices.set(name, compileSlice(slice));
+    slices.set(name, compileSlice(slice, options));
   }
 
   return {
@@ -57,13 +58,13 @@ export function compileStore(store: StoreDefinition): CompiledStore {
 /**
  * Compile a single slice definition
  */
-function compileSlice(slice: SliceDefinition): CompiledSlice {
+function compileSlice(slice: SliceDefinition, options: CompileExpressionOptions): CompiledSlice {
   const expressions = new Map<string, CompiledExpression>();
 
   // Compile queries
   if (slice.queries) {
     for (const queryExpr of Object.values(slice.queries)) {
-      compileValue(queryExpr, expressions);
+      compileValue(queryExpr, expressions, options);
     }
   }
 
@@ -71,7 +72,7 @@ function compileSlice(slice: SliceDefinition): CompiledSlice {
   if (slice.mutations) {
     for (const mutation of Object.values(slice.mutations)) {
       for (const expr of Object.values(mutation)) {
-        compileValue(expr, expressions);
+        compileValue(expr, expressions, options);
       }
     }
   }
@@ -81,7 +82,7 @@ function compileSlice(slice: SliceDefinition): CompiledSlice {
     for (const source of Object.values(slice.sources)) {
       if (source.headers) {
         for (const headerValue of Object.values(source.headers)) {
-          compileValue(headerValue, expressions);
+          compileValue(headerValue, expressions, options);
         }
       }
     }
@@ -93,23 +94,24 @@ function compileSlice(slice: SliceDefinition): CompiledSlice {
 /**
  * Compile a value (string expression, array, or object)
  */
-function compileValue(value: unknown, expressions: Map<string, CompiledExpression>): void {
+function compileValue(value: unknown, expressions: Map<string, CompiledExpression>, options: CompileExpressionOptions): void {
   if (typeof value === "string") {
     if (!expressions.has(value)) {
       try {
-        const compiledExpr = compileJSONataExpression(value);
+        const compiledExpr = compileEngineExpression(value, options);
         expressions.set(value, { source: value, compiled: compiledExpr });
-      } catch {
+      } catch (error) {
+        if (options.engine === "yexp") throw error;
         // Not a valid expression, skip
       }
     }
   } else if (Array.isArray(value)) {
     for (const item of value) {
-      compileValue(item, expressions);
+      compileValue(item, expressions, options);
     }
   } else if (value !== null && typeof value === "object") {
     for (const v of Object.values(value as Record<string, unknown>)) {
-      compileValue(v, expressions);
+      compileValue(v, expressions, options);
     }
   }
 }

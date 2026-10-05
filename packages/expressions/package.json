@@ -21,6 +21,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@cristianmartinez/yexp": "0.0.1",
     "@preact/signals-core": "^1.12.1",
     "jsonata": "^2.1.0"
   },

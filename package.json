@@ -13,7 +13,11 @@
     "typecheck": "bun run --filter \"@statepack/*\" typecheck",
     "website:dev": "bun run --cwd website dev",
     "website:build": "bun run build && bun run --cwd website build",
-    "website:preview": "bun run --cwd website preview"
+    "website:preview": "bun run --cwd website preview",
+    "runtimes:build": "bun runtimes/build.ts",
+    "runtimes:test": "bun runtimes/test.ts",
+    "runtimes:fixtures": "bun run build && bun runtimes/conformance/generate.ts",
+    "runtimes:check": "tsc --project runtimes/tsconfig.json --noEmit"
   },
   "devDependencies": {
     "@types/bun": "latest",

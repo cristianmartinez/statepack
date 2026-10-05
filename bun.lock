@@ -36,6 +36,7 @@
       "name": "@statepack/expressions",
       "version": "0.0.1",
       "dependencies": {
+        "@cristianmartinez/yexp": "0.0.1",
         "@preact/signals-core": "^1.12.1",
         "jsonata": "^2.1.0",
       },
@@ -166,6 +167,8 @@
     "@cloudflare/workerd-linux-arm64": ["@cloudflare/workerd-linux-arm64@1.20261001.1", "", { "os": "linux", "cpu": "arm64" }, "sha512-oOk3Zj6k/8oP0FJgZBWDn7+BqbsqIMEMaV95pulHPVbwVu4wYoLfQq2hp0vkbCNsCFLqZb7cqixXdrwD54ZIow=="],
 
     "@cloudflare/workerd-windows-64": ["@cloudflare/workerd-windows-64@1.20261001.1", "", { "os": "win32", "cpu": "x64" }, "sha512-uRxm5W4VyBkoSaoP1BfOuH0873tE+vxsknF4sab6/5YIRvIAufChq3QDp+zlAn67PuGPGcn7W8QraA0t4ucmOQ=="],
+
+    "@cristianmartinez/yexp": ["@cristianmartinez/yexp@0.0.1", "", {}, "sha512-r1YIWrQoWmq+Rh44tRQj/ItLL6fDtS1L8NvAJh0CcueghT//0zAwISce/GQDYmFiq2qHKzQap70O31Wq6IjKSg=="],
 
     "@cspotcode/source-map-support": ["@cspotcode/source-map-support@0.8.1", "", { "dependencies": { "@jridgewell/trace-mapping": "0.3.9" } }, "sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw=="],
 

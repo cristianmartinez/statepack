@@ -27,6 +27,14 @@ The intended use cases are driving interfaces from machines, running the same be
 
 The action schema includes environment-specific operations such as navigation, toasts, and haptics. The snapshot method is an observation API; its existence does not establish a durable restore contract. Some schema fields accept arbitrary values, so schema acceptance alone does not guarantee JSON serializability.
 
+## Confirmed portability requirement
+
+The user confirmed that a compiled Statepack program must be storable as JSON and executable by compatible runtimes without its original compiler or expression source. JavaScript is the initial runtime; Zig, Rust, and Go are intended future targets whose conformance has not yet been implemented. Required host capabilities and supported protocol/bytecode versions bound portability.
+
+The JavaScript implementation now supports complete compiled-machine JSON artifacts through `compileMachineArtifact`, `serializeMachine`, and `loadMachineArtifact`. See [the implementation format](../compiled-artifacts.md). This experimental format proves loading and execution without recompiling source; Rust, Go, and Zig now implement a shared initial execution profile with a
+JavaScript conformance suite. Full language/statechart conformance and an accepted
+normative protocol remain unfinished.
+
 ## Three contracts
 
 | Contract | Responsibility |
@@ -101,7 +109,7 @@ This candidate shape illustrates the proposal. The simplified `data` field does 
 
 ### Expressions and values
 
-Recommend retaining JSONata with explicit wrappers such as `{ "expr": "data.order" }`. The specification must define where wrappers are recognized, how literal objects with an `expr` property are represented, whether nested inputs are evaluated recursively, and the available scope.
+The agreed direction is to integrate Yexp as the expression VM and make compiled JSON the deployment contract. The first implementation adds an opt-in Yexp adapter while retaining JSONata for existing definitions. Recommend explicit wrappers such as `{ "expr": "data.order" }`. The specification must define where wrappers are recognized, how literal objects with an `expr` property are represented, whether nested inputs are evaluated recursively, and the available scope.
 
 Time, randomness, generated identifiers, and custom functions require an explicit policy. JSONata support alone does not guarantee deterministic evaluation. Whether structured conditions remain a canonical guard form is unresolved.
 
@@ -136,13 +144,13 @@ The protocol must not promise exactly-once external effects without an end-to-en
 
 ## Decision ledger
 
-All decisions below are unresolved. Recommendations are proposals, not confirmed user decisions.
+Decisions are unresolved unless explicitly marked confirmed. Recommendations remain proposals.
 
 | Decision | Recommendation | Consequence |
 | --- | --- | --- |
 | Definition only or durable instances in v1? | Define both contracts and bound restoration | Adds pending-work and compatibility requirements |
 | External operations through capabilities? | Yes | Environment-specific adapters belong to hosts |
-| Retain JSONata with explicit wrappers? | Yes | Requires scope and literal-escape rules |
+| Expression engine | Confirmed direction: Yexp bytecode, with a JSONata compatibility adapter | Wrapper syntax and portable profile remain unresolved |
 | Reconcile pending effects on restoration? | Yes | Requires operation identities and host participation |
 | Preserve named slices, queries, and mutations? | Prefer preserving existing concepts pending discussion | Avoids an unexplained data-model replacement |
 | Structured conditions alongside expressions? | Evaluate before acceptance | Affects tooling and canonical representation |

@@ -1,5 +1,5 @@
 import { signal, batch, effect, type Signal, type ReadonlySignal } from "@preact/signals-core";
-import { type CompiledJSONataExpression, evaluateCompiled } from "@statepack/expressions";
+import { type CompiledExpression as EngineCompiledExpression, evaluateCompiled, type ExpressionFunctionRegistry } from "@statepack/expressions";
 import type { SignalContext, SignalScope } from "../signals";
 
 /**
@@ -16,8 +16,9 @@ export interface ReactiveBinding<T = unknown> {
  * Create a reactive binding from a compiled expression and signal scope.
  */
 function createBindingFromCompiled<TContext extends Record<string, unknown>>(
-  compiled: CompiledJSONataExpression,
-  signalScope: SignalScope<TContext>
+  compiled: EngineCompiledExpression,
+  signalScope: SignalScope<TContext>,
+  functions?: ExpressionFunctionRegistry
 ): ReactiveBinding {
   const value = signal<unknown>(undefined);
   const loading = signal(true);
@@ -50,7 +51,7 @@ function createBindingFromCompiled<TContext extends Record<string, unknown>>(
       }
     }
 
-    evaluateCompiled(compiled, scope)
+    evaluateCompiled(compiled, scope, { functions })
       .then((result) => {
         value.value = result;
       })
@@ -83,6 +84,7 @@ import type { CompiledStore, CompiledSlice } from "./index";
 export interface SignalStoreInstance {
   /** Compiled store definition */
   compiled: CompiledStore;
+  expressionFunctions?: ExpressionFunctionRegistry;
   /** Signal-wrapped context per slice */
   contexts: Map<string, SignalContext<Record<string, unknown>>>;
   /** Reactive query bindings per slice */
@@ -112,7 +114,7 @@ export interface SignalStoreInstance {
  */
 export function createSignalStoreInstance(
   compiled: CompiledStore,
-  options?: { parent?: SignalStoreInstance; name?: string }
+  options?: { parent?: SignalStoreInstance; name?: string; expressionFunctions?: ExpressionFunctionRegistry }
 ): SignalStoreInstance {
   const contexts = new Map<string, SignalContext<Record<string, unknown>>>();
   const queries = new Map<string, Map<string, ReactiveBinding>>();
@@ -128,6 +130,7 @@ export function createSignalStoreInstance(
 
   const instance: SignalStoreInstance = {
     compiled,
+    expressionFunctions: options?.expressionFunctions,
     contexts,
     queries,
     parent: options?.parent,
@@ -145,7 +148,7 @@ export function createSignalStoreInstance(
         const expr = slice.expressions.get(queryExpr);
         if (expr) {
           const signalScope = buildSignalScope(instance, sliceName);
-          const binding = createBindingFromCompiled(expr.compiled, signalScope);
+          const binding = createBindingFromCompiled(expr.compiled, signalScope, instance.expressionFunctions);
           sliceQueries.set(queryName, binding);
         }
       }
@@ -366,7 +369,7 @@ export async function executeSignalMutation(
     if (contextKey.startsWith("$")) {
       const resolved = resolveSignalScope(store, contextKey, namedStores);
       if (resolved) {
-        const value = await evaluateCompiled(expr.compiled, scope);
+        const value = await evaluateCompiled(expr.compiled, scope, { functions: store.expressionFunctions });
         const targetContext = resolved.store.contexts.get(resolved.sliceName);
         if (targetContext && resolved.path.length > 0) {
           setNestedSignalValue(targetContext, resolved.path, value);
@@ -374,7 +377,7 @@ export async function executeSignalMutation(
       }
     } else {
       // Local context mutation
-      results[contextKey] = await evaluateCompiled(expr.compiled, scope);
+      results[contextKey] = await evaluateCompiled(expr.compiled, scope, { functions: store.expressionFunctions });
     }
   }
 

@@ -1,7 +1,8 @@
 # Statepack
 
 A TypeScript state machine runtime with JSON definitions, JSONata expressions,
-and signal-backed data stores.
+and signal-backed data stores. [Rust, Go, and Zig execution runtimes](runtimes/README.md)
+share an initial portable bytecode and machine profile.
 
 ## Development
 
@@ -22,7 +23,8 @@ bun run typecheck
 | data | Store slices, queries, mutations, and signals |
 
 Machine definitions can be serialized as JSON. Compiled expressions, live signals,
-and interpreter instances are runtime objects.
+and interpreter instances are runtime objects. Yexp machines can also be exported
+as [portable compiled JSON artifacts](docs/compiled-artifacts.md).
 
 ## Protocol proposal
 

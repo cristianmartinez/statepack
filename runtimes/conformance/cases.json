@@ -1,0 +1,5674 @@
+[
+  {
+    "name": "constant",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            42
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "value": 42
+    }
+  },
+  {
+    "name": "scope-state-data",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.state.value",
+            "$.data.amount"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              10
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "state": {
+          "value": 3
+        },
+        "data": {
+          "amount": 4
+        }
+      }
+    },
+    "expected": {
+      "value": 7
+    }
+  },
+  {
+    "name": "missing-null",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.missing"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "value": null
+    }
+  },
+  {
+    "name": "addition",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a",
+            "$.b"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              10
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 2,
+        "b": 3
+      }
+    },
+    "expected": {
+      "value": 5
+    }
+  },
+  {
+    "name": "string-addition",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a",
+            "$.b"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              10
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": "hello",
+        "b": " world"
+      }
+    },
+    "expected": {
+      "value": "hello world"
+    }
+  },
+  {
+    "name": "subtraction",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a",
+            "$.b"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              11
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 8,
+        "b": 3
+      }
+    },
+    "expected": {
+      "value": 5
+    }
+  },
+  {
+    "name": "multiplication",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a",
+            "$.b"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              12
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 3,
+        "b": 4
+      }
+    },
+    "expected": {
+      "value": 12
+    }
+  },
+  {
+    "name": "division",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a",
+            "$.b"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              13
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 9,
+        "b": 2
+      }
+    },
+    "expected": {
+      "value": 4.5
+    }
+  },
+  {
+    "name": "remainder",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a",
+            "$.b"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              14
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": -7,
+        "b": 3
+      }
+    },
+    "expected": {
+      "value": -1
+    }
+  },
+  {
+    "name": "negation",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              15
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 7
+      }
+    },
+    "expected": {
+      "value": -7
+    }
+  },
+  {
+    "name": "divide-zero",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            1,
+            0
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              13
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "error": {
+        "code": "DIVISION_BY_ZERO",
+        "message": "Yexp DIVISION_BY_ZERO: Division by zero"
+      }
+    }
+  },
+  {
+    "name": "modulo-zero",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            1,
+            0
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              14
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "error": {
+        "code": "DIVISION_BY_ZERO",
+        "message": "Yexp DIVISION_BY_ZERO: Division by zero"
+      }
+    }
+  },
+  {
+    "name": "wrong-arithmetic-type",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              70,
+              0
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": true
+      }
+    },
+    "expected": {
+      "error": {
+        "code": "TYPE_ERROR",
+        "message": "Yexp TYPE_ERROR: Cannot increment boolean"
+      }
+    }
+  },
+  {
+    "name": "equal-types",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a",
+            "$.b"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              30
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 3,
+        "b": 3
+      }
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "name": "unequal-types",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a",
+            "$.b"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              30
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 3,
+        "b": "3"
+      }
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "name": "strict-not-equal",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a",
+            "$.b"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              37
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 2,
+        "b": 3
+      }
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "name": "comparison",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a",
+            "$.b"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              33
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 9,
+        "b": 4
+      }
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "name": "string-comparison",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a",
+            "$.b"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              32
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": "apple",
+        "b": "pear"
+      }
+    },
+    "expected": {
+      "error": {
+        "code": "TYPE_ERROR",
+        "message": "Yexp TYPE_ERROR: Cannot compare string and string"
+      }
+    }
+  },
+  {
+    "name": "fused-increment",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              70,
+              0
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 2
+      }
+    },
+    "expected": {
+      "value": 3
+    }
+  },
+  {
+    "name": "fused-decrement",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              71,
+              0
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 2
+      }
+    },
+    "expected": {
+      "value": 1
+    }
+  },
+  {
+    "name": "fused-add",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              60,
+              0,
+              8
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 2
+      }
+    },
+    "expected": {
+      "value": 10
+    }
+  },
+  {
+    "name": "fused-subtract",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              61,
+              0,
+              8
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 12
+      }
+    },
+    "expected": {
+      "value": 4
+    }
+  },
+  {
+    "name": "fused-multiply",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              62,
+              0,
+              8
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 2
+      }
+    },
+    "expected": {
+      "value": 16
+    }
+  },
+  {
+    "name": "fused-divide",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              63,
+              0,
+              8
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 16
+      }
+    },
+    "expected": {
+      "value": 2
+    }
+  },
+  {
+    "name": "fused-modulo",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              64,
+              0,
+              8
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 10
+      }
+    },
+    "expected": {
+      "value": 2
+    }
+  },
+  {
+    "name": "range",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              42,
+              0,
+              2,
+              5
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 3
+      }
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "name": "range-false",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              43,
+              0,
+              2,
+              5
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 2
+      }
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "name": "null-check",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              80,
+              0
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": null
+      }
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "name": "nonnull-check",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              81,
+              0
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 0
+      }
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "name": "truthiness-zero",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [
+            true,
+            false
+          ],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              91,
+              4
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              93,
+              5
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 0
+      }
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "name": "truthiness-empty-string",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [
+            3,
+            true
+          ],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              92,
+              4
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              93,
+              5
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": ""
+      }
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "name": "not",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              83,
+              0
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": false
+      }
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "name": "ternary",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [
+            3,
+            2,
+            1
+          ],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              2
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              33
+            ],
+            [
+              91,
+              8
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              12
+            ],
+            [
+              93,
+              11
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              15
+            ],
+            [
+              12
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 2
+      }
+    },
+    "expected": {
+      "value": -2
+    }
+  },
+  {
+    "name": "null-coalesce",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.missing"
+          ],
+          "constants": [
+            null,
+            7
+          ],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              2
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              31
+            ],
+            [
+              92,
+              8
+            ],
+            [
+              3
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              93,
+              8
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "value": 7
+    }
+  },
+  {
+    "name": "array-literal",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [
+            null
+          ],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              60,
+              0,
+              2
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              100,
+              3
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 1
+      }
+    },
+    "expected": {
+      "value": [
+        1,
+        3,
+        null
+      ]
+    }
+  },
+  {
+    "name": "object-literal",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.name",
+            "$.count"
+          ],
+          "constants": [
+            "name",
+            "count"
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              101,
+              2
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "name": "Ada",
+        "count": 2
+      }
+    },
+    "expected": {
+      "value": {
+        "name": "Ada",
+        "count": 2
+      }
+    }
+  },
+  {
+    "name": "array-last",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.items"
+          ],
+          "constants": [
+            1
+          ],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              15
+            ],
+            [
+              110,
+              -1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "items": [
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    "expected": {
+      "value": 3
+    }
+  },
+  {
+    "name": "dynamic-index",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.items",
+            "$.index"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              110,
+              -1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "items": [
+          1,
+          2,
+          3
+        ],
+        "index": 1
+      }
+    },
+    "expected": {
+      "value": 2
+    }
+  },
+  {
+    "name": "array-length",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.items.length"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "items": [
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    "expected": {
+      "value": 3
+    }
+  },
+  {
+    "name": "optional-property",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.user"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              116,
+              "name"
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "user": null
+      }
+    },
+    "expected": {
+      "value": null
+    }
+  },
+  {
+    "name": "optional-index",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.items"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              117,
+              0
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "items": null
+      }
+    },
+    "expected": {
+      "value": null
+    }
+  },
+  {
+    "name": "template",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.name",
+            "$.count"
+          ],
+          "constants": [
+            "Hello ",
+            ", ",
+            "!"
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              20
+            ],
+            [
+              10
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              10
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              20
+            ],
+            [
+              10
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              10
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "name": "Ada",
+        "count": 2
+      }
+    },
+    "expected": {
+      "value": "Hello Ada, 2!"
+    }
+  },
+  {
+    "name": "length-array",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.items"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              130,
+              "length",
+              1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "items": [
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    "expected": {
+      "value": 3
+    }
+  },
+  {
+    "name": "length-utf16",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.text"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              130,
+              "length",
+              1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "text": "A😀B"
+      }
+    },
+    "expected": {
+      "value": 4
+    }
+  },
+  {
+    "name": "abs",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            4
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              15
+            ],
+            [
+              130,
+              "abs",
+              1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "value": 4
+    }
+  },
+  {
+    "name": "floor",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            2.8
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              130,
+              "floor",
+              1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "value": 2
+    }
+  },
+  {
+    "name": "ceil",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            2.8
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              15
+            ],
+            [
+              130,
+              "ceil",
+              1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "value": -2
+    }
+  },
+  {
+    "name": "round-negative-tie",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            2.5
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              15
+            ],
+            [
+              130,
+              "round",
+              1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "value": -2
+    }
+  },
+  {
+    "name": "round-decimals",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            1.234,
+            2
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              130,
+              "round",
+              2
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "value": 1.23
+    }
+  },
+  {
+    "name": "min",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            3,
+            1,
+            2
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              130,
+              "min",
+              3
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "value": 1
+    }
+  },
+  {
+    "name": "max",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            3,
+            1,
+            2
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              15
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              15
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              15
+            ],
+            [
+              130,
+              "max",
+              3
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "value": -1
+    }
+  },
+  {
+    "name": "string-array",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            1,
+            null,
+            2,
+            3
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              100,
+              2
+            ],
+            [
+              100,
+              3
+            ],
+            [
+              130,
+              "toString",
+              1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "value": "1,,2,3"
+    }
+  },
+  {
+    "name": "host-function",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.value"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              130,
+              "double",
+              1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "value": 7
+      },
+      "registry": {
+        "double": "double"
+      }
+    },
+    "expected": {
+      "value": 14
+    }
+  },
+  {
+    "name": "fused->",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              50,
+              0,
+              3
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 2
+      }
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "name": "fused->=",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              51,
+              0,
+              3
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 2
+      }
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "name": "fused-<",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              52,
+              0,
+              3
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 2
+      }
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "name": "fused-<=",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              53,
+              0,
+              3
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 2
+      }
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "name": "fused-==",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              54,
+              0,
+              3
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 2
+      }
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "name": "fused-!=",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              55,
+              0,
+              3
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 2
+      }
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "name": "fused-===",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              56,
+              0,
+              3
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 2
+      }
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "name": "fused-!==",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [],
+          "code": [
+            [
+              57,
+              0,
+              3
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": 2
+      }
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "name": "override-default",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            3
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              130,
+              "abs",
+              1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {},
+      "registry": {
+        "abs": "double"
+      }
+    },
+    "expected": {
+      "value": 6
+    }
+  },
+  {
+    "name": "unknown-function",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            1
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              130,
+              "unknownFunction",
+              1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "error": {
+        "code": "UNKNOWN_FUNCTION",
+        "message": "Unknown function: unknownFunction"
+      }
+    }
+  },
+  {
+    "name": "counter",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "counter",
+          "expressionEngine": "yexp",
+          "initial": "active",
+          "store": {
+            "counter": {
+              "context": {
+                "count": 0
+              },
+              "queries": {
+                "doubled": "expr:0"
+              },
+              "mutations": {
+                "increment": {
+                  "count": "expr:1"
+                }
+              }
+            }
+          },
+          "states": {
+            "active": {
+              "on": {
+                "INCREMENT": {
+                  "actions": [
+                    {
+                      "type": "mutation",
+                      "name": "increment"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "expressions": [],
+        "slices": [
+          {
+            "name": "counter",
+            "expressions": [
+              [
+                "expr:0",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        62,
+                        0,
+                        2
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ],
+              [
+                "expr:1",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count",
+                      "$.event.amount"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        1,
+                        0
+                      ],
+                      [
+                        1,
+                        1
+                      ],
+                      [
+                        10
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "events": [
+        {
+          "type": "INCREMENT",
+          "amount": 3
+        },
+        {
+          "type": "INCREMENT",
+          "amount": 4
+        }
+      ]
+    },
+    "expected": {
+      "state": "active",
+      "done": false,
+      "store": {
+        "counter": {
+          "count": 7
+        }
+      },
+      "queries": {
+        "counter": {
+          "doubled": 14
+        }
+      },
+      "effects": []
+    }
+  },
+  {
+    "name": "registered-mutation",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "counter",
+          "expressionEngine": "yexp",
+          "initial": "active",
+          "store": {
+            "counter": {
+              "context": {
+                "count": 1
+              },
+              "queries": {
+                "doubled": "expr:0"
+              },
+              "mutations": {
+                "increment": {
+                  "count": "expr:1"
+                }
+              }
+            }
+          },
+          "states": {
+            "active": {
+              "on": {
+                "INCREMENT": {
+                  "actions": [
+                    {
+                      "type": "mutation",
+                      "name": "increment"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "expressions": [],
+        "slices": [
+          {
+            "name": "counter",
+            "expressions": [
+              [
+                "expr:0",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        1,
+                        0
+                      ],
+                      [
+                        130,
+                        "double",
+                        1
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ],
+              [
+                "expr:1",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count",
+                      "$.event.amount"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        1,
+                        0
+                      ],
+                      [
+                        1,
+                        1
+                      ],
+                      [
+                        10
+                      ],
+                      [
+                        130,
+                        "double",
+                        1
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "events": [
+        {
+          "type": "INCREMENT",
+          "amount": 2
+        }
+      ],
+      "registry": {
+        "double": "double"
+      }
+    },
+    "expected": {
+      "state": "active",
+      "done": false,
+      "store": {
+        "counter": {
+          "count": 6
+        }
+      },
+      "queries": {
+        "counter": {
+          "doubled": 12
+        }
+      },
+      "effects": []
+    }
+  },
+  {
+    "name": "entry-exit-effects",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "flow",
+          "expressionEngine": "yexp",
+          "initial": "idle",
+          "actions": {
+            "report": {
+              "type": "log",
+              "message": "expr:0"
+            }
+          },
+          "states": {
+            "idle": {
+              "entry": {
+                "type": "log",
+                "message": "expr:1"
+              },
+              "exit": {
+                "type": "log",
+                "message": "expr:2"
+              },
+              "on": {
+                "GO": [
+                  {
+                    "guard": {
+                      "condition": {
+                        "type": "compare",
+                        "op": ">",
+                        "left": {
+                          "type": "ref",
+                          "path": "event.value"
+                        },
+                        "right": 0
+                      }
+                    },
+                    "target": "done",
+                    "actions": [
+                      "report",
+                      {
+                        "type": "host.event",
+                        "name": "expr:3",
+                        "data": {
+                          "value": "expr:4"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "done": {
+              "type": "final",
+              "entry": {
+                "type": "log",
+                "message": "expr:5"
+              }
+            }
+          }
+        },
+        "expressions": [
+          [
+            "expr:0",
+            {
+              "engine": "yexp",
+              "artifactVersion": 1,
+              "program": {
+                "version": 1,
+                "slots": [
+                  "$.event.value"
+                ],
+                "constants": [],
+                "code": [
+                  [
+                    70,
+                    0
+                  ],
+                  [
+                    200
+                  ]
+                ]
+              }
+            }
+          ],
+          [
+            "expr:1",
+            {
+              "engine": "yexp",
+              "artifactVersion": 1,
+              "program": {
+                "version": 1,
+                "slots": [],
+                "constants": [
+                  "start"
+                ],
+                "code": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    200
+                  ]
+                ]
+              }
+            }
+          ],
+          [
+            "expr:2",
+            {
+              "engine": "yexp",
+              "artifactVersion": 1,
+              "program": {
+                "version": 1,
+                "slots": [],
+                "constants": [
+                  "exit"
+                ],
+                "code": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    200
+                  ]
+                ]
+              }
+            }
+          ],
+          [
+            "expr:3",
+            {
+              "engine": "yexp",
+              "artifactVersion": 1,
+              "program": {
+                "version": 1,
+                "slots": [],
+                "constants": [
+                  "complete"
+                ],
+                "code": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    200
+                  ]
+                ]
+              }
+            }
+          ],
+          [
+            "expr:4",
+            {
+              "engine": "yexp",
+              "artifactVersion": 1,
+              "program": {
+                "version": 1,
+                "slots": [
+                  "$.event.value"
+                ],
+                "constants": [],
+                "code": [
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    200
+                  ]
+                ]
+              }
+            }
+          ],
+          [
+            "expr:5",
+            {
+              "engine": "yexp",
+              "artifactVersion": 1,
+              "program": {
+                "version": 1,
+                "slots": [],
+                "constants": [
+                  "done"
+                ],
+                "code": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    200
+                  ]
+                ]
+              }
+            }
+          ]
+        ],
+        "slices": []
+      },
+      "events": [
+        {
+          "type": "GO",
+          "value": -1
+        },
+        {
+          "type": "GO",
+          "value": 3
+        }
+      ]
+    },
+    "expected": {
+      "state": "done",
+      "done": true,
+      "store": {},
+      "queries": {},
+      "effects": [
+        {
+          "type": "log",
+          "params": {
+            "type": "log",
+            "message": "start"
+          }
+        },
+        {
+          "type": "log",
+          "params": {
+            "type": "log",
+            "message": "exit"
+          }
+        },
+        {
+          "type": "log",
+          "params": {
+            "type": "log",
+            "message": 4
+          }
+        },
+        {
+          "type": "host.event",
+          "params": {
+            "type": "host.event",
+            "name": "complete",
+            "data": {
+              "value": 3
+            }
+          }
+        },
+        {
+          "type": "log",
+          "params": {
+            "type": "log",
+            "message": "done"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "global-transition",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "global",
+          "expressionEngine": "yexp",
+          "initial": "idle",
+          "on": {
+            "FINISH": "done"
+          },
+          "states": {
+            "idle": {},
+            "done": {
+              "type": "final"
+            }
+          }
+        },
+        "expressions": [],
+        "slices": []
+      },
+      "events": [
+        {
+          "type": "FINISH"
+        }
+      ]
+    },
+    "expected": {
+      "state": "done",
+      "done": true,
+      "store": {},
+      "queries": {},
+      "effects": []
+    }
+  },
+  {
+    "name": "always-transition",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "always",
+          "expressionEngine": "yexp",
+          "initial": "idle",
+          "states": {
+            "idle": {
+              "always": [
+                {
+                  "target": "done"
+                }
+              ]
+            },
+            "done": {
+              "type": "final"
+            }
+          }
+        },
+        "expressions": [],
+        "slices": []
+      },
+      "events": []
+    },
+    "expected": {
+      "state": "done",
+      "done": true,
+      "store": {},
+      "queries": {},
+      "effects": []
+    }
+  },
+  {
+    "name": "simultaneous-mutation",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "swap",
+          "expressionEngine": "yexp",
+          "initial": "active",
+          "store": {
+            "data": {
+              "context": {
+                "a": 1,
+                "b": 2
+              },
+              "mutations": {
+                "swap": {
+                  "a": "expr:0",
+                  "b": "expr:1"
+                }
+              }
+            }
+          },
+          "states": {
+            "active": {
+              "on": {
+                "SWAP": {
+                  "actions": [
+                    {
+                      "type": "mutation",
+                      "name": "swap"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "expressions": [],
+        "slices": [
+          {
+            "name": "data",
+            "expressions": [
+              [
+                "expr:0",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.b"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        1,
+                        0
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ],
+              [
+                "expr:1",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.a"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        1,
+                        0
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "events": [
+        {
+          "type": "SWAP"
+        }
+      ]
+    },
+    "expected": {
+      "state": "active",
+      "done": false,
+      "store": {
+        "data": {
+          "a": 2,
+          "b": 1
+        }
+      },
+      "queries": {
+        "data": {}
+      },
+      "effects": []
+    }
+  },
+  {
+    "name": "bad-bytecode-version",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 999,
+          "slots": [],
+          "constants": [],
+          "code": [
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "error": {
+        "code": "INVALID_ARTIFACT"
+      }
+    }
+  },
+  {
+    "name": "unsupported-opcode",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [],
+          "code": [
+            [
+              112
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "error": {
+        "code": "UNSUPPORTED_FEATURE"
+      }
+    }
+  },
+  {
+    "name": "invalid-constant-reference",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [],
+          "code": [
+            [
+              0,
+              100
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "error": {
+        "code": "INVALID_INSTRUCTION"
+      }
+    }
+  },
+  {
+    "name": "length-object-error",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            "a",
+            1
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              101,
+              1
+            ],
+            [
+              130,
+              "length",
+              1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "error": {
+        "code": "TYPE_ERROR",
+        "message": "length requires a string or array"
+      }
+    }
+  },
+  {
+    "name": "round-decimals-error",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            1.2,
+            "bad"
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              130,
+              "round",
+              2
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "error": {
+        "code": "TYPE_ERROR",
+        "message": "Expected a number"
+      }
+    }
+  },
+  {
+    "name": "min-empty-error",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [],
+          "code": [
+            [
+              130,
+              "min",
+              0
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "error": {
+        "code": "TYPE_ERROR",
+        "message": "Invalid arity for min"
+      }
+    }
+  },
+  {
+    "name": "max-empty-error",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [],
+          "code": [
+            [
+              130,
+              "max",
+              0
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "error": {
+        "code": "TYPE_ERROR",
+        "message": "Invalid arity for max"
+      }
+    }
+  },
+  {
+    "name": "length-error",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            3
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              130,
+              "length",
+              1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "error": {
+        "code": "TYPE_ERROR",
+        "message": "length requires a string or array"
+      }
+    }
+  },
+  {
+    "name": "abs-error",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            "3"
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              130,
+              "abs",
+              1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "error": {
+        "code": "TYPE_ERROR",
+        "message": "Expected a number"
+      }
+    }
+  },
+  {
+    "name": "host-function-error",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            "bad"
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              130,
+              "double",
+              1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {},
+      "registry": {
+        "double": "double"
+      }
+    },
+    "expected": {
+      "error": {
+        "code": "TYPE_ERROR",
+        "message": "double requires a number"
+      }
+    }
+  },
+  {
+    "name": "surrogate-index-error",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.text[0]"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "text": "😀"
+      }
+    },
+    "expected": {
+      "error": {
+        "code": "UNSUPPORTED_FEATURE"
+      }
+    }
+  },
+  {
+    "name": "ascii-string-index",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.text[1]"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "text": "abc"
+      }
+    },
+    "expected": {
+      "value": "b"
+    }
+  },
+  {
+    "name": "guard-primitive-boolean",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.a"
+          ],
+          "constants": [
+            false
+          ],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              30
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "a": false
+      }
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "name": "bad-machine-version",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 99,
+        "definition": {
+          "id": "counter",
+          "expressionEngine": "yexp",
+          "initial": "active",
+          "store": {
+            "counter": {
+              "context": {
+                "count": 0
+              },
+              "queries": {
+                "doubled": "expr:0"
+              },
+              "mutations": {
+                "increment": {
+                  "count": "expr:1"
+                }
+              }
+            }
+          },
+          "states": {
+            "active": {
+              "on": {
+                "INCREMENT": {
+                  "actions": [
+                    {
+                      "type": "mutation",
+                      "name": "increment"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "expressions": [],
+        "slices": [
+          {
+            "name": "counter",
+            "expressions": [
+              [
+                "expr:0",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        62,
+                        0,
+                        2
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ],
+              [
+                "expr:1",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count",
+                      "$.event.amount"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        1,
+                        0
+                      ],
+                      [
+                        1,
+                        1
+                      ],
+                      [
+                        10
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "events": []
+    },
+    "expected": {
+      "error": {
+        "code": "INVALID_ARTIFACT"
+      }
+    }
+  },
+  {
+    "name": "unsupported-nested-state",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "nested",
+          "expressionEngine": "yexp",
+          "initial": "outer",
+          "states": {
+            "outer": {
+              "initial": "inner",
+              "states": {
+                "inner": {}
+              }
+            }
+          }
+        },
+        "expressions": [],
+        "slices": []
+      },
+      "events": []
+    },
+    "expected": {
+      "error": {
+        "code": "UNSUPPORTED_FEATURE"
+      }
+    }
+  },
+  {
+    "name": "missing-slice",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "counter",
+          "expressionEngine": "yexp",
+          "initial": "active",
+          "store": {
+            "counter": {
+              "context": {
+                "count": 0
+              },
+              "queries": {
+                "doubled": "expr:0"
+              },
+              "mutations": {
+                "increment": {
+                  "count": "expr:1"
+                }
+              }
+            }
+          },
+          "states": {
+            "active": {
+              "on": {
+                "INCREMENT": {
+                  "actions": [
+                    {
+                      "type": "mutation",
+                      "name": "increment"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "expressions": [],
+        "slices": []
+      },
+      "events": []
+    },
+    "expected": {
+      "error": {
+        "code": "INVALID_ARTIFACT"
+      }
+    }
+  },
+  {
+    "name": "duplicate-slice",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "counter",
+          "expressionEngine": "yexp",
+          "initial": "active",
+          "store": {
+            "counter": {
+              "context": {
+                "count": 0
+              },
+              "queries": {
+                "doubled": "expr:0"
+              },
+              "mutations": {
+                "increment": {
+                  "count": "expr:1"
+                }
+              }
+            }
+          },
+          "states": {
+            "active": {
+              "on": {
+                "INCREMENT": {
+                  "actions": [
+                    {
+                      "type": "mutation",
+                      "name": "increment"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "expressions": [],
+        "slices": [
+          {
+            "name": "counter",
+            "expressions": [
+              [
+                "expr:0",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        62,
+                        0,
+                        2
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ],
+              [
+                "expr:1",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count",
+                      "$.event.amount"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        1,
+                        0
+                      ],
+                      [
+                        1,
+                        1
+                      ],
+                      [
+                        10
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          },
+          {
+            "name": "counter",
+            "expressions": [
+              [
+                "expr:0",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        62,
+                        0,
+                        2
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ],
+              [
+                "expr:1",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count",
+                      "$.event.amount"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        1,
+                        0
+                      ],
+                      [
+                        1,
+                        1
+                      ],
+                      [
+                        10
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "events": []
+    },
+    "expected": {
+      "error": {
+        "code": "INVALID_ARTIFACT"
+      }
+    }
+  },
+  {
+    "name": "query-cycle",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "counter",
+          "expressionEngine": "yexp",
+          "initial": "active",
+          "store": {
+            "counter": {
+              "context": {
+                "count": 0
+              },
+              "queries": {
+                "a": "expr:0",
+                "b": "expr:1"
+              }
+            }
+          },
+          "states": {
+            "active": {}
+          }
+        },
+        "expressions": [],
+        "slices": [
+          {
+            "name": "counter",
+            "expressions": [
+              [
+                "expr:0",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.queries.b"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        1,
+                        0
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ],
+              [
+                "expr:1",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.queries.a"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        1,
+                        0
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "events": []
+    },
+    "expected": {
+      "error": {
+        "code": "INVALID_ARTIFACT"
+      }
+    }
+  },
+  {
+    "name": "abs-extra-arg-error",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            1,
+            2
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              130,
+              "abs",
+              2
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "error": {
+        "code": "TYPE_ERROR",
+        "message": "Invalid arity for abs"
+      }
+    }
+  },
+  {
+    "name": "toString-no-arg-error",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [],
+          "code": [
+            [
+              130,
+              "toString",
+              0
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "error": {
+        "code": "TYPE_ERROR",
+        "message": "Invalid arity for toString"
+      }
+    }
+  },
+  {
+    "name": "round-extra-arg-error",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            1,
+            2,
+            3
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              130,
+              "round",
+              3
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "error": {
+        "code": "TYPE_ERROR",
+        "message": "Invalid arity for round"
+      }
+    }
+  },
+  {
+    "name": "toString-small-number",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            1e-7
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              130,
+              "toString",
+              1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "value": "1e-7"
+    }
+  },
+  {
+    "name": "toString-large-number",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [],
+          "constants": [
+            1e+21
+          ],
+          "code": [
+            [
+              0,
+              0
+            ],
+            [
+              130,
+              "toString",
+              1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {}
+    },
+    "expected": {
+      "value": "1e+21"
+    }
+  },
+  {
+    "name": "nonfinite-host-output",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.value"
+          ],
+          "constants": [],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              130,
+              "double",
+              1
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "value": 1e+308
+      },
+      "registry": {
+        "double": "double"
+      }
+    },
+    "expected": {
+      "error": {
+        "code": "TYPE_ERROR",
+        "message": "Portable artifacts require finite JSON values and plain objects"
+      }
+    }
+  },
+  {
+    "name": "unsupported-lambda",
+    "request": {
+      "mode": "expression",
+      "expression": {
+        "engine": "yexp",
+        "artifactVersion": 1,
+        "program": {
+          "version": 1,
+          "slots": [
+            "$.items"
+          ],
+          "constants": [
+            {
+              "__lambda": true,
+              "program": {
+                "version": 1,
+                "slots": [
+                  "item"
+                ],
+                "constants": [],
+                "code": [
+                  [
+                    62,
+                    0,
+                    2
+                  ],
+                  [
+                    200
+                  ]
+                ]
+              },
+              "params": [
+                "item"
+              ]
+            }
+          ],
+          "code": [
+            [
+              1,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              130,
+              "map",
+              2
+            ],
+            [
+              200
+            ]
+          ]
+        }
+      },
+      "scope": {
+        "items": [
+          1,
+          2
+        ]
+      }
+    },
+    "expected": {
+      "error": {
+        "code": "UNSUPPORTED_FEATURE",
+        "message": "Lambdas are outside the native profile"
+      }
+    }
+  },
+  {
+    "name": "named-guard",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "guard",
+          "expressionEngine": "yexp",
+          "initial": "idle",
+          "guards": {
+            "allowed": {
+              "condition": {
+                "type": "compare",
+                "op": "===",
+                "left": {
+                  "type": "ref",
+                  "path": "event.allowed"
+                },
+                "right": true
+              }
+            }
+          },
+          "states": {
+            "idle": {
+              "on": {
+                "GO": [
+                  {
+                    "guard": "allowed",
+                    "target": "done"
+                  }
+                ]
+              }
+            },
+            "done": {
+              "type": "final"
+            }
+          }
+        },
+        "expressions": [],
+        "slices": []
+      },
+      "events": [
+        {
+          "type": "GO",
+          "allowed": false
+        },
+        {
+          "type": "GO",
+          "allowed": true
+        }
+      ]
+    },
+    "expected": {
+      "state": "done",
+      "done": true,
+      "store": {},
+      "queries": {},
+      "effects": []
+    }
+  },
+  {
+    "name": "multiple-slices",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "slices",
+          "expressionEngine": "yexp",
+          "initial": "active",
+          "store": {
+            "one": {
+              "context": {
+                "count": 1
+              },
+              "mutations": {
+                "add": {
+                  "count": "expr:0"
+                }
+              }
+            },
+            "two": {
+              "context": {
+                "count": 10
+              },
+              "mutations": {
+                "add": {
+                  "count": "expr:1"
+                }
+              }
+            }
+          },
+          "states": {
+            "active": {
+              "on": {
+                "GO": {
+                  "actions": [
+                    {
+                      "type": "mutation",
+                      "name": "one.add"
+                    },
+                    {
+                      "type": "mutation",
+                      "name": "two.add"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "expressions": [],
+        "slices": [
+          {
+            "name": "one",
+            "expressions": [
+              [
+                "expr:0",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        70,
+                        0
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          },
+          {
+            "name": "two",
+            "expressions": [
+              [
+                "expr:1",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        60,
+                        0,
+                        2
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "events": [
+        {
+          "type": "GO"
+        }
+      ]
+    },
+    "expected": {
+      "state": "active",
+      "done": false,
+      "store": {
+        "one": {
+          "count": 2
+        },
+        "two": {
+          "count": 12
+        }
+      },
+      "queries": {
+        "one": {},
+        "two": {}
+      },
+      "effects": []
+    }
+  },
+  {
+    "name": "internal-transition",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "internal",
+          "expressionEngine": "yexp",
+          "initial": "one",
+          "states": {
+            "one": {
+              "exit": {
+                "type": "log",
+                "message": "expr:0"
+              },
+              "on": {
+                "GO": {
+                  "target": "two",
+                  "internal": true
+                }
+              }
+            },
+            "two": {
+              "entry": {
+                "type": "log",
+                "message": "expr:1"
+              }
+            }
+          }
+        },
+        "expressions": [
+          [
+            "expr:0",
+            {
+              "engine": "yexp",
+              "artifactVersion": 1,
+              "program": {
+                "version": 1,
+                "slots": [],
+                "constants": [
+                  "exit"
+                ],
+                "code": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    200
+                  ]
+                ]
+              }
+            }
+          ],
+          [
+            "expr:1",
+            {
+              "engine": "yexp",
+              "artifactVersion": 1,
+              "program": {
+                "version": 1,
+                "slots": [],
+                "constants": [
+                  "entry"
+                ],
+                "code": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    200
+                  ]
+                ]
+              }
+            }
+          ]
+        ],
+        "slices": []
+      },
+      "events": [
+        {
+          "type": "GO"
+        }
+      ]
+    },
+    "expected": {
+      "state": "two",
+      "done": false,
+      "store": {},
+      "queries": {},
+      "effects": []
+    }
+  },
+  {
+    "name": "guard-truthiness-zero",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "zero",
+          "expressionEngine": "yexp",
+          "initial": "idle",
+          "guards": {
+            "allowed": {
+              "condition": "event.value"
+            }
+          },
+          "states": {
+            "idle": {
+              "on": {
+                "GO": [
+                  {
+                    "guard": "allowed",
+                    "target": "done"
+                  }
+                ]
+              }
+            },
+            "done": {
+              "type": "final"
+            }
+          }
+        },
+        "expressions": [],
+        "slices": []
+      },
+      "events": [
+        {
+          "type": "GO",
+          "value": 0
+        }
+      ]
+    },
+    "expected": {
+      "state": "idle",
+      "done": false,
+      "store": {},
+      "queries": {},
+      "effects": []
+    }
+  },
+  {
+    "name": "guard-loose-equality",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "coerce",
+          "expressionEngine": "yexp",
+          "initial": "idle",
+          "guards": {
+            "allowed": {
+              "condition": {
+                "type": "compare",
+                "op": "==",
+                "left": {
+                  "type": "ref",
+                  "path": "event.value"
+                },
+                "right": 3
+              }
+            }
+          },
+          "states": {
+            "idle": {
+              "on": {
+                "GO": [
+                  {
+                    "guard": "allowed",
+                    "target": "done"
+                  }
+                ]
+              }
+            },
+            "done": {
+              "type": "final"
+            }
+          }
+        },
+        "expressions": [],
+        "slices": []
+      },
+      "events": [
+        {
+          "type": "GO",
+          "value": "3"
+        }
+      ]
+    },
+    "expected": {
+      "state": "done",
+      "done": true,
+      "store": {},
+      "queries": {},
+      "effects": []
+    }
+  },
+  {
+    "name": "initial-final",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "final",
+          "expressionEngine": "yexp",
+          "initial": "done",
+          "states": {
+            "done": {
+              "type": "final"
+            }
+          }
+        },
+        "expressions": [],
+        "slices": []
+      },
+      "events": []
+    },
+    "expected": {
+      "state": "done",
+      "done": true,
+      "store": {},
+      "queries": {},
+      "effects": []
+    }
+  },
+  {
+    "name": "final-is-terminal",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "terminal",
+          "expressionEngine": "yexp",
+          "initial": "idle",
+          "on": {
+            "RESET": "idle"
+          },
+          "states": {
+            "idle": {
+              "on": {
+                "FINISH": "done"
+              }
+            },
+            "done": {
+              "type": "final"
+            }
+          }
+        },
+        "expressions": [],
+        "slices": []
+      },
+      "events": [
+        {
+          "type": "FINISH"
+        },
+        {
+          "type": "RESET"
+        }
+      ]
+    },
+    "expected": {
+      "state": "done",
+      "done": true,
+      "store": {},
+      "queries": {},
+      "effects": []
+    }
+  },
+  {
+    "name": "initial-final-always-terminal",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "terminal-always",
+          "expressionEngine": "yexp",
+          "initial": "done",
+          "states": {
+            "done": {
+              "type": "final",
+              "always": [
+                {
+                  "target": "active"
+                }
+              ]
+            },
+            "active": {}
+          }
+        },
+        "expressions": [],
+        "slices": []
+      },
+      "events": []
+    },
+    "expected": {
+      "state": "done",
+      "done": true,
+      "store": {},
+      "queries": {},
+      "effects": []
+    }
+  },
+  {
+    "name": "guard-ordered-scalar-coercion",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "ordered",
+          "expressionEngine": "yexp",
+          "initial": "idle",
+          "states": {
+            "idle": {
+              "on": {
+                "GO": {
+                  "target": "done",
+                  "guard": {
+                    "condition": {
+                      "type": "compare",
+                      "op": ">",
+                      "left": {
+                        "type": "ref",
+                        "path": "event.amount"
+                      },
+                      "right": "2"
+                    }
+                  }
+                }
+              }
+            },
+            "done": {
+              "type": "final"
+            }
+          }
+        },
+        "expressions": [],
+        "slices": []
+      },
+      "events": [
+        {
+          "type": "GO",
+          "amount": 3
+        }
+      ]
+    },
+    "expected": {
+      "state": "done",
+      "done": true,
+      "store": {},
+      "queries": {},
+      "effects": []
+    }
+  },
+  {
+    "name": "slice-flatten-order",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "flatten",
+          "expressionEngine": "yexp",
+          "initial": "idle",
+          "store": {
+            "z": {
+              "context": {
+                "count": 1
+              },
+              "queries": {
+                "shared": "expr:2"
+              }
+            },
+            "a": {
+              "context": {
+                "count": 10,
+                "shared": 2
+              }
+            }
+          },
+          "states": {
+            "idle": {
+              "on": {
+                "GO": {
+                  "actions": [
+                    {
+                      "type": "log",
+                      "message": "expr:0"
+                    },
+                    {
+                      "type": "log",
+                      "message": "expr:1"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "expressions": [
+          [
+            "expr:0",
+            {
+              "engine": "yexp",
+              "artifactVersion": 1,
+              "program": {
+                "version": 1,
+                "slots": [
+                  "$.context.count"
+                ],
+                "constants": [],
+                "code": [
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    200
+                  ]
+                ]
+              }
+            }
+          ],
+          [
+            "expr:1",
+            {
+              "engine": "yexp",
+              "artifactVersion": 1,
+              "program": {
+                "version": 1,
+                "slots": [
+                  "$.context.shared"
+                ],
+                "constants": [],
+                "code": [
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    200
+                  ]
+                ]
+              }
+            }
+          ]
+        ],
+        "slices": [
+          {
+            "name": "z",
+            "expressions": [
+              [
+                "expr:2",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [],
+                    "constants": [
+                      7
+                    ],
+                    "code": [
+                      [
+                        0,
+                        0
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          },
+          {
+            "name": "a",
+            "expressions": []
+          }
+        ]
+      },
+      "events": [
+        {
+          "type": "GO"
+        }
+      ]
+    },
+    "expected": {
+      "state": "idle",
+      "done": false,
+      "store": {
+        "z": {
+          "count": 1
+        },
+        "a": {
+          "count": 10,
+          "shared": 2
+        }
+      },
+      "queries": {
+        "z": {
+          "shared": 7
+        },
+        "a": {}
+      },
+      "effects": [
+        {
+          "type": "log",
+          "params": {
+            "type": "log",
+            "message": 10
+          }
+        },
+        {
+          "type": "log",
+          "params": {
+            "type": "log",
+            "message": 7
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "unsupported-slice-sources",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "counter",
+          "expressionEngine": "yexp",
+          "initial": "active",
+          "store": {
+            "counter": {
+              "context": {
+                "count": 0
+              },
+              "queries": {
+                "doubled": "expr:0"
+              },
+              "mutations": {
+                "increment": {
+                  "count": "expr:1"
+                }
+              },
+              "sources": {}
+            }
+          },
+          "states": {
+            "active": {
+              "on": {
+                "INCREMENT": {
+                  "actions": [
+                    {
+                      "type": "mutation",
+                      "name": "increment"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "expressions": [],
+        "slices": [
+          {
+            "name": "counter",
+            "expressions": [
+              [
+                "expr:0",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        62,
+                        0,
+                        2
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ],
+              [
+                "expr:1",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count",
+                      "$.event.amount"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        1,
+                        0
+                      ],
+                      [
+                        1,
+                        1
+                      ],
+                      [
+                        10
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "events": []
+    },
+    "expected": {
+      "error": {
+        "code": "UNSUPPORTED_FEATURE"
+      }
+    }
+  },
+  {
+    "name": "unsupported-conditional-action",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "counter",
+          "expressionEngine": "yexp",
+          "initial": "active",
+          "store": {
+            "counter": {
+              "context": {
+                "count": 0
+              },
+              "queries": {
+                "doubled": "expr:0"
+              },
+              "mutations": {
+                "increment": {
+                  "count": "expr:1"
+                }
+              }
+            }
+          },
+          "states": {
+            "active": {
+              "on": {
+                "INCREMENT": {
+                  "actions": [
+                    {
+                      "type": "mutation",
+                      "name": "increment"
+                    }
+                  ]
+                }
+              },
+              "entry": {
+                "type": "log",
+                "message": "literal",
+                "condition": "false"
+              }
+            }
+          }
+        },
+        "expressions": [],
+        "slices": [
+          {
+            "name": "counter",
+            "expressions": [
+              [
+                "expr:0",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        62,
+                        0,
+                        2
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ],
+              [
+                "expr:1",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count",
+                      "$.event.amount"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        1,
+                        0
+                      ],
+                      [
+                        1,
+                        1
+                      ],
+                      [
+                        10
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "events": []
+    },
+    "expected": {
+      "error": {
+        "code": "UNSUPPORTED_FEATURE"
+      }
+    }
+  },
+  {
+    "name": "invalid-on-table",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "counter",
+          "expressionEngine": "yexp",
+          "initial": "active",
+          "store": {
+            "counter": {
+              "context": {
+                "count": 0
+              },
+              "queries": {
+                "doubled": "expr:0"
+              },
+              "mutations": {
+                "increment": {
+                  "count": "expr:1"
+                }
+              }
+            }
+          },
+          "states": {
+            "active": {
+              "on": []
+            }
+          }
+        },
+        "expressions": [],
+        "slices": [
+          {
+            "name": "counter",
+            "expressions": [
+              [
+                "expr:0",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        62,
+                        0,
+                        2
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ],
+              [
+                "expr:1",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count",
+                      "$.event.amount"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        1,
+                        0
+                      ],
+                      [
+                        1,
+                        1
+                      ],
+                      [
+                        10
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "events": []
+    },
+    "expected": {
+      "error": {
+        "code": "INVALID_ARTIFACT"
+      }
+    }
+  },
+  {
+    "name": "unsupported-unused-action",
+    "request": {
+      "mode": "machine",
+      "artifact": {
+        "format": "statepack.compiled",
+        "version": 1,
+        "definition": {
+          "id": "counter",
+          "expressionEngine": "yexp",
+          "initial": "active",
+          "store": {
+            "counter": {
+              "context": {
+                "count": 0
+              },
+              "queries": {
+                "doubled": "expr:0"
+              },
+              "mutations": {
+                "increment": {
+                  "count": "expr:1"
+                }
+              }
+            }
+          },
+          "states": {
+            "active": {
+              "on": {
+                "INCREMENT": {
+                  "actions": [
+                    {
+                      "type": "mutation",
+                      "name": "increment"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "actions": {
+            "unused": {
+              "type": "assign",
+              "values": {
+                "count": "1"
+              }
+            }
+          }
+        },
+        "expressions": [],
+        "slices": [
+          {
+            "name": "counter",
+            "expressions": [
+              [
+                "expr:0",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        62,
+                        0,
+                        2
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ],
+              [
+                "expr:1",
+                {
+                  "engine": "yexp",
+                  "artifactVersion": 1,
+                  "program": {
+                    "version": 1,
+                    "slots": [
+                      "$.context.count",
+                      "$.event.amount"
+                    ],
+                    "constants": [],
+                    "code": [
+                      [
+                        1,
+                        0
+                      ],
+                      [
+                        1,
+                        1
+                      ],
+                      [
+                        10
+                      ],
+                      [
+                        200
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "events": []
+    },
+    "expected": {
+      "error": {
+        "code": "UNSUPPORTED_FEATURE"
+      }
+    }
+  }
+]

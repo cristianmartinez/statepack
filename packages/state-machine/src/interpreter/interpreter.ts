@@ -1,3 +1,4 @@
+import type { ExpressionFunctionRegistry } from "@statepack/expressions";
 import {
   type CompiledStore,
   type SignalStoreInstance,
@@ -37,6 +38,7 @@ import {
  * Options for the interpreter
  */
 export interface SignalInterpreterOptions {
+  expressionFunctions?: ExpressionFunctionRegistry;
   /** Execute side effects */
   execute?: (effect: ActionEffect) => Promise<void>;
   /** Called on state transitions */
@@ -126,6 +128,7 @@ export class SignalInterpreter {
     if (this.compiledStore) {
       this._store = createSignalStoreInstance(this.compiledStore, {
         parent: options.parentStore as SignalStoreInstance | undefined,
+        expressionFunctions: options.expressionFunctions,
       });
     }
 
@@ -134,7 +137,7 @@ export class SignalInterpreter {
 
     // Initialize state signals
     this.state = signal(initialState.value);
-    this.done = signal(false);
+    this.done = signal(initialState.done);
     this.lastEvent = signal<Event | undefined>(undefined);
 
     // Initialize meta and children from initial state
@@ -265,6 +268,8 @@ export class SignalInterpreter {
       console.warn("Cannot send event to stopped machine");
       return;
     }
+
+    if (this.done.value) return;
 
     const normalizedEvent: Event = typeof event === "string" ? { type: event } : event;
 
@@ -441,19 +446,23 @@ export class SignalInterpreter {
       store: this._store,
       compiled: this.compiled,
       namedStores: this.options.namedStores,
+      expressionFunctions: this.options.expressionFunctions,
     });
 
     // Update store contexts with results using signal updates
-    if (this._store && Object.keys(result.context).length > 0) {
+    // Mutations already commit to their owning slice. Only assign actions need
+    // deferred writes; merged scope/query values must never be broadcast as data.
+    const updates = result.assignments ?? {};
+    if (this._store && Object.keys(updates).length > 0) {
       // For single-slice store, update that slice
       if (this._store.contexts.size === 1) {
         const [sliceName] = this._store.contexts.keys();
-        updateSignalContext(this._store, sliceName!, result.context);
+        updateSignalContext(this._store, sliceName!, updates);
       } else {
         // Multi-slice: results should specify which slice to update
         // For now, merge into all slices (TODO: improve this)
         for (const sliceName of this._store.contexts.keys()) {
-          updateSignalContext(this._store, sliceName, result.context);
+          updateSignalContext(this._store, sliceName, updates);
         }
       }
     }
@@ -531,6 +540,7 @@ export class SignalInterpreter {
    * Check and execute always transitions (async)
    */
   private async checkAlwaysTransitions(): Promise<void> {
+    if (this.done.value) return;
     const nodes = getActiveStateNodes(this.machine, this.state.value);
     const guardCtx = createGuardContext(
       {

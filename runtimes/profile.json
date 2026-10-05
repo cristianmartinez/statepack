@@ -1,0 +1,9 @@
+{
+  "id": "statepack.native/1",
+  "artifactVersion": 1,
+  "bytecodeVersion": 1,
+  "supportedOpcodes": [0,1,2,3,10,11,12,13,14,15,20,30,31,32,33,34,35,36,37,40,41,42,43,50,51,52,53,54,55,56,57,60,61,62,63,64,70,71,80,81,82,83,90,91,92,93,100,101,110,111,116,117,130,200],
+  "functions": ["length","abs","floor","ceil","round","min","max","toString"],
+  "unsupported": ["hierarchical and parallel states","timers and async invocations","actors","durable instance snapshots","lambda and higher-order collection functions","spread, wildcard and recursive-descent opcodes","mutation opcodes","object identity comparisons","surrogate string indexing"],
+  "limits": {"instructions":100000,"transitions":1000}
+}

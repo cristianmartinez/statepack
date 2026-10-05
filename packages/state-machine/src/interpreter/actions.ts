@@ -1,6 +1,6 @@
 import { evaluate as evalCondition, type Condition } from "@statepack/conditions";
 import { type SignalStoreInstance, executeSignalMutation } from "@statepack/data";
-import { evaluateCompiled } from "@statepack/expressions";
+import { evaluateCompiled, type ExpressionFunctionRegistry } from "@statepack/expressions";
 import type { CompiledCache } from "../compiler/types";
 import type { Action, Actions } from "../schema/types";
 import type { Event } from "./state";
@@ -32,6 +32,8 @@ export interface ActionContext {
  * Result of executing actions
  */
 export interface ActionResult {
+  /** Deferred assign updates; mutations commit directly to their owning slice. */
+  assignments?: Record<string, unknown>;
   /** Updated context after assign actions */
   context: Record<string, unknown>;
   /** Events to raise immediately */
@@ -61,6 +63,7 @@ export interface ActionExecutor {
  * Options for executing actions
  */
 export interface ExecuteActionsOptions {
+  expressionFunctions?: ExpressionFunctionRegistry;
   namedActions: Record<string, Action | Action[]>;
   store?: SignalStoreInstance;
   compiled?: CompiledCache;
@@ -77,6 +80,7 @@ export async function executeActions(
 ): Promise<ActionResult> {
   const result: ActionResult = {
     context: { ...ctx.context },
+    assignments: {},
     raisedEvents: [],
     sentEvents: [],
     effects: [],
@@ -99,7 +103,7 @@ async function executeAction(
   options: ExecuteActionsOptions,
   result: ActionResult
 ): Promise<void> {
-  const { namedActions, store, compiled, namedStores } = options;
+  const { namedActions, store, compiled, namedStores, expressionFunctions } = options;
 
   // String reference to named action
   if (typeof action === "string") {
@@ -135,15 +139,15 @@ async function executeAction(
 
   switch (actionType) {
     case "assign":
-      await handleAssign(actionObj, ctx, result, compiled);
+      await handleAssign(actionObj, ctx, result, compiled, expressionFunctions);
       break;
 
     case "raise":
-      await handleRaise(actionObj, ctx, result, compiled);
+      await handleRaise(actionObj, ctx, result, compiled, expressionFunctions);
       break;
 
     case "send":
-      await handleSend(actionObj, ctx, result, compiled);
+      await handleSend(actionObj, ctx, result, compiled, expressionFunctions);
       break;
 
     case "conditional":
@@ -172,7 +176,7 @@ async function executeAction(
     case "spawn":
     case "sendTo":
     case "stop":
-      await handleEffect(actionObj, ctx, result, compiled);
+      await handleEffect(actionObj, ctx, result, compiled, expressionFunctions);
       break;
 
     default:
@@ -184,7 +188,8 @@ async function handleAssign(
   action: Record<string, unknown>,
   ctx: ActionContext,
   result: ActionResult,
-  compiled?: CompiledCache
+  compiled?: CompiledCache,
+  functions?: ExpressionFunctionRegistry
 ): Promise<void> {
   const values = action.values as Record<string, unknown>;
   if (!values) return;
@@ -196,8 +201,9 @@ async function handleAssign(
         context: result.context,
         event: ctx.event,
       },
-      compiled
+      compiled, functions
     );
+    (result.assignments ??= {})[key] = result.context[key];
   }
 }
 
@@ -205,7 +211,8 @@ async function handleRaise(
   action: Record<string, unknown>,
   ctx: ActionContext,
   result: ActionResult,
-  compiled?: CompiledCache
+  compiled?: CompiledCache,
+  functions?: ExpressionFunctionRegistry
 ): Promise<void> {
   const eventType = (await resolveValue(
     action.event,
@@ -213,7 +220,7 @@ async function handleRaise(
       context: result.context,
       event: ctx.event,
     },
-    compiled
+    compiled, functions
   )) as string;
 
   const payload = action.payload
@@ -223,7 +230,7 @@ async function handleRaise(
           context: result.context,
           event: ctx.event,
         },
-        compiled
+        compiled, functions
       )
     : {};
 
@@ -234,7 +241,8 @@ async function handleSend(
   action: Record<string, unknown>,
   ctx: ActionContext,
   result: ActionResult,
-  compiled?: CompiledCache
+  compiled?: CompiledCache,
+  functions?: ExpressionFunctionRegistry
 ): Promise<void> {
   const eventType = (await resolveValue(
     action.event,
@@ -242,7 +250,7 @@ async function handleSend(
       context: result.context,
       event: ctx.event,
     },
-    compiled
+    compiled, functions
   )) as string;
 
   const payload = action.payload
@@ -252,7 +260,7 @@ async function handleSend(
           context: result.context,
           event: ctx.event,
         },
-        compiled
+        compiled, functions
       )
     : {};
 
@@ -338,6 +346,7 @@ async function handleMutation(
 
     // Merge mutation results into result.context
     Object.assign(result.context, mutationResult);
+    for (const key of Object.keys(mutationResult)) delete result.assignments?.[key];
   } catch (error) {
     console.warn(`Mutation "${mutationName}" failed:`, error);
   }
@@ -347,7 +356,8 @@ async function handleEffect(
   action: Record<string, unknown>,
   ctx: ActionContext,
   result: ActionResult,
-  compiled?: CompiledCache
+  compiled?: CompiledCache,
+  functions?: ExpressionFunctionRegistry
 ): Promise<void> {
   // Resolve all template values in the action params
   const resolvedParams = await resolveValues(
@@ -356,7 +366,7 @@ async function handleEffect(
       context: result.context,
       event: ctx.event,
     },
-    compiled
+    compiled, functions
   );
 
   result.effects.push({
@@ -371,24 +381,25 @@ async function handleEffect(
 async function resolveValue(
   value: unknown,
   scope: { context: Record<string, unknown>; event: Event },
-  compiled?: CompiledCache
+  compiled?: CompiledCache,
+  functions?: ExpressionFunctionRegistry
 ): Promise<unknown> {
   if (typeof value === "string") {
     // All strings are JSONata expressions - look up in compiled cache
     const cached = compiled?.expressions.get(value);
     if (cached) {
-      return await evaluateCompiled(cached.compiled, scope);
+      return await evaluateCompiled(cached.compiled, scope, { functions });
     }
     // Not in cache (not a valid expression) - return as-is
     return value;
   }
 
   if (Array.isArray(value)) {
-    return await Promise.all(value.map((v) => resolveValue(v, scope, compiled)));
+    return await Promise.all(value.map((v) => resolveValue(v, scope, compiled, functions)));
   }
 
   if (value !== null && typeof value === "object") {
-    return await resolveValues(value as Record<string, unknown>, scope, compiled);
+    return await resolveValues(value as Record<string, unknown>, scope, compiled, functions);
   }
 
   return value;
@@ -400,14 +411,15 @@ async function resolveValue(
 async function resolveValues(
   obj: Record<string, unknown>,
   scope: { context: Record<string, unknown>; event: Event },
-  compiled?: CompiledCache
+  compiled?: CompiledCache,
+  functions?: ExpressionFunctionRegistry
 ): Promise<Record<string, unknown>> {
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(obj)) {
     if (key === "type" || key === "condition") {
       result[key] = value; // Don't resolve these
     } else {
-      result[key] = await resolveValue(value, scope, compiled);
+      result[key] = await resolveValue(value, scope, compiled, functions);
     }
   }
   return result;

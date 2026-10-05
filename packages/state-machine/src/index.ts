@@ -67,3 +67,8 @@ export {
   validateMachine,
   validateMiniApp,
 } from "./schema/index";
+
+export {
+  compileMachineArtifact, serializeMachine, loadMachineArtifact,
+  type PortableMachineArtifact, type PortableExpressionEntry,
+} from "./compiler/artifact";

@@ -44,7 +44,7 @@ export function createInitialState(machine: Machine): State {
   return {
     value: initialValue,
     context: {}, // Context is managed by Store
-    done: false,
+    done: typeof initialValue === "string" && machine.states[initialValue]?.type === "final",
     meta: collectMeta(machine.states, initialValue),
     children: new Map(),
   };

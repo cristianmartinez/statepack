@@ -339,6 +339,7 @@ export type GuardDefinition = z.infer<typeof GuardDefinitionSchema>;
  * Each Slice has its own context, queries, and mutations.
  */
 export const MachineSchema = z.object({
+  expressionEngine: z.enum(["jsonata", "yexp"]).optional(),
   id: z.string(),
   initial: z.string(),
   /** Store with named slices (each slice has context, queries, mutations) */

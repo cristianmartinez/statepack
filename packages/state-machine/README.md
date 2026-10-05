@@ -60,3 +60,27 @@ guard, mutation, and timer examples.
 
 External effects are passed to the interpreter's `execute` callback. Their
 behavior depends on the host implementation.
+
+## Yexp expressions
+
+Set `expressionEngine: "yexp"` on a machine definition to use Yexp for store
+queries, mutations, and compiled action values. Omit the field to retain JSONata.
+Guards continue to use the existing structured condition schema.
+
+For example, the counter above can select Yexp and define its increment mutation
+as `"$.context.count + 1"`. Event payloads are available through `$.event`.
+Standalone data/store compilation also accepts `{ engine: "yexp" }` as its
+second argument. Reactive queries continue to track the current context and
+query signals broadly.
+
+Yexp expression artifacts survive a JSON round trip. Use `compileMachineArtifact`
+to export a complete machine as JSON and `loadMachineArtifact` to load it without
+recompiling expressions. Existing runtime `CompiledMachine` and `CompiledStore`
+objects still contain Maps; use `serializeMachine` to export a compiled machine.
+See [portable compiled artifacts](../../docs/compiled-artifacts.md) for the format,
+examples, and current compatibility limits.
+
+This integration retains the existing action-value convention: strings that
+compile are evaluated as expressions. For Yexp action parameters, quote literal
+strings inside the expression (for example, `"\"greeting\""`), since a bare
+identifier is a lookup. Explicit expression wrappers are still protocol work.

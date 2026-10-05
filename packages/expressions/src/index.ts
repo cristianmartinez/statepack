@@ -20,3 +20,13 @@ export type {
 
 // Utilities
 export { getPath, isPathReference, resolveFromScope, setPath } from "./utils";
+
+export {
+  compileWithEngine, jsonataEngine, yexpEngine,
+  type CompiledExpression, type CompiledYexpExpression,
+  type ExpressionEngine, type ExpressionEngineId, type CompileExpressionOptions,
+} from "./engine";
+
+export { assertPortableJson, loadYexpExpression } from "./artifact";
+
+export { ExpressionFunctionRegistry, ExpressionFunctionError, createPrimitiveRegistry, type ExpressionFunction, type JsonValue } from "./registry";

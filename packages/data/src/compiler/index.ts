@@ -1,6 +1,7 @@
 import {
-  compileExpression as compileJSONataExpression,
-  type CompiledJSONataExpression,
+  compileWithEngine as compileEngineExpression,
+  type CompileExpressionOptions,
+  type CompiledExpression as EngineCompiledExpression,
 } from "@statepack/expressions";
 import type { Context, Mutations, Queries, Sources } from "../schema";
 
@@ -9,7 +10,7 @@ import type { Context, Mutations, Queries, Sources } from "../schema";
  */
 export interface CompiledExpression {
   source: string;
-  compiled: CompiledJSONataExpression;
+  compiled: EngineCompiledExpression;
 }
 
 /**
@@ -60,7 +61,7 @@ export function isCompiledData(value: unknown): value is CompiledData {
  * - Mutation expressions (context key assignments)
  * - Dynamic header values in sources
  */
-export function compileData(data: DataDefinition): CompiledData {
+export function compileData(data: DataDefinition, options: CompileExpressionOptions = {}): CompiledData {
   const compiled: CompiledData["compiled"] = {
     expressions: new Map(),
   };
@@ -68,7 +69,7 @@ export function compileData(data: DataDefinition): CompiledData {
   // Compile queries (each query is a JSONata expression string)
   if (data.queries) {
     for (const queryExpr of Object.values(data.queries)) {
-      compileValue(queryExpr, compiled);
+      compileValue(queryExpr, compiled, options);
     }
   }
 
@@ -76,7 +77,7 @@ export function compileData(data: DataDefinition): CompiledData {
   if (data.mutations) {
     for (const mutation of Object.values(data.mutations)) {
       for (const expr of Object.values(mutation)) {
-        compileValue(expr, compiled);
+        compileValue(expr, compiled, options);
       }
     }
   }
@@ -86,7 +87,7 @@ export function compileData(data: DataDefinition): CompiledData {
     for (const source of Object.values(data.sources)) {
       if (source.headers) {
         for (const headerValue of Object.values(source.headers)) {
-          compileValue(headerValue, compiled);
+          compileValue(headerValue, compiled, options);
         }
       }
     }
@@ -104,24 +105,25 @@ export function compileData(data: DataDefinition): CompiledData {
  * Compile a value (can be string expression, array, or object)
  * All strings are treated as JSONata expressions
  */
-function compileValue(value: unknown, compiled: CompiledData["compiled"]): void {
+function compileValue(value: unknown, compiled: CompiledData["compiled"], options: CompileExpressionOptions): void {
   if (typeof value === "string") {
     // All strings are JSONata expressions
     if (!compiled.expressions.has(value)) {
       try {
-        const compiledExpr = compileJSONataExpression(value);
+        const compiledExpr = compileEngineExpression(value, options);
         compiled.expressions.set(value, { source: value, compiled: compiledExpr });
-      } catch {
+      } catch (error) {
+        if (options.engine === "yexp") throw error;
         // Not a valid expression, skip compilation
       }
     }
   } else if (Array.isArray(value)) {
     for (const item of value) {
-      compileValue(item, compiled);
+      compileValue(item, compiled, options);
     }
   } else if (value !== null && typeof value === "object") {
     for (const v of Object.values(value as Record<string, unknown>)) {
-      compileValue(v, compiled);
+      compileValue(v, compiled, options);
     }
   }
 }

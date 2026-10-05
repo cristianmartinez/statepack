@@ -1,6 +1,6 @@
 import type { Condition } from "@statepack/conditions";
 import type { CompiledStore } from "@statepack/data";
-import type { CompiledJSONataExpression } from "@statepack/expressions";
+import type { ExpressionEngineId, CompiledExpression as EngineCompiledExpression } from "@statepack/expressions";
 import type { Machine } from "../schema/types";
 
 /**
@@ -13,10 +13,11 @@ export interface CompiledMachine {
   /** Pre-compiled artifacts */
   compiled: {
     /** Map of guard condition strings → parsed Condition AST */
+    engine?: ExpressionEngineId;
     guards: Map<string, { source: string; ast: Condition }>;
 
     /** Map of expression strings → compiled JSONata expression */
-    expressions: Map<string, { source: string; compiled: CompiledJSONataExpression }>;
+    expressions: Map<string, { source: string; compiled: EngineCompiledExpression }>;
   };
 
   /** Compiled store (slices with context, queries, mutations) */
@@ -32,7 +33,7 @@ export interface CompiledMachine {
  */
 export interface CompiledCache {
   guards: Map<string, { source: string; ast: Condition }>;
-  expressions: Map<string, { source: string; compiled: CompiledJSONataExpression }>;
+  expressions: Map<string, { source: string; compiled: EngineCompiledExpression }>;
 }
 
 /**
