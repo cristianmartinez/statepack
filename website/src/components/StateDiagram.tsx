@@ -79,6 +79,15 @@ export default function StateDiagram({
           d = `M${from.x - 19} ${from.y - 25} C${from.x - 68} ${from.y - 91}, ${from.x + 68} ${from.y - 91}, ${from.x + 19} ${from.y - 25}`;
           tx = from.x;
           ty = from.y - 70;
+          const siblings = edges.filter(
+            (item) => item.from === edge.from && item.to === edge.from,
+          );
+          if (siblings.length > 1 && names.length === 1) {
+            const direction = siblings.indexOf(edge) % 2 === 0 ? -1 : 1;
+            d = `M${from.x + direction * 25} ${from.y - 24} C${from.x + direction * 110} ${from.y - 75}, ${from.x + direction * 110} ${from.y + 75}, ${from.x + direction * 25} ${from.y + 24}`;
+            tx = from.x + direction * 102;
+            ty = from.y - 8;
+          }
         } else if (names.length === 2) {
           const dx = to.x > from.x ? 1 : -1;
           d = `M${from.x + dx * 31} ${from.y + side * 16} Q250 ${from.y + side * 92} ${to.x - dx * 31} ${to.y + side * 16}`;

@@ -283,7 +283,7 @@ export default function Playground() {
       <div className="workbench">
         <div className="workbench-toolbar">
           <div className="example-picker">
-            <label htmlFor="example">EXAMPLE</label>
+            <label htmlFor="example">PLAYGROUND</label>
             <select
               id="example"
               value={example}
@@ -301,7 +301,8 @@ export default function Playground() {
           </div>
           <div className="workbench-controls">
             <span className="runtime-status">
-              <i className="signal-dot" /> REAL STATEPACK RUNTIME
+              <i className="signal-dot" />{" "}
+              {ready ? "ENGINE READY" : "ENGINE PAUSED"}
             </span>
             <button
               className="small-button"
@@ -314,6 +315,53 @@ export default function Playground() {
           </div>
         </div>
         <div className="workbench-body">
+          <aside className="examples-sidebar" aria-label="Example machines">
+            <span className="field-label">EXAMPLES</span>
+            {Object.entries(examples).map(([key, value], i) => (
+              <button
+                key={key}
+                className={`example-item ${example === key ? "selected" : ""}`}
+                onClick={() => changeExample(key)}
+                aria-pressed={example === key}
+              >
+                <span className="example-number">0{i + 1}</span>
+                <span>
+                  <strong>{value.label}</strong>
+                  <small>
+                    {
+                      [
+                        "Two states, one event",
+                        "Guards & mutations",
+                        "Branching transitions",
+                      ][i]
+                    }
+                  </small>
+                </span>
+                <span className="example-arrow" aria-hidden="true">
+                  →
+                </span>
+              </button>
+            ))}
+            <div className="sidebar-guide">
+              <span className="field-label">TRY THIS</span>
+              <ol>
+                <li>Choose a machine</li>
+                <li>Send an event on the right</li>
+                <li>Edit its JSON definition</li>
+                <li>Apply and run it again</li>
+              </ol>
+              <a
+                href="https://github.com/cristianmartinez/statepack/blob/main/packages/state-machine/README.md"
+                target="_blank"
+                rel="noopener"
+              >
+                Definition reference ↗
+              </a>
+            </div>
+            <div className="sidebar-bottom">
+              <span className="mini-dot" /> Browser runtime
+            </div>
+          </aside>
           <div className="definition-pane">
             <div className="pane-heading">
               <span>
@@ -387,14 +435,17 @@ export default function Playground() {
                 onClick={() => void apply()}
                 disabled={busy}
               >
-                Apply changes <span aria-hidden="true">↗</span>
+                Apply changes <span aria-hidden="true">↵</span>
               </button>
             </div>
           </div>
           <div className="runtime-pane">
             <div className="pane-heading">
-              <span>RUNNING MACHINE</span>
-              <span className="live-tag">{ready ? "LIVE" : "PAUSED"}</span>
+              <span>State graph</span>
+              <span className="live-tag">
+                <i className="signal-dot" />
+                {ready ? "RUNNING" : "PAUSED"}
+              </span>
             </div>
             <div className="machine-diagram">
               <StateDiagram machine={machine} state={snapshot.state} />
@@ -414,7 +465,7 @@ export default function Playground() {
               </div>
             </div>
             <div className="event-panel">
-              <span className="field-label">SEND AN EVENT</span>
+              <span className="field-label">EVENTS</span>
               <div className="event-buttons">
                 {events.length ? (
                   events.map((event) => (
@@ -458,7 +509,7 @@ export default function Playground() {
             </div>
             <div className="event-log">
               <div className="log-heading">
-                <span className="field-label">EVENT LOG</span>
+                <span className="field-label">TRANSITION LOG</span>
                 <button className="icon-button" onClick={() => setLogs([])}>
                   Clear
                 </button>

@@ -29,8 +29,8 @@ void main() {
   float radius=length(p-vec2(0.05+sin(t)*0.05,0.02));
   float cloud=1.0-smoothstep(0.10,0.62,radius+field*0.14);
   float stripe=sin((field*0.72+radius*1.3)*75.0);
-  vec3 paper=vec3(0.83,0.87,0.76);
-  vec3 olive=vec3(0.63,0.71,0.52);
+  vec3 paper=vec3(0.89,0.91,0.94);
+  vec3 olive=vec3(0.58,0.65,0.75);
   vec3 warm=vec3(0.92,0.46,0.27);
   vec3 color=mix(paper,olive,smoothstep(0.24,0.7,field)*0.72);
   color=mix(color,warm,cloud*0.80);
